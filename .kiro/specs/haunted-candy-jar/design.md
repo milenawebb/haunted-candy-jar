@@ -2,14 +2,14 @@
 
 ## Overview
 
-Haunted Candy Jar is a React + TypeScript + Vite single-page application that renders a to-do list as a glass jar of Halloween candies. Every visual asset is generated in code (CSS, inline SVG, Canvas 2D); every sound is synthesised via the Web Audio API. The app is fully client-side with no backend: data lives in `localStorage`, and the finished build is a static bundle deployable to Cloudflare Pages.
+Haunted Candy Jar is a React + TypeScript + Vite single-page application that renders a to-do list as a glass jar of candy monsters standing on a candlelit purple desk. Every visual asset is generated in code (CSS, inline SVG, Canvas 2D) with one exception: `public/images/desk-scene.png` (1672x941) is the single allowed bitmap asset and serves as the full-bleed background. Every sound is synthesised via the Web Audio API. The app is fully client-side with no backend: data lives in `localStorage`, and the finished build is a static bundle deployable to Cloudflare Pages.
 
 The design is organised around four concerns:
 
-1. **Core data model and pure logic** — `Task`, `DecayStage`, and the pure `decayFunction` that maps a task + timestamp → stage.
-2. **State machine** — a `useReducer`-based store that owns all mutations (create, complete, edit, delete, undo, focus, settings).
-3. **Rendering layer** — React components responsible for the jar scene, individual candy shapes, overlays, focus mode, and ambient scene.
-4. **Services** — side-effect modules (persistence, audio, export/import) that the reducer dispatches into via effects.
+1. **Core data model and pure logic**, `Task`, `DecayStage`, and the pure `decayFunction` that maps a task + timestamp → stage.
+2. **State machine**, a `useReducer`-based store that owns all mutations (create, complete, edit, delete, undo, focus, settings).
+3. **Rendering layer**, React components responsible for the jar scene, individual candy shapes, overlays, focus mode, and ambient scene.
+4. **Services**, side-effect modules (persistence, audio, export/import) that the reducer dispatches into via effects.
 
 ### Key design decisions
 
@@ -18,8 +18,8 @@ The design is organised around four concerns:
 | State management | `useReducer` + React Context | No external library needed; reducer is a pure function, easy to unit-test; keeps dependency count low for a hackathon |
 | Persistence | `localStorage` (JSON) | Simpler API than IndexedDB; ≤24 tasks fit well inside the 5–10 MB limit; synchronous reads keep startup fast |
 | Property-based testing library | `fast-check` + `@fast-check/vitest` | Standard pairing for TypeScript + Vitest; first-class arbitrary generators; shrinking built-in |
-| Visual rendering | Inline SVG for candy shapes; CSS keyframe animations for decay overlays; Canvas 2D for shatter particles | SVG stays crisp at any DPI; CSS GPU-composited animations hit 60 fps without JS; Canvas gives per-frame control for the burst effect |
-| Sound synthesis | Web Audio API — `OscillatorNode`, `GainNode`, `BiquadFilterNode`, `StereoPannerNode` | Zero file payload; API is universally supported on target browsers; sufficient for spooky synth tones |
+| Visual rendering | One bitmap background (`desk-scene.png`); inline SVG for the jar and candy monsters; CSS keyframe animations for decay glow and wisps; Canvas 2D for shatter particles | SVG stays crisp at any DPI; CSS GPU-composited animations hit 60 fps without JS; Canvas gives per-frame control for the burst effect; the single photo-style background gives the scene its richness without a large asset pipeline |
+| Sound synthesis | Web Audio API, `OscillatorNode`, `GainNode`, `BiquadFilterNode`, `StereoPannerNode` | Zero file payload; API is universally supported on target browsers; sufficient for spooky synth tones |
 
 ---
 
@@ -27,7 +27,7 @@ The design is organised around four concerns:
 
 ### Mood
 
-Cozy-creepy candy shop at midnight. The scene holds two opposing light sources in tension: warm amber candlelight (bottom-left) and cold blue-white moonlight (top-right). The background sits in deep plum and near-black tones. The result is familiar and inviting at first glance, then unsettling on closer inspection — exactly right for a Halloween task manager.
+Cozy-creepy candy desk at midnight. The scene holds two opposing light sources in tension: warm amber candlelight (melting candles on the left) and cold blue-white moonlight (the window on the right). The background sits in deep plum and near-black tones. The result is familiar and inviting at first glance, then unsettling on closer inspection, exactly right for a Halloween task manager.
 
 ### Color Palette
 
@@ -39,41 +39,47 @@ Cozy-creepy candy shop at midnight. The scene holds two opposing light sources i
 | Candlelight amber | `color-candle-deep` | `#C85A00` |
 | Moonlight cool | `color-moon` | `#B8D4FF` |
 | Moonlight accent | `color-moon-deep` | `#6090CC` |
-| Candy: pumpkin | `flavor-pumpkin` | `#FF6B2B` |
-| Candy: witch | `flavor-witch` | `#7B2FBE` |
-| Candy: blood | `flavor-blood` | `#C0392B` |
-| Candy: slime | `flavor-slime` | `#39D353` |
-| Candy: bone | `flavor-bone` | `#F5F0DC` |
-| Candy: moonlight | `flavor-moonlight` | `#8FB8FF` |
+| Glass body tint | `color-glass` | `rgba(190, 220, 255, 0.18)` |
+| Glass rim highlight | `color-glass-rim` | `#DCEBFF` |
+| Bandage linen | `color-bandage` | `#EFE6D2` |
+| Bandage ink | `color-bandage-ink` | `#2B2118` |
+| Monster: pumpkin | `monster-pumpkin` | `#FF7A1F` |
+| Monster: mummy | `monster-mummy` | `#E8DCC0` |
+| Monster: skeleton | `monster-skeleton` | `#F2EEE2` |
+| Monster: spider | `monster-spider` | `#5B2A86` |
+| Monster: frankenstein | `monster-frankenstein` | `#6FCB4F` |
+| Monster: vampire | `monster-vampire` | `#B3203A` |
+| Monster: bat | `monster-bat` | `#3C2F63` |
+| Monster: gravestone | `monster-gravestone` | `#8E93A3` |
 
-The former `midnight` color (`#1A1A2E`) has been replaced by `moonlight` (`#8FB8FF`). Midnight was near-invisible against the dark background; moonlight is a soft blue used for cool accent highlights and moonlight glow effects. All six `FlavorColor` values are verified visually distinct and legible against the deep-plum/near-black background.
+The old `flavor-*` tokens are removed. Monster tokens are the base body color of each monster's radial gradient. Each monster is told apart by its shape (face, bandages, ribs, legs, bolts, fangs, wings, rounded tombstone top) and not by color alone. Decay glow uses a purple that is not a token of its own: it is derived from the `monster-spider` hue at render time.
 
 ### Typography
 
 | Role | Font | Delivery |
 |---|---|---|
 | App title + large section headings only | **Creepster** (Google Fonts, OFL) | Self-hosted: `public/fonts/Creepster-Regular.woff2` |
-| Task titles, body, UI labels, metadata | **Inter** (Google Fonts / Rasmus Andersson, OFL) | Self-hosted: `public/fonts/Inter-VariableFont.woff2` |
+| Task titles (bandage notes and list rows), body, UI labels, metadata | **Inter** (Google Fonts / Rasmus Andersson, OFL) | Self-hosted: `public/fonts/Inter-VariableFont.woff2` |
 
-Both fonts are bundled at build time via Vite's static asset pipeline (`@font-face` declarations in `src/styles/fonts.css`). No runtime fetch from Google CDN occurs — the app functions fully offline after first load.
+Both fonts are bundled at build time via Vite's static asset pipeline (`@font-face` declarations in `src/styles/fonts.css`). No runtime fetch from Google CDN occurs, the app functions fully offline after first load.
 
-Creepster is used **only** for the app title ("Haunted Candy Jar") and large section headings. It is **not** used for task titles anywhere in the UI. Task titles — on candy tags and in List View — use Inter at a minimum of 12 px. Inter is used for all other UI chrome: buttons, labels, the settings panel, the focus mode countdown, and form fields.
+Creepster is used **only** for the app title ("Haunted Candy Jar") and large section headings. It is **not** used for task titles anywhere in the UI. Task titles (on bandage notes and in List View) use Inter at a minimum of 12 px. Inter is used for all other UI chrome: buttons, labels, the settings panel, the focus mode countdown, and form fields.
 
 ### Lighting Direction
 
-Candlelight originates from **bottom-left**; moonlight originates from **top-right**. This direction governs every element in the scene:
+Candlelight originates from the **left** (the melting candles in the desk scene); moonlight originates from the **right** (the window). This direction governs every element in the scene:
 
 - **Specular highlights** on candy surfaces sit near the **top-left** edge (catching both sources but weighted toward the nearer candle).
 - **Inner shadows / darkening** accumulate on the **bottom-right** edge.
-- The jar glass shows a warm reflection arc on its left interior wall and a cool blue-white reflection on its right rim.
-- Ghost figures in the ambient scene cast soft warm shadows downward-right.
+- The jar glass shows a warm candle glow on its left side and a faint window reflection on its right side.
+- Optional code-drawn ghost overlays cast soft warm shadows downward-right.
 
 ### Shadow Style
 
 Each interactive element carries **two layered drop shadows**:
 
-1. **Near shadow** — 1–2 px offset, candlelight amber (`rgba(200, 90, 0, 0.35)`), sharp, low spread. Simulates the close candleflame.
-2. **Far shadow** — 4–8 px offset, cool blue-gray (`rgba(80, 100, 150, 0.2)`), large blur, represents the distant moonlight fill.
+1. **Near shadow**, 1–2 px offset, candlelight amber (`rgba(200, 90, 0, 0.35)`), sharp, low spread. Simulates the close candleflame.
+2. **Far shadow**, 4–8 px offset, cool blue-gray (`rgba(80, 100, 150, 0.2)`), large blur, represents the distant moonlight fill.
 
 Candy items additionally have a **contact shadow** directly below on the jar floor: a soft dark ellipse (`rgba(0,0,0,0.4)`, blur 6 px), scaled to candy width.
 
@@ -85,41 +91,49 @@ The app is structured as a feature-first module layout inside `src/`:
 
 ```
 src/
-├── main.tsx                  # Vite entry — mounts <App />
+├── main.tsx                  # Vite entry, mounts <App />
 ├── App.tsx                   # Root: wraps providers, renders scene + jar
 ├── styles/
 │   └── fonts.css             # @font-face declarations for Creepster + Inter (self-hosted)
 ├── features/
 │   ├── tasks/
-│   │   ├── taskTypes.ts      # Task, DecayStage, FlavorColor — pure types
+│   │   ├── taskTypes.ts      # Task, DecayStage, MonsterKind (pure types)
 │   │   ├── taskReducer.ts    # AppReducer (pure, no side-effects)
 │   │   ├── decayFunction.ts  # Pure: (Task, logicalNow) → DecayStage (derived, not stored)
 │   │   ├── taskStore.tsx     # Context + provider, wires reducer ↔ persistence
 │   │   └── sampleData.ts     # Six sample candies for demo mode
 │   ├── candy/
-│   │   ├── CandyShape.tsx    # SVG candy body (round swirl / twist-wrap / gumdrop) by task ID + FlavorColor
-│   │   ├── CandyTag.tsx      # Paper tag on string (truncated title, cream/yellowed SVG)
-│   │   ├── DecayOverlay.tsx  # Cobweb / goo / face by DecayStage
+│   │   ├── MonsterShape.tsx  # Dispatches to one of 8 SVG candy monsters by task.monster
+│   │   ├── monsters/         # PumpkinMonster, MummyMonster, SkeletonMonster, SpiderMonster, FrankensteinMonster, VampireMonster, BatMonster, GravestoneMonster
+│   │   ├── BandageNote.tsx   # Mummy-bandage note (linen strip, frayed edges, tilt, tail toward candy)
+│   │   ├── DecayOverlay.tsx  # Per-stage look: dull, faint purple glow, strong glow + wisps, grey + cracks + glow
 │   │   ├── CandyCrack.tsx    # Animated crack SVG (press-and-hold progress)
 │   │   ├── GhostCheer.tsx    # Ghost sprite post-completion
 │   │   └── CandyItem.tsx     # Composed candy + tag + overlays + gesture handling
 │   ├── jar/
-│   │   ├── JarScene.tsx      # Glass jar SVG with rim highlights and glass reflections
-│   │   ├── JarPile.tsx       # Precomputed packing layout, drop-in animation, overflow indicator
+│   │   ├── JarScene.tsx      # Composes JarBackGlass, candies (clipped), JarFrontGlass, JarLid, DeskGlow
+│   │   ├── JarBackGlass.tsx  # Back glass layer
+│   │   ├── JarFrontGlass.tsx # Front glass layer (rim, streaks, reflection, thick base)
+│   │   ├── JarLid.tsx        # Lid with round knob
+│   │   ├── DeskGlow.tsx      # Soft shadow and warm glow on the desk under the jar
+│   │   ├── LidAnimation.tsx  # Lid lift, tilt, settle; coordinates candy drop in / float out
+│   │   ├── JarPile.tsx       # Precomputed packing layout, drop-in animation, desk spill for extras
 │   │   ├── ListView.tsx      # Accessible <ul> list view (keyboard / screen reader primary)
 │   │   └── EmptyState.tsx    # Prompt shown when task list is empty
 │   ├── contextMenu/
 │   │   └── ContextMenu.tsx   # Complete / Focus / Edit / Delete (popover desktop, bottom sheet mobile)
 │   ├── forms/
-│   │   ├── AddTaskForm.tsx   # Title, due date, flavor color picker, shape picker — modal/bottom sheet
-│   │   └── EditTaskForm.tsx  # Same fields pre-populated, opened from context menu Edit action; shape picker writes to task.shape
+│   │   ├── MonsterPicker.tsx # Grid of 8 small monster buttons, each with an accessible name
+│   │   ├── AddTaskForm.tsx   # Title, due date, monster picker (modal / bottom sheet)
+│   │   └── EditTaskForm.tsx  # Same fields pre-populated, opened from context menu Edit action; picker writes to task.monster
 │   ├── focus/
 │   │   ├── FocusOverlay.tsx  # Darkened full-screen overlay
 │   │   ├── DurationPicker.tsx# 1–90 min input with 15/25/50 presets
 │   │   └── CandleTimer.tsx   # Animated burning candle / numerical fallback
 │   ├── scene/
-│   │   ├── AmbientScene.tsx  # Shelf, candlelight, fog, ghosts in CSS/SVG
-│   │   └── CandleGlow.tsx    # Pulsing radial gradient around candle
+│   │   ├── DeskBackground.tsx # Full-bleed desk-scene.png, top gradient, mobile object-position 82%
+│   │   ├── AmbientScene.tsx  # Optional code-drawn fog and ghost overlays on top of the background
+│   │   └── CandleGlow.tsx    # Pulsing radial gradient over the left candles
 │   ├── settings/
 │   │   ├── SettingsPanel.tsx # Sound toggle, haunt speed, export, import (bottom sheet on mobile)
 │   │   └── hauntClock.ts     # Logical clock with Haunt_Speed multiplier
@@ -127,7 +141,7 @@ src/
 │   │   └── UndoToast.tsx     # 6-second dismissible toast
 │   └── audio/
 │       ├── audioContext.ts   # Singleton AudioContext factory
-│       ├── sounds.ts         # Synthesised sound functions
+│       ├── sounds.ts         # Synthesised sound functions (includes lid creak and glass clink)
 │       └── whisperGain.ts    # Gain budget manager for Cursed-candy whispers
 ├── hooks/
 │   ├── usePressAndHold.ts    # Pointer + keyboard hold gesture with progress callback
@@ -136,9 +150,10 @@ src/
 └── utils/
     ├── persistence.ts        # localStorage read / write / error handling
     ├── exportImport.ts       # serializeTaskList / deserializeTaskList
-    ├── taskSchema.ts         # Zod schema for Task — used by import validation
+    ├── taskSchema.ts         # Zod schema for Task, used by import validation
     ├── idGen.ts              # crypto.randomUUID wrapper
-    ├── candyShape.ts         # Deterministic shape assignment: taskId → 'round'|'twist'|'gumdrop'
+    ├── monsterKind.ts        # MONSTER_KINDS list and taskIdToMonster(id): deterministic default monster
+    ├── (optional) icsParser.ts # Pure .ics parser for the calendar import feature
     └── packingLayout.ts      # Seeded packing layout computation (task IDs as seed)
 ```
 
@@ -147,17 +162,23 @@ src/
 ```mermaid
 graph TD
     App --> TaskStoreProvider
+    App --> DeskBackground
     App --> AmbientScene
     App --> JarScene
     App --> UndoToast
     App --> SettingsPanel
     TaskStoreProvider --> taskReducer
     TaskStoreProvider --> persistence
+    JarScene --> JarBackGlass
     JarScene --> JarPile
-    JarScene --> ListView
+    JarScene --> JarFrontGlass
+    JarScene --> JarLid
+    JarScene --> DeskGlow
+    JarScene --> LidAnimation
+    App --> ListView
     JarPile --> CandyItem
-    CandyItem --> CandyShape
-    CandyItem --> CandyTag
+    CandyItem --> MonsterShape
+    CandyItem --> BandageNote
     CandyItem --> DecayOverlay
     CandyItem --> CandyCrack
     CandyItem --> ContextMenu
@@ -231,7 +252,7 @@ type AppAction =
 
 ### CandyItem
 
-The core interactive component. Owns the press-and-hold gesture, renders the composed candy, and delegates to the context menu.
+The core interactive component. Owns the press-and-hold gesture, renders the composed candy, and delegates to the context menu. Tapping a candy lifts it out of the jar (translate up and slightly forward), reveals its `BandageNote`, and opens the `ContextMenu` beside it; dismissing the menu returns the candy to its slot. Press and hold for 0.8 s (or Space) cracks it; releasing early heals the cracks. Under reduced motion the lift is an instant state change.
 
 ```typescript
 interface CandyItemProps {
@@ -245,85 +266,112 @@ interface CandyItemProps {
 
 Internal state: `crackProgress` (0–1 float, drives the SVG crack overlay opacity/path depth).
 
-Each `CandyItem` renders a stacked composition: `CandyShape` (base SVG body) → `CandyTag` (paper tag with truncated title) → `DecayOverlay` (stage-specific visual) → `CandyCrack` (hold-progress overlay). The candy's tappable hit area is always at least 44×44 px regardless of visual size or rotation, enforced via a transparent hit-area `<rect>` in the SVG.
+Each `CandyItem` renders a stacked composition: `MonsterShape` (base SVG monster body) → `DecayOverlay` (stage-specific look) → `CandyCrack` (hold-progress overlay) → `BandageNote` (linen note with truncated title, shown when the candy is lifted or hovered/focused). The candy's tappable hit area is always at least 44×44 px regardless of visual size or rotation, enforced via a transparent hit-area `<rect>` in the SVG.
 
-### CandyShape
+### MonsterShape
 
-Renders one of three SVG candy body shapes, assigned deterministically from the task's `id` (using `candyShape.ts`'s `taskIdToShape(id)` function) so the shape is stable across renders and re-mounts.
+Renders one of eight SVG candy monsters. The kind comes from `task.monster` (a `MonsterKind`). `monsterKind.ts` also exports `taskIdToMonster(id)`, a deterministic hash of the id that is used to auto-assign a monster when the user does not choose one at creation time.
 
 ```typescript
-type CandyShapeVariant = 'round' | 'twist' | 'gumdrop';
+type MonsterKind =
+  | 'pumpkin' | 'mummy' | 'skeleton' | 'spider'
+  | 'frankenstein' | 'vampire' | 'bat' | 'gravestone';
 
-interface CandyShapeProps {
-  flavorColor: FlavorColor;
-  variant: CandyShapeVariant;
-  decayStage: DecayStage;   // drives CSS filter: saturate() for Dull stage
+interface MonsterShapeProps {
+  kind: MonsterKind;
+  decayStage: DecayStage;   // passed to DecayOverlay and to the shine controls
   size?: number;             // px, default 72 desktop / 60 mobile
 }
 ```
 
-#### Shape variants
+#### Monster designs (all original)
 
-**Round swirl hard candy** — circular SVG body. A radial gradient gives the flavor color a lighter center and darker edge. Two or three painted swirl lines fan from the center. A small white/near-white specular arc sits near the top-left (per lighting direction). An `feTurbulence`-based SVG filter adds a subtle sugar-crystal texture without raster images. A soft dark shadow curves around the bottom-right edge.
+| Kind | Silhouette and face |
+|---|---|
+| pumpkin | Round ribbed body, small stem, triangle eyes, jagged grin |
+| mummy | Rounded body wrapped in crossing bandage bands, two eyes peeking through a gap |
+| skeleton | Rounded skull body, big eye sockets, small nose gap, row of teeth |
+| spider | Round body with four short legs on each side, cluster of small eyes |
+| frankenstein | Flat-topped square-ish body, neck bolts on the sides, stitched brow and mouth |
+| vampire | Round body with a widow's-peak hairline, small fangs, tiny cape collar |
+| bat | Round body with two pointed wing shapes and small ears, tiny fangs |
+| gravestone | Arched tombstone body with a small cross and friendly eyes |
 
-**Twist-wrapped candy** — cylindrical pill with pointed twisted ends. A linear gradient runs along the length, lighter on the left (candlelight side), darker on the right. Diagonal highlight stripes simulate the twisted wrapper ridges. The same specular arc sits near the top-left of the cylinder body.
-
-**Gumdrop** — dome shape (half-ellipse over a flat base). A radial gradient brightens toward the top-center. A soft top highlight (white, low opacity) gives the jellied gloss. A subtle sugar texture via `feTurbulence`. Shadow pools at the base.
-
-All variants share:
-- Radial or linear gradient body using `flavor-*` color tokens
-- Sharp specular highlight arc near top-left (white, `opacity: 0.85`)
-- Soft inner shadow on bottom-right edge (`rgba(0,0,0,0.25)`)
-- Sugar texture / swirl pattern via SVG `<pattern>` or `feTurbulence` filter — no raster images
-- Contact shadow below on the jar floor (soft ellipse, `rgba(0,0,0,0.4)`, blur 6 px)
+All monsters share the hard-candy look:
+- Radial gradient body using the `monster-*` color token (lighter center, darker edge)
+- A bright specular highlight near the top-left (white, `opacity: 0.85`)
+- A small sparkle (four-point star) near the highlight
+- Soft inner shadow on the bottom-right edge (`rgba(0,0,0,0.25)`)
+- Contact shadow below (soft ellipse, `rgba(0,0,0,0.4)`, blur 6 px)
 - Default size: `72px` desktop, `60px` mobile
+- No raster images; SVG paths and gradients only
 
-### CandyTag
+### BandageNote
 
-A small paper tag attached to each candy by a thin SVG string. The tag is an SVG rectangle with a slightly torn/ragged bottom edge, filled with a cream/yellowed color (`#F5EDD0`). It displays the task title truncated to ~18 characters with an ellipsis.
+A "mummy bandage" note attached to each candy. It is an off-white linen strip (`color-bandage`) with a faint woven texture (SVG pattern), torn frayed edges (jagged SVG path ends), a slight tilt (2 to 4 degrees, stable per task ID), and a short bandage tail hanging toward its candy. It displays the task title truncated to about 18 characters with an ellipsis.
 
 ```typescript
-interface CandyTagProps {
+interface BandageNoteProps {
   title: string;
-  selected: boolean;   // when true, full title shown in the context menu, not the tag itself
+  tiltSeed: string;     // task id, used for the stable tilt
+  selected: boolean;    // when true, the full title is shown in the context menu, not the note itself
 }
 ```
 
-The tag tilts slightly (2–4° stable rotation per task ID) and the string is a short curved SVG path. Font: Inter, minimum 12 px, dark brown ink color.
+Font: Inter, minimum 12 px, ink color `color-bandage-ink` (dark). The `ListView` rows reuse the same bandage style (linen background, frayed ends, dark ink) through a shared CSS class so the two stay consistent.
 
 ### DecayOverlay
 
-Conditionally renders the stage-specific visual layer on top of a candy:
+Conditionally renders the stage-specific look on a candy. The five stages are `Fresh`, `Dull`, `Spooky`, `Haunted` and `Cursed`.
 
-| Stage | Overlay |
-|---|---|
-| Fresh | None |
-| Dull | CSS `filter: saturate(0.3)` applied to `CandyShape`, no overlay element |
-| Cobwebbed | Inline SVG cobweb path, white at 70% opacity |
-| Oozing | CSS `@keyframes` animated green drip path (`<path d="...">` with `stroke-dashoffset` animation) |
-| Cursed | SVG spooky face + CSS `wobble` keyframe (suppressed under `prefers-reduced-motion`) |
+| Stage | Stage number | Look |
+|---|---|---|
+| Fresh | 1 | Glossy, full highlight and sparkle, no glow |
+| Dull | 2 | Duller body, reduced highlight opacity, no glow |
+| Spooky | 3 | Faint purple glow halo (soft `drop-shadow` plus a radial gradient behind the candy) |
+| Haunted | 4 | Strong purple glow plus ghostly wisps (two or three translucent wavy SVG wisp paths rising from the candy, slow drift) |
+| Cursed | 5 | Mostly grey and darker body (`saturate` low, `brightness` down), dark crack lines across the body, and a purple glow |
 
-Each overlay also carries a distinguishing non-color attribute (shape, texture, or movement) to satisfy Requirement 12.6.
+Cursed cracks are a warning only: the task is still finished by press and hold, and the crack lines are drawn in a separate style from the hold-progress cracks of `CandyCrack`.
+
+Non-color distinguishing attributes (Requirement 7.12 and 12.6): the glow halo (stages 3 to 5), the wisp shapes (stage 4), and the crack lines (stage 5) are the shape and texture differences between adjacent stages. Stage 1 versus 2 differs by highlight and sparkle presence. Under `prefers-reduced-motion`, glow pulses and wisp drift are frozen into static shapes.
 
 ### JarPile and JarScene
 
-**JarScene** renders the glass jar as a tall SVG element. The jar body is a rounded rectangle with:
-- A thick glass rim at the top with a warm-left / cool-right reflection arc
-- Subtle internal glass reflection arcs on both walls (left: amber-tinted, right: blue-white)
-- A slight refraction tint on candies visible near the glass edges (5% desaturation + slight cool tint via CSS filter), applied only to candies whose packing position places them within ~12 px of the jar wall
+**JarScene** renders the glass jar as a tall SVG that stands on the empty middle of the desk in `desk-scene.png`. It is drawn in three layers, back to front:
+
+1. **Back glass** (`JarBackGlass`): the inner back wall, a faint tint (`color-glass`), and darker inner edges.
+2. **Candies** (`JarPile`): rendered inside an SVG `clipPath` that matches the jar's inside shape, so no candy pokes through the glass.
+3. **Front glass** (`JarFrontGlass`): a brighter rim on the sides (`color-glass-rim`), slightly darker edges, vertical light streaks, a faint window reflection on the right, and a thick glass base.
+
+On top sit the **lid with a round knob** (`JarLid`) and a warm candle glow on the left side of the glass. Under the jar, `DeskGlow` draws a soft shadow and a warm glow on the desk. A slight refraction tint on candies near the glass edges (5% desaturation plus a cool tint via CSS filter) applies only to candies whose packing position is within about 12 px of the jar wall.
 
 **JarPile** replaces the former `JarGrid`. Candies settle at the bottom of the jar in a precomputed packing layout:
-- Layout is computed once per task-set change by `packingLayout.ts`, using a seeded random number generator initialised with a hash of the full set of task IDs. The result is stable — the same set of tasks always produces the same positions.
+- Layout is computed once per task-set change by `packingLayout.ts`, using a seeded random number generator initialised with a hash of the full set of task IDs. The result is stable, the same set of tasks always produces the same positions.
 - Slight overlap between adjacent candies is permitted (max 10% of candy radius).
 - Each candy has a stable random rotation between ±15°, also seeded per task ID.
-- When a new candy is added, it **drops in from the lid** and animates to its computed position using a CSS spring transition (or `spring()` from a small physics helper). Under `prefers-reduced-motion`, the candy appears instantly at its final position.
+- When a new candy is added, `LidAnimation` lifts and tilts the lid, the candy **drops in from the lid** and animates to its computed position using a CSS spring transition (or `spring()` from a small physics helper), then the lid settles back. Under `prefers-reduced-motion`, the lid does not move and the candy fades in (150 ms max).
 - Every candy maintains a minimum 44×44 px tappable hit area regardless of visual size or rotation, enforced via a transparent SVG `<rect>` hit target.
 
-**Overflow (>24 visible candies):** when the task list exceeds 24 incomplete items, the jar interior becomes internally scrollable (CSS `overflow-y: scroll` with a scroll-snap boundary at the lid opening), and a "+N more" badge floats at the top of the pile to indicate hidden candies. All candies, visible or scrolled, remain individually selectable.
+**Overflow (>24 candies):** the jar holds 24 candies. When the task list exceeds 24 incomplete items, the extra candies spill onto the desk next to the jar (positions from `packingLayout.ts`, drawn outside the clip path, in front of the desk). There is no scrolling and no "+N more" badge. All candies, inside the jar or on the desk, remain individually selectable.
+
+### LidAnimation
+
+`src/features/jar/LidAnimation.tsx` owns the lid sequence and exposes it to `JarScene` and `JarPile`.
+
+- **Add:** lid lifts and tilts (CSS transform, about 350 ms), candy drops in with the existing spring bounce, lid settles back.
+- **Remove:** lid lifts and tilts, the candy floats out (completion and delete), lid settles back.
+- **Sounds (Web Audio only, off by default):** `playLidCreak()` plays when the lid opens: a short creaky door creak of about 0.5 s (sawtooth oscillator through a band-pass filter with a slow pitch wobble), with a slightly different base pitch each call (small random detune). `playGlassClink()` plays when the lid closes: a soft, short, high sine pair with a fast decay. Both check `soundEnabled` and return immediately when disabled.
+- **Reduced motion:** the lid does not move; candies fade in or out (150 ms max). The sounds still follow the Sound Toggle.
+- Multiple adds in a row (for example the optional calendar import) queue so the lid opens once per candy, one by one.
+
+### DeskBackground
+
+`src/features/scene/DeskBackground.tsx` renders `public/images/desk-scene.png` (1672x941) full-bleed with `object-fit: cover`. On mobile viewports it uses `object-position: 82% center` so the moonlit window shows behind the jar. A soft dark gradient at the top keeps the title readable. `desk-scene.png` is the single allowed bitmap asset.
 
 ### ListView
 
-An accessible `<ul>` list that shows all tasks sorted by decay stage (Cursed first). Each `<li>` shows: task title (Inter, minimum 12 px), due date if set, decay stage label as a `<span>` with an ARIA label, and a row of action buttons (Complete, Focus, Edit, Delete) that map to the same reducer actions as the context menu.
+An accessible `<ul>` list that shows all tasks sorted by decay stage (Cursed first). Rows use the same bandage style as `BandageNote` (linen strip, frayed ends, dark ink). Each `<li>` shows: task title (Inter, minimum 12 px), due date if set, decay stage label as a `<span>` with an ARIA label, and a row of action buttons (Complete, Focus, Edit, Delete) that map to the same reducer actions as the context menu.
 
 A **"List View" toggle button** sits in the top bar (desktop) or top bar (mobile), keyboard-reachable via Tab. Activating it swaps the main content region from `JarScene` to `ListView` and back. The jar view is the default. The toggle carries `aria-pressed` state.
 
@@ -334,8 +382,7 @@ Opens in a **modal** on desktop and a **bottom sheet** on mobile, triggered by t
 Fields:
 - **Title** (`<input type="text">`, required, inline validation on submit)
 - **Due date** (`<input type="date">`, optional)
-- **Flavor color** — a swatch grid of six color circles (labeled with color name via `aria-label`), keyboard navigable with arrow keys, selection indicated by a ring outline
-- **Candy shape** — three shape preview buttons (round, twist, gumdrop SVG thumbnails) letting the user override the deterministic default; selection indicated by a ring outline. Choosing a shape sets `task.shape` to the selected `CandyShapeVariant`; leaving the default unselected stores `null`, which causes `CandyItem` to call `taskIdToShape(id)` at render time.
+- **Monster picker** (`MonsterPicker`): a grid of 8 small monster buttons (pumpkin, mummy, skeleton, spider, frankenstein, vampire, bat, gravestone). Each button shows a small monster thumbnail, has an accessible name equal to the monster name (`aria-label`), carries `aria-pressed`, is at least 44x44 px, and is keyboard navigable with arrow keys; selection is indicated by a ring outline plus a check mark (not color alone). If the user does not choose, the form leaves the choice empty and `createTask` assigns one by `taskIdToMonster(id)`. The stored `task.monster` is always one of the 8 kinds.
 
 All fields are fully keyboard navigable. The form closes on Escape or Cancel without creating a task.
 
@@ -357,21 +404,21 @@ The animated variant draws a tall, thin SVG rectangle (the candle body) whose he
 
 ### ContextMenu
 
-Keyboard-accessible overlay with four buttons: Complete, Focus, Edit, Delete. On **desktop**, it is positioned adjacent to the candy using CSS absolute positioning within a relative-positioned jar slot. On **mobile**, it renders as a **bottom sheet** that slides up from the bottom edge of the viewport. Closes on `Escape` or outside click via a `useClickOutside` hook.
+Keyboard-accessible overlay with four buttons: Complete, Focus, Edit, Delete. It appears when a candy is tapped: the candy lifts out of the jar, its `BandageNote` is shown, and the menu sits beside them. Dismissing returns the candy to the jar. On **desktop**, it is positioned adjacent to the lifted candy using CSS absolute positioning within a relative-positioned jar slot. On **mobile**, it renders as a **bottom sheet** that slides up from the bottom edge of the viewport. Closes on `Escape` or outside click via a `useClickOutside` hook.
 
 ### UndoToast
 
 Displays a notification at the bottom of the screen. Owns a 6-second `setTimeout`; dispatches `UNDO_EXPIRED` on natural expiry. If a second action fires while visible, the first dispatch fires immediately and the toast re-mounts for the second action.
 
-### AmbientScene
+### AmbientScene (optional extras)
 
-A layered SVG `<svg>` covering the viewport background. Layers from back to front:
+The main scene is the `DeskBackground` image. `AmbientScene` is now an optional, code-drawn SVG overlay on top of it. Layers from back to front:
 
-1. Dark gradient sky (`<radialGradient>` warm amber → near-black)
-2. Wooden shelf planks (CSS `repeating-linear-gradient`)
-3. Candlelight glow (pulsing `<radialGradient>` via CSS animation)
-4. Fog ribbons (SVG `<path>` with slow horizontal `translate` keyframe; static under `prefers-reduced-motion`)
-5. Ghost figures (SVG `<g>` with gentle float animation; static under `prefers-reduced-motion`)
+1. Candlelight glow over the left candles (pulsing `<radialGradient>` via CSS animation; `CandleGlow`)
+2. Fog ribbons (SVG `<path>` with slow horizontal `translate` keyframe; static under `prefers-reduced-motion`)
+3. Ghost figures (SVG `<g>` with gentle float animation; static under `prefers-reduced-motion`)
+
+Fog and ghosts may be skipped without affecting any requirement.
 
 ---
 
@@ -381,10 +428,11 @@ The app adapts its chrome and navigation patterns for mobile viewports (< 768 px
 
 | Element | Desktop | Mobile |
 |---|---|---|
+| Desk background | Full-bleed, `object-position` centered | Full-bleed, `object-position: 82% center` so the window shows behind the jar |
 | Jar | Centered, fixed width (~480 px) | Centered, `~90vw`, fills most of viewport |
 | "Add candy" action | Button in top bar or sidebar | **FAB (floating action button)** fixed at bottom-right, or a full-width bar above the system nav |
-| Settings panel | Modal or sidebar | **Bottom sheet** — slides up from the bottom edge, dismissible with swipe-down or a close button |
-| Context menu | Floating popover adjacent to candy | **Bottom sheet** — slides up from the bottom, same four actions in a larger touch-friendly list |
+| Settings panel | Modal or sidebar | **Bottom sheet**, slides up from the bottom edge, dismissible with swipe-down or a close button |
+| Context menu | Floating popover adjacent to candy | **Bottom sheet**, slides up from the bottom, same four actions in a larger touch-friendly list |
 | List View toggle | Button in top bar | Button in top bar (same position, smaller label or icon-only with `aria-label`) |
 | Undo toast | Bottom-center | Bottom-center, above the FAB |
 
@@ -403,22 +451,23 @@ All interactive elements on mobile have a minimum hit area of 44×44 CSS pixels.
 ### Task
 
 ```typescript
-type DecayStage = 'Fresh' | 'Dull' | 'Cobwebbed' | 'Oozing' | 'Cursed';
+type DecayStage = 'Fresh' | 'Dull' | 'Spooky' | 'Haunted' | 'Cursed';
 
-type FlavorColor =
-  | 'pumpkin'    // #FF6B2B
-  | 'witch'      // #7B2FBE
-  | 'blood'      // #C0392B
-  | 'slime'      // #39D353
-  | 'bone'       // #F5F0DC
-  | 'moonlight'; // #8FB8FF  (replaces 'midnight' #1A1A2E — cool accent, legible on dark background)
+type MonsterKind =
+  | 'pumpkin'
+  | 'mummy'
+  | 'skeleton'
+  | 'spider'
+  | 'frankenstein'
+  | 'vampire'
+  | 'bat'
+  | 'gravestone';
 
 interface Task {
   id: string;               // crypto.randomUUID()
   title: string;            // non-empty after trim
   dueDate: number | null;   // Unix timestamp ms (real wall-clock), or null
-  flavorColor: FlavorColor;
-  shape: CandyShapeVariant | null; // null → derive from taskIdToShape(id); non-null → user-chosen shape stored explicitly
+  monster: MonsterKind;     // user-chosen or auto-assigned via taskIdToMonster(id) at creation; always set
   isSample: boolean;        // true for seeded demo candies
   createdAt: number;        // real wall-clock timestamp at creation (Date.now(), ms)
   completedAt: number | null; // real wall-clock timestamp on completion, or null
@@ -429,7 +478,7 @@ type PersistedTaskList = Task[];  // serialised as JSON array in localStorage ke
 
 `DecayStage` is **not stored** on the `Task` record. It is a **derived value**, computed fresh on each render (and each haunt-clock tick) by calling `decayFunction(task, logicalNow)`. Storing it would risk stale cached stages after a Haunt_Speed change and would cause the round-trip serialisation property to diverge.
 
-`createdAt`, `dueDate`, and `completedAt` are **always real wall-clock timestamps** (`Date.now()` in ms). They are never overwritten with logical time. Haunt_Speed only affects the `logicalNow` argument passed to `decayFunction` — it never mutates persisted data.
+`createdAt`, `dueDate`, and `completedAt` are **always real wall-clock timestamps** (`Date.now()` in ms). They are never overwritten with logical time. Haunt_Speed only affects the `logicalNow` argument passed to `decayFunction`, it never mutates persisted data.
 
 ### FocusSession
 
@@ -447,31 +496,33 @@ interface FocusSession {
 interface CreateTaskInput {
   title: string;
   dueDate: number | null;
-  flavorColor: FlavorColor | null;  // null → auto-assign round-robin
+  monster: MonsterKind | null;  // null → auto-assign via taskIdToMonster(id)
 }
 
 interface EditTaskInput {
   title: string;
   dueDate: number | null;
-  flavorColor: FlavorColor;
+  monster: MonsterKind;
 }
 ```
 
 ### Serialisation format
 
-Tasks are stored and exported as a JSON array of `Task` objects. Because `DecayStage` is a derived value (not stored), it is absent from the serialised format; it is recomputed from stored timestamps on load. The `shape` field is included in the serialised format: a `null` value means the shape continues to be derived deterministically from `taskIdToShape(id)`, while a non-null value preserves the user's explicit choice. The import path validates the array against a Zod schema before accepting it; schema mismatch triggers an error message with no state change.
+Tasks are stored and exported as a JSON array of `Task` objects. Because `DecayStage` is a derived value (not stored), it is absent from the serialised format; it is recomputed from stored timestamps on load. The `monster` field is included in the serialised format and is always one of the eight kinds. The import path validates the array against a Zod schema before accepting it; schema mismatch triggers an error message with no state change.
 
-The Zod schema for a `Task` record includes `shape` as a nullable enum of `CandyShapeVariant`:
+The Zod schema for a `Task` record includes `monster` as an enum of `MonsterKind`:
 
 ```typescript
-const CandyShapeVariantSchema = z.enum(['round', 'twist', 'gumdrop']);
+const MonsterKindSchema = z.enum([
+  'pumpkin', 'mummy', 'skeleton', 'spider',
+  'frankenstein', 'vampire', 'bat', 'gravestone',
+]);
 
 const TaskSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
   dueDate: z.number().nullable(),
-  flavorColor: z.enum(['pumpkin', 'witch', 'blood', 'slime', 'bone', 'moonlight']),
-  shape: CandyShapeVariantSchema.nullable(),
+  monster: MonsterKindSchema,
   isSample: z.boolean(),
   createdAt: z.number(),
   completedAt: z.number().nullable(),
@@ -482,11 +533,11 @@ const TaskSchema = z.object({
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+*A property is a characteristic or behavior that should hold true across all valid executions of a system, essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
 
 ### Property 1: Task creation populates all required fields
 
-*For any* non-empty (non-whitespace) title string and optional due-date value, calling `createTask()` shall return a Task record whose `id` is non-empty, `title` equals the trimmed input, `completedAt` is `null`, and `createdAt` is the logical timestamp passed to the function. Because `DecayStage` is derived rather than stored, the initial stage — `'Fresh'` — is verified by calling `decayFunction` on the newly created task with `logicalNow = createdAt`, which must return `'Fresh'`.
+*For any* non-empty (non-whitespace) title string and optional due-date value, calling `createTask()` shall return a Task record whose `id` is non-empty, `title` equals the trimmed input, `completedAt` is `null`, and `createdAt` is the logical timestamp passed to the function. Because `DecayStage` is derived rather than stored, the initial stage, `'Fresh'`, is verified by calling `decayFunction` on the newly created task with `logicalNow = createdAt`, which must return `'Fresh'`.
 
 **Validates: Requirements 1.1**
 
@@ -502,23 +553,23 @@ const TaskSchema = z.object({
 
 ### Property 3: Task serialisation round-trip
 
-*For any* valid `Task` object (which does not include `decayStage`, as that field is derived and not persisted), serialising it to JSON via `serializeTaskList` and then deserialising via `deserializeTaskList` shall produce a `Task` object that deep-equals the original, including the `shape` field (`null` or a `CandyShapeVariant` value).
+*For any* valid `Task` object (which does not include `decayStage`, as that field is derived and not persisted), serialising it to JSON via `serializeTaskList` and then deserialising via `deserializeTaskList` shall produce a `Task` object that deep-equals the original, including the `monster` field (one of the eight `MonsterKind` values).
 
 **Validates: Requirements 2.5, 16.4**
 
 ---
 
-### Property 4: Decay function — due-date path correctness
+### Property 4: Decay function: due-date path correctness
 
-*For any* incomplete Task that has a `dueDate` and *for any* current logical timestamp, `decayFunction(task, now)` shall return the stage defined by the threshold rules in Requirement 7.2: `Fresh` when due date is more than 48 h away; `Dull` within 48 h; `Cobwebbed` within 24 h; `Oozing` within 2 h or up to 24 h past due; `Cursed` more than 24 h past due.
+*For any* incomplete Task that has a `dueDate` and *for any* current logical timestamp, `decayFunction(task, now)` shall return the stage defined by the threshold rules in Requirement 7.2: `Fresh` when due date is more than 48 h away; `Dull` within 48 h; `Spooky` within 24 h; `Haunted` within 2 h or up to 24 h past due; `Cursed` more than 24 h past due.
 
 **Validates: Requirements 7.2**
 
 ---
 
-### Property 5: Decay function — age-based path correctness
+### Property 5: Decay function: age-based path correctness
 
-*For any* incomplete Task with no `dueDate` and *for any* current logical timestamp, `decayFunction(task, now)` shall return the stage defined by the age thresholds in Requirement 7.3: `Fresh` < 3 days; `Dull` ≥ 3 d < 7 d; `Cobwebbed` ≥ 7 d < 14 d; `Oozing` ≥ 14 d < 21 d; `Cursed` ≥ 21 d.
+*For any* incomplete Task with no `dueDate` and *for any* current logical timestamp, `decayFunction(task, now)` shall return the stage defined by the age thresholds in Requirement 7.3: `Fresh` < 3 days; `Dull` ≥ 3 d < 7 d; `Spooky` ≥ 7 d < 14 d; `Haunted` ≥ 14 d < 21 d; `Cursed` ≥ 21 d.
 
 **Validates: Requirements 7.3**
 
@@ -534,7 +585,7 @@ const TaskSchema = z.object({
 
 ### Property 7: Undo restores prior task state
 
-*For any* task list and *for any* task in that list, applying a `COMPLETE_TASK` or `DELETE_TASK` action followed immediately by `UNDO` shall produce a task list that deep-equals the list before the action, including the task's `flavorColor`, `dueDate`, and `createdAt`. Because `decayStage` is derived and not stored, the restored task will naturally produce the same `DecayStage` as before when `decayFunction` is called with the same `logicalNow`. Storing wall-clock timestamps (`createdAt`, `dueDate`, `completedAt`) and passing `logicalNow` as a parameter to `decayFunction` ensures that Haunt_Speed never mutates persisted data and that undo always restores a faithful record.
+*For any* task list and *for any* task in that list, applying a `COMPLETE_TASK` or `DELETE_TASK` action followed immediately by `UNDO` shall produce a task list that deep-equals the list before the action, including the task's `monster`, `dueDate`, and `createdAt`. Because `decayStage` is derived and not stored, the restored task will naturally produce the same `DecayStage` as before when `decayFunction` is called with the same `logicalNow`. Storing wall-clock timestamps (`createdAt`, `dueDate`, `completedAt`) and passing `logicalNow` as a parameter to `decayFunction` ensures that Haunt_Speed never mutates persisted data and that undo always restores a faithful record.
 
 **Validates: Requirements 5.2**
 
@@ -545,6 +596,22 @@ const TaskSchema = z.object({
 *For any* integer N (1 ≤ N ≤ 24) representing the number of currently visible Cursed candies with active whisper nodes, the sum of gain values assigned across all N nodes shall not exceed the default single-whisper gain level, and each node shall receive exactly `defaultGain / N`.
 
 **Validates: Requirements 11.1, 11.2**
+
+---
+
+## Optional Features
+
+### Wallpaper mode (optional, Requirement 20)
+
+`App.tsx` reads `new URLSearchParams(location.search).get('view')`. When it equals `wallpaper`, the app renders only `DeskBackground`, `JarScene` and the candies full screen. The add button, settings, list toggle, toasts and context menu are not mounted, candies ignore pointer and keyboard input (read only), and the haunt clock keeps ticking so decay stages update live. It is meant for free live-wallpaper apps such as Plash (Mac) or Lively Wallpaper (Windows). No new network calls are made.
+
+### Calendar file import (optional, Requirement 21)
+
+A pure `src/utils/icsParser.ts` turns the text of a `.ics` file into a list of `{ title, start }` events (handling `SUMMARY` and `DTSTART` in date and date-time forms, line unfolding, and UTC `Z` suffix). The settings panel reads the file with `FileReader` (no network, no sign-in), keeps events whose start is in the future, and dispatches `CREATE_TASK` per event with `dueDate = start`. The candies drop in one by one through the `LidAnimation` queue. A parse failure shows an inline error and leaves the task list unchanged.
+
+### Credits (Requirement 22)
+
+The README has a Credits section: the desk background art was made by Milena Webb with ChatGPT; an early visual mockup was sketched with Claude as a reference only; all app code was built in Kiro.
 
 ---
 

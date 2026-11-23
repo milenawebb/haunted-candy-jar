@@ -19,7 +19,7 @@ Sound is off by default. The user must enable it via the Sound Toggle.
 
 ## Visuals: code-generated only
 
-All visual assets are produced in code: inline SVG, CSS (gradients, keyframe animations, filters), or Canvas 2D. No image files (.png, .jpg, .svg files, .webp, etc.) are bundled or fetched. No third-party icon libraries or UI component kits are used. No copyrighted characters, brands, or external art appear anywhere in the app.
+Exactly one bitmap is allowed: `public/images/desk-scene.png` (the desk background, 1672x941). All other art is produced in code: inline SVG, CSS (gradients, keyframe animations, filters), or Canvas 2D. No other image files (.png, .jpg, .svg files, .webp, etc.) are bundled or fetched. No third-party icon libraries or UI component kits are used. No copyrighted characters, brands, or external art appear anywhere in the app.
 
 ## Fonts
 

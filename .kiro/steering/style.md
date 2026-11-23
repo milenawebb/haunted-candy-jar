@@ -35,9 +35,15 @@ Rules:
 - Static visual indicators must convey the same information the animation conveyed.
 - The 0.8-second press-and-hold threshold still applies under reduced motion. Only the visual crack frames are skipped.
 - The focus mode candle timer shows a numeric countdown instead of the burning animation.
-- Background scene animations (fog, ghosts) freeze into a static composition.
+- Background scene animations (optional fog and ghost overlays) freeze into a static composition.
+- Jar lid animation: when reduced motion is active, the lid does not move or tilt, and candies fade in or out (150ms max) instead of dropping or floating. The lid sounds still follow the Sound Toggle.
+- Decay looks (glow halo, ghostly wisps) freeze into static shapes. Crack lines and glow stay visible because they carry state.
 - Apply the CSS media query `@media (prefers-reduced-motion: reduce)` for CSS-only animations.
 - Use the useReducedMotion hook for JS-driven animation decisions.
+
+## Image assets
+
+`public/images/desk-scene.png` (1672x941) is the single allowed bitmap asset. It is the full-bleed desk background. Every other visual (jar, monsters, bandage notes, glow, overlays) is code-generated SVG, CSS, or Canvas. Do not add any other image file.
 
 ## Accessible interactive elements
 
@@ -47,6 +53,8 @@ Every interactive element must have:
 
 Specific rules:
 - Candy hit areas: enforced via a transparent SVG rect overlay, regardless of candy visual size or rotation.
+- Monster picker: a grid of 8 small monster buttons, each with an accessible name that is the monster name (for example "Pumpkin", "Mummy", "Gravestone"), aria-pressed or radio semantics for the selected one, and a minimum 44x44 CSS pixel hit area.
+- Bandage notes: task text is dark ink on the off-white linen strip, Inter, minimum 12px.
 - Icon-only buttons: must have aria-label describing the action.
 - Toggle buttons: must carry aria-pressed (true or false).
 - Form fields: must have an associated label element or aria-label.
@@ -64,13 +72,13 @@ Pure files (no side effects, no DOM access, no module-level mutable state):
 - taskReducer.ts
 - taskSchema.ts
 - exportImport.ts
-- candyShape.ts
+- monsterKind.ts
 - packingLayout.ts
 
 Property-based test requirements:
 - decayFunction: monotonic non-decrease (stage never goes backward as time moves forward).
 - decayFunction: correct stage for both decay paths (due-date and age-based).
-- Task serialisation: round-trip property (serialize then deserialize equals original, including shape field).
+- Task serialisation: round-trip property (serialize then deserialize equals original, including monster field).
 - taskReducer: undo restores prior task state exactly.
 - whisperGain: total gain across N Cursed candies never exceeds single-whisper default gain.
 

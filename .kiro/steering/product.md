@@ -27,6 +27,6 @@ This project is a Kiroween hackathon entry in the **Costume Contest** category. 
 
 - Each task is a glossy hard candy in the jar.
 - Completing a task: press and hold the candy for 0.8 seconds. The glaze cracks progressively and shatters on release. A tiny friendly ghost cheers.
-- Ignoring a task: it decays through five stages (Fresh, Dull, Cobwebbed, Oozing, Cursed) based on due date or age.
+- Ignoring a task: it decays through five stages (Fresh, Dull, Spooky, Haunted, Cursed) based on due date or age.
 - Focus mode: pick one candy, set a timer, a candle burns down while the room darkens.
 - Demo mode: seeds sample candies covering every decay stage so judges can see everything immediately.

@@ -2,15 +2,18 @@
 
 ## Introduction
 
-Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Halloween aesthetic. Tasks are represented as glossy hard candies sitting in a glass jar on a candlelit shelf. Completing a task shatters the candy in a satisfying animation; ignoring a task causes it to visually decay through stages of increasing spookiness. A focus mode pairs a single candy with a burning candle timer. The app targets the Kiroween hackathon Costume Contest category and must be polished, distinctive, and accessible. It is built with React, TypeScript, and Vite and deployed as a static site with no backend.
+Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Halloween aesthetic. Tasks are represented as glossy hard candies shaped like friendly candy monsters (pumpkin, mummy, skeleton, spider, frankenstein, vampire, bat, gravestone) sitting in a glass jar on a purple desk, between melting candles and a moonlit window. Each candy carries a mummy-bandage note with its task title. Completing a task shatters the candy in a satisfying animation; ignoring a task causes it to visually decay through stages of increasing spookiness. A focus mode pairs a single candy with a burning candle timer. The app targets the Kiroween hackathon Costume Contest category and must be polished, distinctive, and accessible. It is built with React, TypeScript, and Vite and deployed as a static site with no backend.
 
 ## Glossary
 
 - **App**: The Haunted Candy Jar single-page application running in the browser.
-- **Jar**: The glass candy jar rendered on-screen that contains all Candy items, with a visible capacity of 24 Candy items before overflow behaviour activates.
-- **Candy**: A visual representation of one task — a glossy hard-candy shape rendered in code (CSS/SVG/Canvas).
-- **Flavor_Color**: The user-assigned or auto-assigned color of a Candy, chosen from a fixed palette of Halloween-themed hues.
-- **Decay_Stage**: One of five visual states a Candy progresses through based on due-date proximity or age since creation: Fresh → Dull → Cobwebbed → Oozing → Cursed.
+- **Desk_Scene**: The full-bleed background image `public/images/desk-scene.png` (1672x941) showing a purple desk, melting candles on the left and a moonlit window on the right. It is the single allowed bitmap asset in the App.
+- **Jar**: The SVG glass jar (with lid and round knob) standing on the desk in the empty middle of the Desk_Scene, with a visible capacity of 24 Candy items; extra Candy items spill onto the desk next to the Jar.
+- **Candy**: A visual representation of one task: a glossy hard-candy monster rendered in code (SVG, with CSS and Canvas for effects).
+- **Monster_Kind**: The monster design of a Candy, one of eight values: pumpkin, mummy, skeleton, spider, frankenstein, vampire, bat, gravestone. It is user-assigned or auto-assigned.
+- **Bandage_Note**: The mummy-bandage note attached to a Candy that shows the task title: an off-white linen strip with a faint woven texture, torn frayed edges, a slight tilt, and a short bandage tail hanging toward its Candy.
+- **Lid_Animation**: The animation in which the Jar lid lifts and tilts when a Candy is added or removed, then settles back.
+- **Decay_Stage**: One of five visual states a Candy progresses through based on due-date proximity or age since creation: Fresh → Dull → Spooky → Haunted → Cursed.
 - **Completion_Animation**: The crack-and-shatter effect triggered when the user completes a Candy via the press-and-hold gesture at full crack.
 - **Ghost_Cheer**: A small friendly ghost sprite that appears briefly after a Completion_Animation.
 - **Focus_Session**: A timed work interval in which the user concentrates on a single selected Candy while a candle timer burns down.
@@ -18,8 +21,8 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 - **Motion_Preference**: The operating-system or browser reduced-motion accessibility setting (`prefers-reduced-motion`).
 - **Sound_Toggle**: The UI control that enables or disables all Web Audio API sound effects; off by default.
 - **Persistence_Store**: The browser's localStorage or IndexedDB used to persist task data with no server.
-- **Task**: The underlying data record for a to-do item, holding title, optional due date, Flavor_Color, Decay_Stage, completion state, and creation timestamp.
-- **Context_Menu**: The small overlay menu that appears when a Candy is selected, offering Complete, Focus, Edit, and Delete actions.
+- **Task**: The underlying data record for a to-do item, holding title, optional due date, Monster_Kind, Decay_Stage, completion state, and creation timestamp.
+- **Context_Menu**: The small overlay menu that appears next to a lifted Candy and its Bandage_Note when the Candy is selected, offering Complete, Focus, Edit, and Delete actions.
 - **Undo_Toast**: A non-blocking notification shown for 6 seconds after a Task is completed or deleted, allowing the user to restore the Task.
 - **Sample_Candy**: A pre-seeded Candy displayed on first visit, clearly labeled in the UI as a sample, covering all five Decay_Stages.
 - **Haunt_Speed**: A multiplier setting (1×, 60×, or 3600×) that accelerates the passage of time used for Decay_Stage calculations, intended for demos.
@@ -35,12 +38,15 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 
 #### Acceptance Criteria
 
-1. WHEN the user submits a new task title via the add-task control, THE App SHALL create a Task record with a unique identifier, the provided title, an optional due date if supplied, an auto-assigned or user-selected Flavor_Color, Decay_Stage set to Fresh, a creation timestamp set to the current logical time, and completion state set to incomplete.
-2. WHEN a Task record is created, THE App SHALL animate a new Candy dropping into the Jar with a bounce effect.
+1. WHEN the user submits a new task title via the add-task control, THE App SHALL create a Task record with a unique identifier, the provided title, an optional due date if supplied, an auto-assigned or user-selected Monster_Kind, Decay_Stage set to Fresh, a creation timestamp set to the current logical time, and completion state set to incomplete.
+2. WHEN a Task record is created, THE App SHALL animate a new Candy dropping into the Jar with a bounce effect, using the Lid_Animation described in criterion 1.7.
 3. WHEN a Task record is created, THE App SHALL persist the Task to the Persistence_Store before the candy-drop animation completes.
 4. IF the user submits an empty title, THEN THE App SHALL display an inline validation message and SHALL NOT create a Task record.
-5. THE App SHALL allow the user to assign a Flavor_Color from a palette of at least six Halloween-themed hues when creating a Task; if the user does not choose, THE App SHALL assign a Flavor_Color automatically.
+5. THE App SHALL allow the user to assign a Monster_Kind from a monster picker (a grid of 8 small monster buttons, each with an accessible name) when creating a Task; if the user does not choose, THE App SHALL assign a Monster_Kind automatically.
 6. WHERE the Sound_Toggle is enabled, WHEN a Candy drops into the Jar, THE App SHALL play a short candy-drop sound generated via the Web Audio API.
+7. WHEN a Candy is added to or removed from the Jar, THE App SHALL play the Lid_Animation: the lid lifts and tilts, the Candy drops in (with the bounce effect from criterion 1.2) or floats out, and then the lid settles back.
+8. WHERE the Sound_Toggle is enabled, WHEN the lid opens, THE App SHALL play a short creaky-door creak of about 0.5 seconds with a slightly different pitch each time, and WHEN the lid closes, THE App SHALL play a soft glass clink; both sounds SHALL be generated via the Web Audio API.
+9. WHILE Motion_Preference is set to reduce motion, THE App SHALL NOT move the lid and SHALL fade Candy items in or out (150 ms maximum) instead of dropping or floating them.
 
 ---
 
@@ -69,6 +75,9 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 3. WHEN the user presses the Tab key to focus a Candy and then presses Enter, THE App SHALL display the Context_Menu for that Candy.
 4. WHEN the user dismisses the Context_Menu without choosing an action (by tapping or clicking outside it, or by pressing Escape), THE App SHALL close the Context_Menu and deselect the Candy without changing the Task record.
 5. THE App SHALL ensure the Context_Menu does not obscure other Candy items in a way that makes them untappable when the Jar contains more than one Candy.
+6. WHEN the user taps or clicks a Candy, THE App SHALL lift that Candy out of the Jar, show its Bandage_Note, and show the Context_Menu with the Complete, Focus, Edit, and Delete options next to it.
+7. WHEN the Context_Menu is dismissed without an action, THE App SHALL return the lifted Candy to its place in the Jar.
+8. THE Bandage_Note SHALL show the task title as dark Inter text of at least 12 px on the linen strip, and the List View rows SHALL use the same bandage style.
 
 ---
 
@@ -87,6 +96,8 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 7. WHILE Motion_Preference is set to reduce motion, THE App SHALL skip the progressive crack frames and the shatter frames, instead fading the Candy out over 150 ms and displaying the Ghost_Cheer as a static image; the 0.8-second hold threshold SHALL still apply.
 8. WHERE the Sound_Toggle is enabled, WHEN the Completion_Animation triggers, THE App SHALL play a crunching sound generated via the Web Audio API.
 9. WHEN the user holds the Space key on the keyboard-focused Candy, THE App SHALL apply the same progressive cracking behaviour and the same 0.8-second threshold as the pointer gesture, completing the Task on threshold reached and reversing cracks on early release.
+10. WHEN the user releases a Candy (or the Space key) before 0.8 seconds have elapsed, THE App SHALL heal the glaze cracks so the Candy returns to its pre-hold look; the dark crack lines shown at the Cursed Decay_Stage (Requirement 7.9) are a warning only and SHALL NOT complete the Task.
+11. WHEN the Completion_Animation plays, THE App SHALL treat the removal of the Candy from the Jar as a Lid_Animation removal (Requirement 1.7) when the Candy is still inside the Jar.
 
 ---
 
@@ -97,7 +108,7 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 #### Acceptance Criteria
 
 1. WHEN a Task is completed or deleted, THE App SHALL display an Undo_Toast notification for 6 seconds.
-2. WHEN the user activates the undo action in the Undo_Toast before it expires, THE App SHALL restore the Task to the Jar in its state immediately prior to the action that triggered the toast, including its Flavor_Color, due date, and Decay_Stage.
+2. WHEN the user activates the undo action in the Undo_Toast before it expires, THE App SHALL restore the Task to the Jar in its state immediately prior to the action that triggered the toast, including its Monster_Kind, due date, and Decay_Stage.
 3. WHEN the Undo_Toast expires without activation, THE App SHALL dismiss the toast and permanently apply the completion or deletion.
 4. THE App SHALL persist the restored Task to the Persistence_Store immediately upon undo activation.
 5. THE App SHALL ensure only one Undo_Toast is visible at a time; if a second completion or deletion occurs while a toast is active, THE App SHALL dismiss the first toast, permanently apply the first action, and show a new toast for the second action.
@@ -110,7 +121,7 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 
 #### Acceptance Criteria
 
-1. WHEN the user selects Edit from the Context_Menu, THE App SHALL display an edit form pre-populated with the Task's current title, due date, and Flavor_Color.
+1. WHEN the user selects Edit from the Context_Menu, THE App SHALL display an edit form pre-populated with the Task's current title, due date, and Monster_Kind.
 2. WHEN the user submits the edit form with a valid title, THE App SHALL update the Task record and persist the change to the Persistence_Store within 300 ms.
 3. IF the user submits the edit form with an empty title, THEN THE App SHALL display an inline validation message and SHALL NOT update the Task record.
 4. WHEN the user selects Delete from the Context_Menu, THE App SHALL remove the Candy from the Jar with a brief fade-out, delete the Task record, and display an Undo_Toast as defined in Requirement 5.
@@ -124,18 +135,19 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 
 #### Acceptance Criteria
 
-1. THE App SHALL define five Decay_Stages in ascending order of urgency: Fresh, Dull, Cobwebbed, Oozing, and Cursed.
-2. FOR Tasks that have a due date, THE Decay_Function SHALL assign Decay_Stages as follows: Fresh when the due date is more than 48 hours away; Dull when due within 48 hours; Cobwebbed when due within 24 hours; Oozing when due within 2 hours or up to 24 hours past due; Cursed when more than 24 hours past due.
-3. FOR Tasks that have no due date, THE Decay_Function SHALL assign Decay_Stages based on age since creation timestamp as follows: Fresh when fewer than 3 days old; Dull when 3 days or more old but fewer than 7 days; Cobwebbed when 7 days or more old but fewer than 14 days; Oozing when 14 days or more old but fewer than 21 days; Cursed when 21 days or more old.
+1. THE App SHALL define five Decay_Stages in ascending order of urgency: Fresh, Dull, Spooky, Haunted, and Cursed.
+2. FOR Tasks that have a due date, THE Decay_Function SHALL assign Decay_Stages as follows: Fresh when the due date is more than 48 hours away; Dull when due within 48 hours; Spooky when due within 24 hours; Haunted when due within 2 hours or up to 24 hours past due; Cursed when more than 24 hours past due.
+3. FOR Tasks that have no due date, THE Decay_Function SHALL assign Decay_Stages based on age since creation timestamp as follows: Fresh when fewer than 3 days old; Dull when 3 days or more old but fewer than 7 days; Spooky when 7 days or more old but fewer than 14 days; Haunted when 14 days or more old but fewer than 21 days; Cursed when 21 days or more old.
 4. WHEN the App initialises and once per minute thereafter while Haunt_Speed is set to 1×, THE App SHALL invoke the Decay_Function for every incomplete Task and update each Candy's visual appearance to match the returned Decay_Stage. WHILE Haunt_Speed is set above 1×, THE App SHALL invoke the Decay_Function for every incomplete Task and update each Candy's visual appearance once per second.
-5. WHEN a Candy's Decay_Stage is Fresh, THE App SHALL render it with a glossy, fully-saturated appearance and no overlay effects.
-6. WHEN a Candy's Decay_Stage is Dull, THE App SHALL render it with a desaturated glaze and no overlay effects.
-7. WHEN a Candy's Decay_Stage is Cobwebbed, THE App SHALL render a cobweb SVG overlay on the Candy.
-8. WHEN a Candy's Decay_Stage is Oozing, THE App SHALL render an animated green-goo drip effect on the Candy generated in code.
-9. WHEN a Candy's Decay_Stage is Cursed, THE App SHALL render a spooky face on the Candy and apply a continuous wobble animation.
-10. WHILE a Candy's Decay_Stage is Oozing or Cursed, THE App SHALL emit a faint whispering ambient sound generated via the Web Audio API when that Candy is visible, provided the Sound_Toggle is enabled.
-11. WHILE Motion_Preference is set to reduce motion, THE App SHALL suppress the wobble animation and the animated goo drip, substituting static visual indicators for each Decay_Stage.
-12. THE App SHALL ensure each Decay_Stage is distinguishable from adjacent stages by at least one visual attribute other than color (such as shape, texture, or overlay) so that color-blind users can perceive the difference.
+5. WHEN a Candy's Decay_Stage is Fresh (stage 1), THE App SHALL render it glossy with a full highlight and no glow or overlay effects.
+6. WHEN a Candy's Decay_Stage is Dull (stage 2), THE App SHALL render it duller with less shine and no glow or overlay effects.
+7. WHEN a Candy's Decay_Stage is Spooky (stage 3), THE App SHALL render the Candy with a faint purple glow halo generated in code.
+8. WHEN a Candy's Decay_Stage is Haunted (stage 4), THE App SHALL render the Candy with a strong purple glow plus ghostly wisps generated in code.
+9. WHEN a Candy's Decay_Stage is Cursed (stage 5), THE App SHALL render the Candy mostly grey and darker, with dark crack lines and a purple glow. The cracks are a warning only: the Task is still completed by press and hold.
+
+10. WHILE a Candy's Decay_Stage is Haunted or Cursed, THE App SHALL emit a faint whispering ambient sound generated via the Web Audio API when that Candy is visible, provided the Sound_Toggle is enabled.
+11. WHILE Motion_Preference is set to reduce motion, THE App SHALL suppress animated glow pulses and wisp movement, substituting static visual indicators (static glow, static wisp shapes, static crack lines) for each Decay_Stage.
+12. THE App SHALL ensure each Decay_Stage is distinguishable from adjacent stages by at least one visual attribute other than color (the glow halo, the wisp shapes, and the crack lines are the shape and texture differences) so that color-blind users can perceive the difference.
 
 ---
 
@@ -175,11 +187,14 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 
 #### Acceptance Criteria
 
-1. THE App SHALL render a background scene composed entirely of code-generated assets (CSS, SVG, or Canvas) depicting a dark shelf, candlelight glow, soft fog, and faint ghost figures; no external image files or third-party art SHALL be used.
-2. THE App SHALL animate the fog and ghost figures in the background continuously at a frame rate that does not reduce overall UI responsiveness below 60 fps on a mid-range device.
+1. THE App SHALL render the Desk_Scene (`public/images/desk-scene.png`, 1672x941) as a full-bleed background with the Jar standing on the empty middle of the desk. On mobile viewports, THE App SHALL crop the image with an object-position of about 82% so the moonlit window shows behind the Jar. THE App SHALL add a soft dark gradient at the top so the title stays readable. The Desk_Scene is the single allowed bitmap asset; every other visual SHALL be code-generated (CSS, SVG, or Canvas) and no other external image files or third-party art SHALL be used. Code-drawn fog and ghost overlays MAY be added as optional extras.
+2. THE App SHALL animate the candle glow and any optional fog and ghost overlays continuously at a frame rate that does not reduce overall UI responsiveness below 60 fps on a mid-range device.
 3. WHILE Motion_Preference is set to reduce motion, THE App SHALL freeze all background animations and display the scene as a static composition.
 4. THE App SHALL maintain a minimum contrast ratio of 4.5:1 between all interactive text labels and their immediate backgrounds, as defined by WCAG 2.1 AA.
 5. WHERE the Sound_Toggle is enabled, THE App SHALL play a low-volume looping ambient soundscape generated entirely via the Web Audio API; no audio files SHALL be loaded.
+6. THE Jar SHALL be drawn as an SVG glass jar with a lid and a round knob in three layers (back glass, the Candy items, then front glass). Candy items SHALL be clipped to the inside of the Jar so none poke through the glass. The glass SHALL show a brighter rim on the sides, slightly darker edges, vertical light streaks, a faint window reflection on the right, a thick glass base, and a warm candle glow on the left side. A soft shadow and a warm glow SHALL sit on the desk under the Jar.
+7. THE App SHALL draw each Candy as an original SVG candy monster with a glossy hard-candy look (radial gradient body, a bright highlight, and a small sparkle) for each of the eight Monster_Kind values.
+
 
 ---
 
@@ -216,8 +231,8 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 #### Acceptance Criteria
 
 1. THE App SHALL display up to 24 Candy items in the Jar simultaneously without any two Candies overlapping in a way that makes an individual Candy untappable.
-2. WHEN the Task list contains more than 24 incomplete Tasks, THE App SHALL either make the Jar scrollable or display a "+N more" indicator that reveals additional Candy items on demand, where N is the count of Tasks beyond the first 24.
-3. THE App SHALL ensure that all Candy items, whether visible directly or via overflow, remain individually selectable.
+2. WHEN the Task list contains more than 24 incomplete Tasks, THE App SHALL keep the first 24 Candy items inside the Jar and let the extra Candy items spill onto the desk next to the Jar, where each remains visible and tappable.
+3. THE App SHALL ensure that all Candy items, whether inside the Jar or spilled onto the desk, remain individually selectable.
 
 ---
 
@@ -238,7 +253,7 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 
 #### Acceptance Criteria
 
-1. WHEN the App initialises and the Persistence_Store contains no previously saved Tasks, THE App SHALL seed six Sample_Candy items, one representing each of the five Decay_Stages and one additional item, distributing stages so that all five stages are covered including at least one Oozing or Cursed item.
+1. WHEN the App initialises and the Persistence_Store contains no previously saved Tasks, THE App SHALL seed six Sample_Candy items, one representing each of the five Decay_Stages and one additional item, distributing stages so that all five stages are covered including at least one Haunted or Cursed item.
 2. THE App SHALL render each Sample_Candy with a visible label indicating it is a sample, distinguishable from user-created Task titles.
 3. THE App SHALL provide a "Clear samples" action that removes all Sample_Candy items from the Jar and the Persistence_Store in a single operation.
 4. WHEN all Sample_Candy items are removed and no user Tasks exist, THE App SHALL transition to the empty state defined in Requirement 14.
@@ -270,7 +285,7 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 #### Acceptance Criteria
 
 1. THE App SHALL initialise with the Sound_Toggle in the off state so that no audio plays until the user explicitly enables it.
-2. WHEN the user activates the Sound_Toggle, THE App SHALL enable all audio effects described in Requirements 1.6, 4.8, 7.10, 9.8, and 10.5.
+2. WHEN the user activates the Sound_Toggle, THE App SHALL enable all audio effects described in Requirements 1.6, 1.8, 4.8, 7.10, 9.8, and 10.5.
 3. WHEN the user deactivates the Sound_Toggle, THE App SHALL immediately stop all currently playing audio and disable future audio playback.
 4. THE App SHALL generate all audio using the Web Audio API exclusively; no audio files, CDN-hosted sounds, or third-party audio libraries SHALL be loaded or referenced.
 5. THE Sound_Toggle state SHALL be persisted to the Persistence_Store so that the user's preference is restored on the next visit.
@@ -297,11 +312,45 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 #### Acceptance Criteria
 
 1. THE App SHALL be implemented using React, TypeScript, and Vite as the core build stack.
-2. THE App SHALL be buildable to a static asset bundle (HTML, CSS, and JavaScript files only) that can be served without a server-side runtime.
+2. THE App SHALL be buildable to a static asset bundle (HTML, CSS, and JavaScript files, plus the self-hosted fonts and the single `desk-scene.png` background image) that can be served without a server-side runtime.
 3. THE App SHALL be deployable to Cloudflare Pages by running the Vite production build command and publishing the output directory.
 4. THE App SHALL be released under the MIT License; the repository SHALL contain a LICENSE file with the MIT License text.
 5. THE App SHALL not contain code copied from other projects; all implementation SHALL be original work created for this hackathon.
 6. THE App SHALL function entirely client-side with no calls to any external API or backend service.
+
+---
+
+### Requirement 20 (Optional): Wallpaper Mode
+
+**User Story:** As a user, I want a clean, controls-free view of my jar so that I can use it as a live wallpaper.
+
+#### Acceptance Criteria
+
+1. WHERE the optional wallpaper feature is built, WHEN the App is opened with the query parameter `?view=wallpaper`, THE App SHALL hide all controls (add button, settings, list toggle, toasts) and show only the Desk_Scene, the Jar, and the Candy items full screen, suitable for free live-wallpaper apps such as Plash (Mac) or Lively Wallpaper (Windows).
+2. WHILE in wallpaper mode, THE App SHALL be read only (no selecting, completing, editing, or deleting) and SHALL update live as the Decay_Stage of each Candy changes.
+
+---
+
+### Requirement 21 (Optional): Calendar File Import
+
+**User Story:** As a user, I want to turn calendar events into candies so that upcoming events show up in my jar.
+
+#### Acceptance Criteria
+
+1. WHERE the optional calendar feature is built, THE App SHALL let the user import a `.ics` file from the settings panel, parsed entirely in the browser with no network call and no sign-in.
+2. WHEN a `.ics` file is imported, THE App SHALL turn each upcoming event into a Task whose due date is the event start, and SHALL drop the resulting Candy items into the Jar one by one using the Lid_Animation.
+3. IF the `.ics` file cannot be parsed, THEN THE App SHALL display an error message and SHALL NOT modify the current Task list.
+
+---
+
+### Requirement 22: Credits
+
+**User Story:** As a reader of the repository, I want clear credits so that I know who made the art and how the app was built.
+
+#### Acceptance Criteria
+
+1. THE README SHALL contain a Credits section stating that the desk background art was made by Milena Webb with ChatGPT.
+2. THE Credits section SHALL state that an early visual mockup was sketched with Claude as a reference only, and that all app code was built in Kiro.
 
 ---
 
