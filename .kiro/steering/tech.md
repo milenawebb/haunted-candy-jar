@@ -1,0 +1,47 @@
+# Tech Stack and Constraints
+
+## Core stack
+
+| Tool | Version target | Role |
+|---|---|---|
+| React | 18+ | UI component tree |
+| TypeScript | 5+ | Type safety throughout |
+| Vite | 5+ | Build tool and dev server |
+| Vitest | latest | Unit and property-based test runner |
+| fast-check | latest | Property-based test generators and arbitraries |
+| Zod | latest | Runtime schema validation (import parsing) |
+
+## Sound: Web Audio API only
+
+All audio is synthesised in code using the browser's Web Audio API (`OscillatorNode`, `GainNode`, `BiquadFilterNode`, `StereoPannerNode`). No audio files (.mp3, .wav, .ogg, etc.) are loaded, bundled, or referenced. No third-party audio libraries are used.
+
+Sound is off by default. The user must enable it via the Sound Toggle.
+
+## Visuals: code-generated only
+
+All visual assets are produced in code: inline SVG, CSS (gradients, keyframe animations, filters), or Canvas 2D. No image files (.png, .jpg, .svg files, .webp, etc.) are bundled or fetched. No third-party icon libraries or UI component kits are used. No copyrighted characters, brands, or external art appear anywhere in the app.
+
+## Fonts
+
+Two open-source fonts, self-hosted (bundled at build time, not fetched from any CDN at runtime):
+
+- **Creepster** (OFL): app title and large headings only.
+- **Inter** (OFL): all task titles, body text, labels, and UI chrome.
+
+Both are declared with `@font-face` in `src/styles/fonts.css` and served from `public/fonts/`.
+
+## Persistence
+
+Tasks are stored in `localStorage` as a JSON array under the key `hcj_tasks`. No IndexedDB, no server, no external service.
+
+## Deployment
+
+The app builds to a static bundle (HTML + CSS + JS only) via `vite build`. The output directory is published directly to Cloudflare Pages with no server-side runtime.
+
+## License
+
+MIT License. The `LICENSE` file at the repository root must contain the full MIT License text. All code is original work created for this hackathon. Nothing is copied from other projects.
+
+## No external dependencies at runtime
+
+The app makes no calls to any external API, CDN, or backend service after the initial page load. It must function fully offline once loaded.

@@ -1,0 +1,34 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Scaffold Vite + React + TypeScript project with tooling": [
+      {
+        "executionId": "305bee60-071c-4717-9dec-ba85e56d36b4",
+        "chatSessionId": "sess_5bb55e28-30cb-48b8-80d6-17f3f560e5f6",
+        "timestamp": 1795449665139
+      },
+      {
+        "executionId": "3e8c8e94-7d37-48fa-87e4-85b74ddecd45",
+        "chatSessionId": "sess_5bb55e28-30cb-48b8-80d6-17f3f560e5f6",
+        "timestamp": 1795449803184
+      },
+      {
+        "executionId": "3e8c8e94-7d37-48fa-87e4-85b74ddecd45",
+        "chatSessionId": "sess_5bb55e28-30cb-48b8-80d6-17f3f560e5f6",
+        "timestamp": 1795455853842
+      }
+    ],
+    "2. Add LICENSE, README, and Cloudflare Pages config": [
+      {
+        "executionId": "76e9dc17-f030-4c54-8373-a98c99dc5133",
+        "chatSessionId": "sess_e1f4feb7-417e-46c8-977f-499284ebef6d",
+        "timestamp": 1795459499533
+      },
+      {
+        "executionId": "76e9dc17-f030-4c54-8373-a98c99dc5133",
+        "chatSessionId": "sess_e1f4feb7-417e-46c8-977f-499284ebef6d",
+        "timestamp": 1795459515387
+      }
+    ]
+  }
+}
