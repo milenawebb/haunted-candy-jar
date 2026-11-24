@@ -119,12 +119,19 @@ describe('JarPile', () => {
     }
   });
 
-  it('drops a new candy in from the lid', () => {
+  it('drops a new candy in from the lid once the lid is open', () => {
+    vi.useFakeTimers();
     seed(2);
     setup();
     act(() => {
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
     });
+    // The new candy waits, hidden, while the lid lifts (350 ms).
+    expect(
+      screen.getAllByTestId('jar-pile-candy').some((el) => cls(el).includes('--drop')),
+    ).toBe(false);
+    act(() => void vi.advanceTimersByTime(350));
+    vi.useRealTimers();
     const dropping = screen
       .getAllByTestId('jar-pile-candy')
       .filter((el) => cls(el).includes('jar-pile__candy--drop'));

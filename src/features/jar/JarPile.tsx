@@ -5,10 +5,16 @@ import { CandyItem } from '../candy/CandyItem';
 import { useTaskStore } from '../tasks/taskStore';
 import { JarScene, type JarSceneProps } from './JarScene';
 import { JAR_LID_PIVOT } from './jarGeometry';
+import { LidAnimation, useLidSequence } from './LidAnimation';
 import { layoutPile, type PileEntry } from './jarPileLayout';
 import './JarPile.css';
 
-export type JarPileProps = Omit<JarSceneProps, 'children' | 'overflow'>;
+export interface JarPileProps extends Omit<JarSceneProps, 'children' | 'overflow'> {
+  /** Called when the lid starts to open (for the lid creak sound). */
+  onLidOpen?: () => void;
+  /** Called when the lid starts to close (for the glass clink sound). */
+  onLidClose?: () => void;
+}
 
 /**
  * The jar with its candies, wired to the task store.
@@ -34,9 +40,13 @@ export type JarPileProps = Omit<JarSceneProps, 'children' | 'overflow'>;
  *
  * Validates: Requirements 1.2, 13.1, 13.2, 13.3
  */
-export function JarPile(sceneProps: JarPileProps) {
+export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) {
   const { state } = useTaskStore();
   const reduced = useReducedMotion();
+  // Lid sequence (see LidAnimation.tsx). A newly added candy stays hidden
+  // until the lid is open, then its drop-in animation starts. Under reduced
+  // motion nothing waits: the candy just fades in.
+  const lid = useLidSequence({ tasks: state.tasks, onLidOpen, onLidClose });
   const entries = useMemo(() => layoutPile(state.tasks), [state.tasks]);
   const selectedId = state.selectedTaskId;
 
@@ -69,7 +79,10 @@ export function JarPile(sceneProps: JarPileProps) {
     const classes = ['jar-pile__candy'];
     const style: Record<string, string> = {};
     if (entry.nearWall) classes.push('jar-pile__candy--near-wall');
-    if (isDropping) {
+    if (isDropping && lid.isWaiting(id)) {
+      // Not released yet: keep it out of sight (and out of the animation).
+      style['visibility'] = 'hidden';
+    } else if (isDropping) {
       if (reduced || entry.zone === 'desk') {
         classes.push('jar-pile__candy--fade');
       } else {
@@ -102,6 +115,7 @@ export function JarPile(sceneProps: JarPileProps) {
 
   return (
     <JarScene
+      lid={<LidAnimation phase={lid.phase} />}
       {...sceneProps}
       overflow={
         <g data-testid="jar-overflow">

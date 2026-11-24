@@ -1,0 +1,13 @@
+/* Lift, tilt, and settle. The lid rotates around its underside center. */
+.lid-animation {
+  transform-box: view-box;
+  transition: transform 350ms cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+/* Reduced motion: the lid never moves (LidAnimation also skips the transform). */
+@media (prefers-reduced-motion: reduce) {
+  .lid-animation {
+    transition: none;
+    transform: none !important;
+  }
+}

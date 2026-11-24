@@ -289,7 +289,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
     - Refine the edge-candy CSS filter to use a layered `drop-shadow` + `hue-rotate` combination matching the dual candlelight / moonlight sources
     - _Requirements: 10.1_
 
-- [-] 28a. Implement `LidAnimation` for add and remove
+- [x] 28a. Implement `LidAnimation` for add and remove
   - Create `src/features/jar/LidAnimation.tsx` that drives `JarLid`: on candy add or remove the lid lifts and tilts (about 350 ms), the candy drops in (existing spring bounce) or floats out, then the lid settles back
   - Queue overlapping add and remove events so the lid opens once per candy, one by one
   - Expose `onLidOpen` and `onLidClose` callbacks (used by the lid sounds task 37a)
