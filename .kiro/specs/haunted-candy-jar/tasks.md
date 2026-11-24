@@ -96,7 +96,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Export `loadSoundEnabled(): boolean` and `saveSoundEnabled(enabled: boolean): void`
   - _Requirements: 2.1, 2.2, 2.3, 17.5_
 
-- [ ] 9. Implement `hauntClock.ts` logical time utility
+- [x] 9. Implement `hauntClock.ts` logical time utility
   - Create `src/features/settings/hauntClock.ts` exporting `computeLogicalNow(wallNow: number, speed: 1 | 60 | 3600, sessionStartWall: number, sessionStartLogical: number): number`
   - When speed is 1×, logical time equals wall time
   - When speed > 1×, advance logical time proportionally from the session's start anchor
