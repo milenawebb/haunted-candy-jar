@@ -7,6 +7,7 @@ The app uses a feature-first layout inside `src/`.
 Top-level directories:
 
 - `public/fonts/`: Creepster-Regular.woff2 and Inter-VariableFont.woff2 (self-hosted)
+- `public/images/desk-scene.png`: the single allowed bitmap (1672x941 desk background)
 - `src/main.tsx`: Vite entry point, mounts App
 - `src/App.tsx`: root component, providers, scene, jar
 - `src/styles/fonts.css`: @font-face for Creepster and Inter
@@ -20,17 +21,17 @@ Top-level directories:
 
 **tasks/** contains taskTypes.ts, taskReducer.ts, decayFunction.ts, taskStore.tsx, sampleData.ts
 
-**candy/** contains CandyShape.tsx, CandyTag.tsx, DecayOverlay.tsx, CandyCrack.tsx, GhostCheer.tsx, CandyItem.tsx
+**candy/** contains MonsterShape.tsx, monsters/ (PumpkinMonster, MummyMonster, SkeletonMonster, SpiderMonster, FrankensteinMonster, VampireMonster, BatMonster, GravestoneMonster), BandageNote.tsx, DecayOverlay.tsx, CandyCrack.tsx, GhostCheer.tsx, CandyItem.tsx
 
-**jar/** contains JarScene.tsx, JarPile.tsx, ListView.tsx, EmptyState.tsx
+**jar/** contains JarScene.tsx, JarBackGlass.tsx, JarFrontGlass.tsx, JarLid.tsx, DeskGlow.tsx, LidAnimation.tsx, JarPile.tsx, ListView.tsx, EmptyState.tsx
 
 **contextMenu/** contains ContextMenu.tsx
 
-**forms/** contains AddTaskForm.tsx, EditTaskForm.tsx
+**forms/** contains MonsterPicker.tsx, AddTaskForm.tsx, EditTaskForm.tsx
 
 **focus/** contains FocusOverlay.tsx, DurationPicker.tsx, CandleTimer.tsx
 
-**scene/** contains AmbientScene.tsx, CandleGlow.tsx
+**scene/** contains DeskBackground.tsx, AmbientScene.tsx, CandleGlow.tsx
 
 **settings/** contains SettingsPanel.tsx, hauntClock.ts
 
@@ -40,34 +41,42 @@ Top-level directories:
 
 ## File responsibilities
 
-- `tasks/taskTypes.ts`: Task, DecayStage, FlavorColor. Pure types, no logic.
+- `tasks/taskTypes.ts`: Task, DecayStage, MonsterKind. Pure types, no logic.
 - `tasks/taskReducer.ts`: AppReducer. Pure, no side effects.
 - `tasks/decayFunction.ts`: Pure function `(Task, logicalNow) => DecayStage`.
 - `tasks/taskStore.tsx`: Context and provider, wires reducer to persistence.
 - `tasks/sampleData.ts`: Six sample candies for demo mode.
-- `candy/CandyShape.tsx`: SVG candy body in three variants (round, twist, gumdrop).
-- `candy/CandyTag.tsx`: Paper tag on string, truncated title, Inter min 12px.
-- `candy/DecayOverlay.tsx`: Stage-specific overlay (cobweb, goo, face).
+- `candy/MonsterShape.tsx`: Dispatches to one of 8 SVG candy monsters by task.monster.
+- `candy/monsters/`: PumpkinMonster, MummyMonster, SkeletonMonster, SpiderMonster, FrankensteinMonster, VampireMonster, BatMonster, GravestoneMonster.
+- `candy/BandageNote.tsx`: Mummy-bandage note (linen strip, frayed edges, tilt, tail toward candy), truncated title, Inter min 12px.
+- `candy/DecayOverlay.tsx`: Per-stage look: Fresh (glossy), Dull (duller body), Spooky (faint purple glow), Haunted (strong glow and wisps), Cursed (grey, cracks, glow).
 - `candy/CandyCrack.tsx`: SVG crack overlay driven by press-and-hold progress (0 to 1).
 - `candy/GhostCheer.tsx`: Friendly ghost sprite shown after task completion.
-- `candy/CandyItem.tsx`: Composed candy with tag, overlays, and gesture handling.
-- `jar/JarScene.tsx`: Glass jar SVG with rim highlights and glass reflections.
-- `jar/JarPile.tsx`: Precomputed packing layout, spring drop-in animation, overflow.
+- `candy/CandyItem.tsx`: Composed candy with bandage note, overlays, and gesture handling.
+- `jar/JarScene.tsx`: Composes JarBackGlass, candies (clipped), JarFrontGlass, JarLid, and DeskGlow.
+- `jar/JarBackGlass.tsx`: Back glass layer.
+- `jar/JarFrontGlass.tsx`: Front glass layer (rim, streaks, reflection, thick base).
+- `jar/JarLid.tsx`: Lid with round knob.
+- `jar/DeskGlow.tsx`: Soft shadow and warm glow on the desk under the jar.
+- `jar/LidAnimation.tsx`: Lid lift, tilt, settle; coordinates candy drop in and float out.
+- `jar/JarPile.tsx`: Precomputed packing layout, drop-in animation, jar capacity 24, extra candies spill onto the desk.
 - `jar/ListView.tsx`: Accessible list view for keyboard and screen reader use.
 - `jar/EmptyState.tsx`: Friendly prompt shown when task list is empty.
 - `contextMenu/ContextMenu.tsx`: Complete, Focus, Edit, Delete actions.
-- `forms/AddTaskForm.tsx`: Title, due date, flavor color picker, shape picker.
-- `forms/EditTaskForm.tsx`: Same fields pre-populated. Shape picker writes to task.shape.
+- `forms/MonsterPicker.tsx`: Grid of 8 small monster buttons, each with an accessible name.
+- `forms/AddTaskForm.tsx`: Title, due date, monster picker.
+- `forms/EditTaskForm.tsx`: Same fields pre-populated. Monster picker writes to task.monster.
 - `focus/FocusOverlay.tsx`: Darkened full-screen focus overlay.
 - `focus/DurationPicker.tsx`: 1 to 90 min input with 15, 25, 50 presets. Default 25.
 - `focus/CandleTimer.tsx`: Animated burning candle or numeric countdown fallback.
-- `scene/AmbientScene.tsx`: Shelf, candlelight, fog, ghost figures in CSS and SVG.
-- `scene/CandleGlow.tsx`: Pulsing radial gradient around candle.
+- `scene/DeskBackground.tsx`: Full-bleed desk-scene.png, top gradient, mobile object-position 82%.
+- `scene/AmbientScene.tsx`: Optional code-drawn fog and ghost overlays on top of the background.
+- `scene/CandleGlow.tsx`: Pulsing radial gradient over the left candles.
 - `settings/SettingsPanel.tsx`: Sound toggle, Haunt Speed, export, import.
 - `settings/hauntClock.ts`: Logical clock with Haunt_Speed multiplier.
 - `undo/UndoToast.tsx`: 6-second dismissible undo notification.
 - `audio/audioContext.ts`: Singleton AudioContext factory.
-- `audio/sounds.ts`: All synthesised sound functions.
+- `audio/sounds.ts`: All synthesised sound functions (includes lid creak and glass clink).
 - `audio/whisperGain.ts`: Gain budget manager for Cursed-candy whispers.
 
 ## Shared hooks (src/hooks/)
@@ -82,8 +91,9 @@ Top-level directories:
 - `exportImport.ts`: serializeTaskList and deserializeTaskList.
 - `taskSchema.ts`: Zod schema for Task, used by import validation.
 - `idGen.ts`: crypto.randomUUID wrapper.
-- `candyShape.ts`: `taskIdToShape(id)`, deterministic stable shape assignment.
-- `packingLayout.ts`: Seeded packing layout computation.
+- `monsterKind.ts`: MONSTER_KINDS list and `taskIdToMonster(id)`, deterministic default monster.
+- `(optional) icsParser.ts`: Pure .ics parser for the calendar import feature.
+- `packingLayout.ts`: Seeded packing layout computation (task IDs as seed).
 
 ## Naming conventions
 
@@ -92,7 +102,7 @@ Top-level directories:
 | React components | PascalCase, .tsx | CandyItem.tsx |
 | Custom hooks | camelCase, use prefix, .ts | usePressAndHold.ts |
 | Pure utilities | camelCase, .ts | decayFunction.ts |
-| CSS design tokens | kebab-case, color- or flavor- prefix | color-bg, flavor-pumpkin |
+| CSS design tokens | kebab-case, color- or monster- prefix | color-bg, monster-pumpkin |
 | localStorage keys | hcj_ prefix, snake-case | hcj_tasks, hcj_sound |
 | Test files | .test.ts(x) suffix | decayFunction.test.ts |
 
@@ -103,6 +113,6 @@ Code belonging to a single feature lives inside `src/features/<feature>/`. Code 
 ## Pure logic boundary
 
 These files must remain pure (no side effects, no DOM access, no module-level mutable state):
-`decayFunction.ts`, `taskReducer.ts`, `taskSchema.ts`, `exportImport.ts`, `candyShape.ts`, `packingLayout.ts`
+`decayFunction.ts`, `taskReducer.ts`, `taskSchema.ts`, `exportImport.ts`, `monsterKind.ts`, `packingLayout.ts`
 
 Keep all side effects (localStorage, AudioContext, timers, DOM events) in service files and hooks.
