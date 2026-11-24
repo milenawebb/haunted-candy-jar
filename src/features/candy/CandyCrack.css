@@ -1,0 +1,33 @@
+/* Hold cracks: hairline, light with a faint dark edge. Transitions smooth the heal. */
+.candy-crack {
+  pointer-events: none;
+}
+
+.candy-crack__seg {
+  stroke-dasharray: 1;
+  transition:
+    stroke-dashoffset 90ms linear,
+    opacity 90ms linear,
+    stroke-width 90ms linear;
+}
+
+.candy-crack--heal .candy-crack__seg {
+  transition:
+    stroke-dashoffset 320ms ease-out,
+    opacity 320ms ease-out,
+    stroke-width 320ms ease-out;
+}
+
+/* Reduced motion: no progressive frames, just a 150ms fade. */
+.candy-crack--reduced .candy-crack__seg {
+  stroke-dashoffset: 0;
+  transition: opacity 150ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .candy-crack__seg,
+  .candy-crack--heal .candy-crack__seg {
+    stroke-dashoffset: 0;
+    transition: opacity 150ms linear;
+  }
+}

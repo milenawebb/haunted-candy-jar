@@ -240,7 +240,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Glow halo, wisp shapes and crack lines are the non-color distinguishing attributes per Requirements 7.12 and 12.6
   - _Requirements: 7.5, 7.6, 7.7, 7.8, 7.9, 7.11, 7.12, 12.6_
 
-- [-] 24. Implement `CandyCrack` press-and-hold crack overlay
+- [x] 24. Implement `CandyCrack` press-and-hold crack overlay
   - Create `src/features/candy/CandyCrack.tsx` accepting `progress: number` (0–1)
   - Render hairline SVG crack paths over the candy; map `progress` to path stroke-width and opacity
   - On early release (`progress` decreasing to 0), apply a CSS transition to smoothly heal (reverse) the cracks
@@ -248,7 +248,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Under `prefers-reduced-motion`, skip progressive crack frames, jump directly to full cracks at threshold, then fade-out in 150 ms on release
   - _Requirements: 4.2, 4.3, 4.7, 4.10_
 
-- [ ] 25. Implement `GhostCheer` post-completion sprite
+- [-] 25. Implement `GhostCheer` post-completion sprite
   - Create `src/features/candy/GhostCheer.tsx`: friendly ghost SVG sprite that appears briefly after completion
   - Animate a gentle float-up and fade-out; under `prefers-reduced-motion`, render as a static image that fades in 150 ms and disappears after 1 s
   - _Requirements: 4.5, 4.7_
