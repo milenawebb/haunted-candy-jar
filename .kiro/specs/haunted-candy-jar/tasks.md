@@ -261,8 +261,8 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - On threshold reached: call `onComplete()` callback once
   - _Requirements: 4.1, 4.2, 4.3, 4.9_
 
-- [ ] 27. Implement `CandyItem` composed candy component
-  - [ ] 27.1 Build `CandyItem` core: compose `MonsterShape` → `DecayOverlay` → `CandyCrack` → `BandageNote`
+- [x] 27. Implement `CandyItem` composed candy component
+  - [x] 27.1 Build `CandyItem` core: compose `MonsterShape` → `DecayOverlay` → `CandyCrack` → `BandageNote`
     - Render `MonsterShape` with `kind = task.monster`
     - Compute `decayStage` by calling `decayFunction(task, logicalNow)` where `logicalNow` comes from `useHauntClock()`
     - Apply stable rotation from `packingLayout` via the `rotation` prop
