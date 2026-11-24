@@ -21,13 +21,15 @@ export interface JarSceneProps {
   deskGlow?: ReactNode;
   /** Candies that spill onto the desk, drawn unclipped above the glass. */
   overflow?: ReactNode;
+  /** HTML overlay (for example text) positioned over the jar, above the SVG. */
+  overlay?: ReactNode;
 }
 
 /**
  * Composes the jar back to front: back glass, clipped candies, front glass,
  * then lid. The desk glow sits behind the SVG.
  */
-export function JarScene({ children, frontGlass, lid, deskGlow, overflow }: JarSceneProps) {
+export function JarScene({ children, frontGlass, lid, deskGlow, overflow, overlay }: JarSceneProps) {
   return (
     <div className="jar-scene" data-testid="jar-scene">
       <div className="jar-scene__desk-glow">{deskGlow ?? <DeskGlow />}</div>
@@ -51,6 +53,7 @@ export function JarScene({ children, frontGlass, lid, deskGlow, overflow }: JarS
         {lid ?? <JarLid />}
         {overflow}
       </svg>
+      {overlay}
     </div>
   );
 }

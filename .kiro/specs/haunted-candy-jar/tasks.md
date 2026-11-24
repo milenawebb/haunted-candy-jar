@@ -190,13 +190,13 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Create `src/features/jar/DeskGlow.tsx`: a soft shadow ellipse plus a warm glow on the desk under the jar (radial gradients, drawn behind the jar)
   - _Requirements: 10.6_
 
-- [ ] 18. Implement `EmptyState` component
+- [x] 18. Implement `EmptyState` component
   - Create `src/features/jar/EmptyState.tsx` showing a text prompt inside the empty jar inviting the user to add the first candy
   - Prompt must be real accessible text (not an image), announced by screen readers
   - Display only when `tasks.filter(t => !t.completedAt && !t.isSample).length === 0`
   - _Requirements: 14.1, 14.2_
 
-- [ ] 19. Wire `App.tsx` root with providers and scene
+- [-] 19. Wire `App.tsx` root with providers and scene
   - Create `src/App.tsx` wrapping `<TaskStoreProvider>` around `<DeskBackground>`, `<JarScene>` (with `<EmptyState>` inside), and a placeholder `<UndoToast>` stub
   - Mount `<App>` from `src/main.tsx`
   - Verify the app builds (`npm run build`) and loads in the browser with the desk scene and jar visible

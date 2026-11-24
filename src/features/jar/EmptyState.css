@@ -1,0 +1,30 @@
+.empty-state {
+  position: absolute;
+  /* Same box as JAR_PACK_BOX, as percentages of the 400 x 560 jar viewBox. */
+  left: calc(40 / 400 * 100%);
+  top: calc(90 / 560 * 100%);
+  width: calc(320 / 400 * 100%);
+  height: calc(420 / 560 * 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  box-sizing: border-box;
+  pointer-events: none;
+  text-align: center;
+}
+
+.empty-state__text {
+  margin: 0;
+  max-width: 14em;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-body);
+  font-size: max(12px, 1rem);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color-moon);
+  background: rgba(13, 5, 20, 0.62);
+  border: 1px dashed var(--color-moon-deep);
+  border-radius: 12px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}

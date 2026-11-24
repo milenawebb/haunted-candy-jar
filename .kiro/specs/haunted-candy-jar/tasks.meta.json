@@ -351,6 +351,25 @@
         "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
         "timestamp": 1795528158263
       }
+    ],
+    "18. Implement `EmptyState` component": [
+      {
+        "executionId": "59910165-217b-45d9-a55f-50db97d4b435",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795528170461
+      },
+      {
+        "executionId": "59910165-217b-45d9-a55f-50db97d4b435",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795528369033
+      }
+    ],
+    "19. Wire `App.tsx` root with providers and scene": [
+      {
+        "executionId": "59910165-217b-45d9-a55f-50db97d4b435",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795528379699
+      }
     ]
   }
 }
