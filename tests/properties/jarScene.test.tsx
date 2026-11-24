@@ -60,6 +60,20 @@ describe('JarScene', () => {
     );
   });
 
+  it('renders the default desk glow behind the jar, and honors an override', () => {
+    const { unmount } = render(<JarScene />);
+    const glow = screen.getByTestId('desk-glow');
+    expect(glow.getAttribute('aria-hidden')).toBe('true');
+    expect(screen.getByTestId('desk-glow-warm')).toBeTruthy();
+    expect(screen.getByTestId('desk-glow-shadow')).toBeTruthy();
+    const svg = screen.getByRole('group', { name: 'Candy jar' });
+    expect(glow.compareDocumentPosition(svg) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    unmount();
+    render(<JarScene deskGlow={<div data-testid="my-glow" />} />);
+    expect(screen.getByTestId('my-glow')).toBeTruthy();
+    expect(screen.queryByTestId('desk-glow')).toBeNull();
+  });
+
   it('uses a candy diameter of about one sixth of the pack width', () => {
     expect((JAR_CANDY_RADIUS * 2) / JAR_PACK_BOX.width).toBeCloseTo(1 / 6, 2);
   });

@@ -16,6 +16,7 @@
 .jar-scene__desk-glow {
   position: absolute;
   inset: 0;
+  overflow: visible;
   pointer-events: none;
 }
 

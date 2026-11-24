@@ -1,0 +1,40 @@
+.desk-glow {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Warm candle light pooled on the desk, leaning left toward the candles. */
+.desk-glow__warm {
+  position: absolute;
+  left: -22%;
+  width: 135%;
+  top: 84%;
+  height: 24%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 40% 50%,
+    color-mix(in srgb, var(--color-candle, #ffaa44) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-candle-deep, #c85a00) 28%, transparent) 40%,
+    transparent 72%
+  );
+  filter: blur(6px);
+}
+
+/* Contact shadow right under the jar base. */
+.desk-glow__shadow {
+  position: absolute;
+  left: 2%;
+  width: 96%;
+  top: 91%;
+  height: 8%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(5, 2, 10, 0.75) 0%,
+    rgba(5, 2, 10, 0.4) 50%,
+    transparent 80%
+  );
+  filter: blur(4px);
+}

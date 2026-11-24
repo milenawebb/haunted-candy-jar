@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { DeskGlow } from './DeskGlow';
 import { JarBackGlass } from './JarBackGlass';
 import { JarFrontGlass } from './JarFrontGlass';
 import { JarLid } from './JarLid';
@@ -29,7 +30,7 @@ export interface JarSceneProps {
 export function JarScene({ children, frontGlass, lid, deskGlow, overflow }: JarSceneProps) {
   return (
     <div className="jar-scene" data-testid="jar-scene">
-      {deskGlow ? <div className="jar-scene__desk-glow">{deskGlow}</div> : null}
+      <div className="jar-scene__desk-glow">{deskGlow ?? <DeskGlow />}</div>
       <svg
         className="jar-scene__svg"
         viewBox={JAR_VIEWBOX}
