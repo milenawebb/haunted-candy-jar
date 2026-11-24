@@ -341,7 +341,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Accessible: `role="status"` or `aria-live="polite"`
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [-] 33. Checkpoint, verify core task interactions end-to-end
+- [x] 33. Checkpoint, verify core task interactions end-to-end
   - Write RTL integration tests for: tap candy → context menu appears; press-and-hold simulation (> 800 ms) → `COMPLETE_TASK` dispatched; release before 800 ms → no completion; undo toast appears after delete; undo restores task
   - Run `npx vitest --run` and confirm all tests pass
   - _Requirements: 3.1, 4.1, 4.3, 5.1, 5.2_

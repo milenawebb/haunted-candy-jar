@@ -89,7 +89,11 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
   const rootRef = useRef<SVGGElement>(null);
   const downAt = useRef(0);
   const suppressClick = useRef(false);
-  const completing = phase !== 'idle' && task.completedAt !== null;
+  // A task completed from the context menu never ran the hold gesture, so the
+  // phase is still 'idle'; completedAt alone decides, unless the ghost has finished.
+  const completing = phase !== 'gone' && task.completedAt !== null;
+  // Undo clears completedAt: allow the next completion to show its ghost again.
+  if (phase !== 'idle' && task.completedAt === null) setPhase('idle');
 
   useLayoutEffect(() => {
     if (jarScale !== undefined) return;
