@@ -112,14 +112,14 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
     - **Property 3: Task serialisation round-trip**
     - **Validates: Requirements 2.5, 16.4**
 
-- [-] 11. Implement `packingLayout.ts` stable candy positions
+- [x] 11. Implement `packingLayout.ts` stable candy positions
   - Create `src/utils/packingLayout.ts` exporting `computePacking(taskIds: string[], jarWidth: number, jarHeight: number): Array<{x: number, y: number, rotation: number}>`
   - Use a seeded LCG random number generator initialised from a numeric hash of the sorted `taskIds` joined string; positions settle toward the bottom of the jar
   - Rotation per candy is ±15° derived from the individual task `id`
   - Maximum 10% overlap between adjacent candy radii is acceptable
   - _Requirements: 13.1_
 
-- [ ] 12. Implement `whisperGain.ts` gain budget manager
+- [-] 12. Implement `whisperGain.ts` gain budget manager
   - Create `src/features/audio/whisperGain.ts` exporting `DEFAULT_WHISPER_GAIN` constant and `allocateWhisperGain(n: number, budget: number): number[]` pure function
   - Returns an array of length `n` where every element equals `budget / n` and sum ≤ `budget + Number.EPSILON`
   - _Requirements: 11.1, 11.2_
