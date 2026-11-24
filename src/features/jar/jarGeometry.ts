@@ -40,5 +40,14 @@ export const JAR_MOUTH_Y = 36;
 export const JAR_MOUTH_LEFT = 74;
 export const JAR_MOUTH_RIGHT = 326;
 
+/** Horizontal center of the jar mouth. */
+export const JAR_MOUTH_CENTER_X = (JAR_MOUTH_LEFT + JAR_MOUTH_RIGHT) / 2;
+
+/**
+ * Lid pivot (viewBox units): the center of the lid's underside, resting on the
+ * rim of the jar neck. Rotate the lid around this point.
+ */
+export const JAR_LID_PIVOT = { x: JAR_MOUTH_CENTER_X, y: 30 } as const;
+
 /** Ids for SVG defs, shared so layers can reference the same clip. */
 export const JAR_CLIP_ID = 'hcj-jar-inside-clip';

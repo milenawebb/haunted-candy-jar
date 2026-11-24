@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { JarLid, lidTransform } from '../../src/features/jar/JarLid';
 import { JarScene } from '../../src/features/jar/JarScene';
 import { JAR_CANDY_RADIUS, JAR_PACK_BOX } from '../../src/features/jar/jarGeometry';
 
@@ -37,6 +38,26 @@ describe('JarScene', () => {
     unmount();
     render(<JarScene frontGlass={<g data-testid="front" />} />);
     expect(screen.queryByTestId('jar-front-glass')).toBeNull();
+  });
+
+  it('renders the default lid with a knob above the front glass, and honors an override', () => {
+    const { unmount } = render(<JarScene />);
+    const lid = screen.getByTestId('jar-lid');
+    expect(lid.getAttribute('aria-hidden')).toBe('true');
+    expect(lid.querySelectorAll('circle').length).toBeGreaterThan(0);
+    expect(lid.hasAttribute('transform')).toBe(false);
+    const nodes = Array.from(screen.getByRole('group', { name: 'Candy jar' }).children);
+    expect(nodes.indexOf(lid)).toBeGreaterThan(nodes.indexOf(screen.getByTestId('jar-front-glass')));
+    unmount();
+    render(<JarScene lid={<g data-testid="lid" />} />);
+    expect(screen.queryByTestId('jar-lid')).toBeNull();
+  });
+
+  it('applies the transform prop to the lid', () => {
+    render(<JarScene lid={<JarLid transform={lidTransform(20, -12)} />} />);
+    expect(screen.getByTestId('jar-lid').getAttribute('transform')).toBe(
+      'translate(0 -20) rotate(-12 200 30)',
+    );
   });
 
   it('uses a candy diameter of about one sixth of the pack width', () => {

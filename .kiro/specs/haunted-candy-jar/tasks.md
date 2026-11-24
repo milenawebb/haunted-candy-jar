@@ -182,11 +182,11 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Create `src/features/jar/JarFrontGlass.tsx`: brighter rim on the sides (`--color-glass-rim`), slightly darker edges, vertical light streaks, a faint window reflection on the right, a thick glass base, and a warm candle glow on the left side
   - _Requirements: 10.6_
 
-- [-] 17b. Implement `JarLid` with round knob
+- [x] 17b. Implement `JarLid` with round knob
   - Create `src/features/jar/JarLid.tsx`: SVG lid with a round knob and glass-rim highlight; accepts a `transform` prop (translate and rotate) so `LidAnimation` can lift and tilt it
   - _Requirements: 10.6, 1.7_
 
-- [ ] 17c. Implement `DeskGlow` shadow and warm glow
+- [-] 17c. Implement `DeskGlow` shadow and warm glow
   - Create `src/features/jar/DeskGlow.tsx`: a soft shadow ellipse plus a warm glow on the desk under the jar (radial gradients, drawn behind the jar)
   - _Requirements: 10.6_
 

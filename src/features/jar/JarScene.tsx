@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { JarBackGlass } from './JarBackGlass';
 import { JarFrontGlass } from './JarFrontGlass';
+import { JarLid } from './JarLid';
 import {
   JAR_CLIP_ID,
   JAR_INSIDE_PATH,
@@ -13,7 +14,7 @@ export interface JarSceneProps {
   children?: ReactNode;
   /** Front glass layer (SVG content). Drawn above the candies. Defaults to JarFrontGlass. */
   frontGlass?: ReactNode;
-  /** Lid (SVG content). Drawn above the front glass. */
+  /** Lid (SVG content). Drawn above the front glass. Defaults to JarLid. */
   lid?: ReactNode;
   /** Soft desk shadow and glow (HTML or SVG), drawn behind the jar. */
   deskGlow?: ReactNode;
@@ -46,7 +47,7 @@ export function JarScene({ children, frontGlass, lid, deskGlow, overflow }: JarS
           {children}
         </g>
         {frontGlass ?? <JarFrontGlass />}
-        {lid}
+        {lid ?? <JarLid />}
         {overflow}
       </svg>
     </div>
