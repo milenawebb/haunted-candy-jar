@@ -1,0 +1,119 @@
+.add-task-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(13, 5, 20, 0.7);
+  animation: add-task-fade 150ms linear;
+}
+.add-task-modal {
+  width: min(420px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--space-5);
+  background: var(--color-bg);
+  color: var(--color-moon);
+  border: 2px solid var(--color-candle-deep);
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(13, 5, 20, 0.8), 0 0 22px rgba(255, 170, 68, 0.25);
+  font-family: var(--font-body);
+  animation: add-task-pop 180ms ease-out;
+}
+.add-task-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.add-task-form__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.75rem;
+  color: var(--color-candle);
+}
+.add-task-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.add-task-form__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.add-task-form__input {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  color: var(--color-bandage-ink);
+  background: var(--color-bandage);
+  border: 2px solid var(--color-candle-deep);
+  border-radius: 10px;
+}
+.add-task-form__input:focus-visible,
+.add-task-form__btn:focus-visible {
+  outline: 3px solid var(--color-moon);
+  outline-offset: 2px;
+}
+.add-task-form__input[aria-invalid='true'] {
+  border-style: dashed;
+}
+.add-task-form__error {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-candle);
+}
+.add-task-form__error::before {
+  content: '! ';
+}
+.add-task-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+.add-task-form__btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-5);
+  font: inherit;
+  font-weight: 700;
+  color: var(--color-bg-deep);
+  background: var(--color-candle);
+  border: 2px solid var(--color-candle-deep);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.add-task-form__btn--ghost {
+  color: var(--color-moon);
+  background: transparent;
+  border-color: var(--color-moon-deep);
+}
+@keyframes add-task-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes add-task-pop {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.add-task-backdrop--fade .add-task-modal {
+  animation: add-task-fade 150ms linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .add-task-modal {
+    animation: add-task-fade 150ms linear;
+  }
+}

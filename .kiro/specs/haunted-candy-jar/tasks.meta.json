@@ -533,6 +533,25 @@
         "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
         "timestamp": 1795548086292
       }
+    ],
+    "30. Implement `AddTaskForm` modal": [
+      {
+        "executionId": "653dc9cf-e2e1-43c2-907b-cb77f26cf5eb",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795548144898
+      },
+      {
+        "executionId": "653dc9cf-e2e1-43c2-907b-cb77f26cf5eb",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795548276429
+      }
+    ],
+    "31. Implement `EditTaskForm` modal": [
+      {
+        "executionId": "653dc9cf-e2e1-43c2-907b-cb77f26cf5eb",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795548279389
+      }
     ]
   }
 }

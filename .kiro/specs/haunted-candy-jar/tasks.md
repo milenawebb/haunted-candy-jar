@@ -317,7 +317,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Props: `value: MonsterKind | null`, `onChange(kind)`; `null` means the monster is auto-assigned
   - _Requirements: 1.5, 12.1, 12.3_
 
-- [-] 30. Implement `AddTaskForm` modal
+- [x] 30. Implement `AddTaskForm` modal
   - Create `src/features/forms/AddTaskForm.tsx`: title `<input>` (required), due date `<input type="date">` (optional), and the `MonsterPicker` (task 30a) in place of the old flavor and shape pickers
   - Inline validation message on empty-title submit; no task created
   - On valid submit: dispatch `CREATE_TASK`, close form
@@ -325,7 +325,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Fully keyboard navigable; closes on Escape or Cancel without creating a task
   - _Requirements: 1.1, 1.4, 1.5, 3.3_
 
-- [ ] 31. Implement `EditTaskForm` modal
+- [-] 31. Implement `EditTaskForm` modal
   - Create `src/features/forms/EditTaskForm.tsx`: same fields as `AddTaskForm` but pre-populated from the selected task's current title, due date, and `monster` (the `MonsterPicker` shows the task's current monster selected)
   - On valid submit: dispatch `EDIT_TASK`, close form
   - Inline validation on empty-title submit; no update applied
