@@ -119,16 +119,16 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Maximum 10% overlap between adjacent candy radii is acceptable
   - _Requirements: 13.1_
 
-- [-] 12. Implement `whisperGain.ts` gain budget manager
+- [x] 12. Implement `whisperGain.ts` gain budget manager
   - Create `src/features/audio/whisperGain.ts` exporting `DEFAULT_WHISPER_GAIN` constant and `allocateWhisperGain(n: number, budget: number): number[]` pure function
   - Returns an array of length `n` where every element equals `budget / n` and sum ≤ `budget + Number.EPSILON`
   - _Requirements: 11.1, 11.2_
 
-  - [ ]* 12.1 Write property tests for whisper gain budget (Property 8)
+  - [x]* 12.1 Write property tests for whisper gain budget (Property 8)
     - **Property 8: Whisper gain budget is bounded**
     - **Validates: Requirements 11.1, 11.2**
 
-- [ ] 13. Checkpoint, run all property-based tests, fix any failures
+- [-] 13. Checkpoint, run all property-based tests, fix any failures
   - Execute `npx vitest --run` and confirm all property-based tests pass
   - Ensure all pure modules have no TypeScript errors (`tsc --noEmit`)
   - _Requirements: 8.3_

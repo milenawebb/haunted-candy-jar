@@ -15,6 +15,10 @@
     "10.1 Write property tests for `serializeTaskList` / `deserializeTaskList` round-trip (Property 3)": {
       "status": "passed",
       "lastRunTimestamp": 1795526727640
+    },
+    "12.1 Write property tests for whisper gain budget (Property 8)": {
+      "status": "passed",
+      "lastRunTimestamp": 1795526887874
     }
   },
   "executionHistory": {
@@ -227,6 +231,25 @@
         "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
         "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
         "timestamp": 1795526811281
+      },
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526894550
+      }
+    ],
+    "12.1 Write property tests for whisper gain budget (Property 8)": [
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526903899
+      }
+    ],
+    "13. Checkpoint, run all property-based tests, fix any failures": [
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526904073
       }
     ]
   }
