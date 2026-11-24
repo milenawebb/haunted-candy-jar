@@ -375,6 +375,25 @@
         "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
         "timestamp": 1795528535968
       }
+    ],
+    "20. Implement `MonsterShape` dispatcher and four candy monsters (pumpkin, mummy, skeleton, spider)": [
+      {
+        "executionId": "14aa319a-286e-4b56-bdb6-0afe965c6e37",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795532292681
+      },
+      {
+        "executionId": "14aa319a-286e-4b56-bdb6-0afe965c6e37",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795532433076
+      }
+    ],
+    "21. Implement four more candy monsters (frankenstein, vampire, bat, gravestone)": [
+      {
+        "executionId": "14aa319a-286e-4b56-bdb6-0afe965c6e37",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795532440439
+      }
     ]
   }
 }

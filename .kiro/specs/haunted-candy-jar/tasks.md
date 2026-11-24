@@ -206,7 +206,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
 
 ### Phase 4: Candy rendering
 
-- [ ] 20. Implement `MonsterShape` dispatcher and four candy monsters (pumpkin, mummy, skeleton, spider)
+- [x] 20. Implement `MonsterShape` dispatcher and four candy monsters (pumpkin, mummy, skeleton, spider)
   - Create `src/features/candy/MonsterShape.tsx` (props `kind: MonsterKind`, `decayStage`, `size`) that renders the matching monster component and a contact shadow ellipse below
   - Create `src/features/candy/monsters/PumpkinMonster.tsx`, `MummyMonster.tsx`, `SkeletonMonster.tsx`, `SpiderMonster.tsx` as original SVG designs (see the design table for silhouettes and faces)
   - Each monster has the glossy hard-candy look: radial gradient body from its `monster-*` token (lighter center, darker edge), a bright top-left highlight (white, 85% opacity), a small four-point sparkle, and a soft bottom-right inner shadow
@@ -214,7 +214,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Default size: 72 px desktop / 60 px mobile via CSS custom property
   - _Requirements: 7.5, 7.6, 10.7_
 
-- [ ] 21. Implement four more candy monsters (frankenstein, vampire, bat, gravestone)
+- [-] 21. Implement four more candy monsters (frankenstein, vampire, bat, gravestone)
   - Create `src/features/candy/monsters/FrankensteinMonster.tsx`, `VampireMonster.tsx`, `BatMonster.tsx`, `GravestoneMonster.tsx` as original SVG designs following the same hard-candy look and props as task 20
   - Register all four in `MonsterShape.tsx` so every `MonsterKind` renders (exhaustive `switch` with a `never` check)
   - _Requirements: 10.7_

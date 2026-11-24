@@ -25,6 +25,9 @@
   --monster-bat: #3c2f63;
   --monster-gravestone: #8e93a3;
 
+  /* Candy size: 72px desktop, 60px mobile (see media query below) */
+  --candy-size: 72px;
+
   /* Shadows */
   --shadow-near: 1px 2px 3px rgba(200, 90, 0, 0.35);
   --shadow-far: 4px 8px 24px rgba(80, 100, 150, 0.2);
@@ -43,4 +46,10 @@
   --space-6: 32px;
   --space-7: 48px;
   --space-8: 64px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --candy-size: 60px;
+  }
 }
