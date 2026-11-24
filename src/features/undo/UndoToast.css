@@ -1,0 +1,103 @@
+.undo-toast-region {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  pointer-events: none;
+}
+
+.undo-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-bandage);
+  background: var(--color-bg);
+  border: 2px solid var(--color-moon-deep);
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(13, 5, 20, 0.7), 0 0 14px rgba(184, 212, 255, 0.25);
+  pointer-events: auto;
+  animation: undo-toast-in 220ms ease-out;
+}
+
+.undo-toast--reduced {
+  animation: undo-toast-fade 150ms linear;
+}
+
+.undo-toast__text {
+  min-width: 0;
+}
+
+.undo-toast__undo,
+.undo-toast__dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.undo-toast__undo {
+  padding: 0 var(--space-4);
+  font-weight: 700;
+  color: var(--color-bg-deep);
+  background: var(--color-candle);
+  border: 2px solid var(--color-candle-deep);
+  border-radius: 999px;
+}
+
+.undo-toast__dismiss {
+  padding: 0;
+  color: var(--color-moon);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+}
+
+.undo-toast__undo:focus-visible,
+.undo-toast__dismiss:focus-visible {
+  outline: 3px solid var(--color-moon);
+  outline-offset: 2px;
+}
+
+/* Keep clear of the bottom-right "Add a candy" button on narrow screens. */
+@media (max-width: 600px) {
+  .undo-toast-region {
+    bottom: calc(var(--space-4) + 44px + var(--space-3) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@keyframes undo-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes undo-toast-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .undo-toast {
+    animation: undo-toast-fade 150ms linear;
+  }
+}

@@ -332,7 +332,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - On Cancel: discard changes, close form; task record unchanged
   - _Requirements: 6.1, 6.2, 6.3, 6.5_
 
-- [-] 32. Implement `UndoToast` component
+- [x] 32. Implement `UndoToast` component
   - Create `src/features/undo/UndoToast.tsx` reading `pendingUndo` from store
   - Show at bottom of screen for 6 s; `setTimeout` dispatches `UNDO_EXPIRED` on natural expiry
   - "Undo" button dispatches `UNDO` and immediately saves restored task to persistence
@@ -341,7 +341,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Accessible: `role="status"` or `aria-live="polite"`
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 33. Checkpoint, verify core task interactions end-to-end
+- [-] 33. Checkpoint, verify core task interactions end-to-end
   - Write RTL integration tests for: tap candy → context menu appears; press-and-hold simulation (> 800 ms) → `COMPLETE_TASK` dispatched; release before 800 ms → no completion; undo toast appears after delete; undo restores task
   - Run `npx vitest --run` and confirm all tests pass
   - _Requirements: 3.1, 4.1, 4.3, 5.1, 5.2_
