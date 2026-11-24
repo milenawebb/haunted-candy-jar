@@ -178,11 +178,11 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Jar is sized to `~480 px` on desktop and `~90vw` on mobile via CSS
   - _Requirements: 10.1, 10.6, 13.1_
 
-- [-] 17a. Implement `JarFrontGlass` layer
+- [x] 17a. Implement `JarFrontGlass` layer
   - Create `src/features/jar/JarFrontGlass.tsx`: brighter rim on the sides (`--color-glass-rim`), slightly darker edges, vertical light streaks, a faint window reflection on the right, a thick glass base, and a warm candle glow on the left side
   - _Requirements: 10.6_
 
-- [ ] 17b. Implement `JarLid` with round knob
+- [-] 17b. Implement `JarLid` with round knob
   - Create `src/features/jar/JarLid.tsx`: SVG lid with a round knob and glass-rim highlight; accepts a `transform` prop (translate and rotate) so `LidAnimation` can lift and tilt it
   - _Requirements: 10.6, 1.7_
 

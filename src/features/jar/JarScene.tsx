@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { JarBackGlass } from './JarBackGlass';
+import { JarFrontGlass } from './JarFrontGlass';
 import {
   JAR_CLIP_ID,
   JAR_INSIDE_PATH,
@@ -10,7 +11,7 @@ import './JarScene.css';
 export interface JarSceneProps {
   /** Candies, drawn in jar coordinates and clipped to the jar's inside shape. */
   children?: ReactNode;
-  /** Front glass layer (SVG content). Drawn above the candies. */
+  /** Front glass layer (SVG content). Drawn above the candies. Defaults to JarFrontGlass. */
   frontGlass?: ReactNode;
   /** Lid (SVG content). Drawn above the front glass. */
   lid?: ReactNode;
@@ -44,7 +45,7 @@ export function JarScene({ children, frontGlass, lid, deskGlow, overflow }: JarS
         <g clipPath={`url(#${JAR_CLIP_ID})`} data-testid="jar-candies">
           {children}
         </g>
-        {frontGlass}
+        {frontGlass ?? <JarFrontGlass />}
         {lid}
         {overflow}
       </svg>

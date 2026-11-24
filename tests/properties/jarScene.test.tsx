@@ -25,6 +25,20 @@ describe('JarScene', () => {
     expect(idx('front')).toBeLessThan(idx('lid'));
   });
 
+  it('renders the default front glass above the candies, and honors an override', () => {
+    const { unmount } = render(<JarScene />);
+    const front = screen.getByTestId('jar-front-glass');
+    expect(front.getAttribute('aria-hidden')).toBe('true');
+    expect(front.getAttribute('pointer-events')).toBe('none');
+    const nodes = Array.from(screen.getByRole('group', { name: 'Candy jar' }).children);
+    expect(nodes.indexOf(front)).toBeGreaterThan(
+      nodes.findIndex((n) => n.getAttribute('data-testid') === 'jar-candies'),
+    );
+    unmount();
+    render(<JarScene frontGlass={<g data-testid="front" />} />);
+    expect(screen.queryByTestId('jar-front-glass')).toBeNull();
+  });
+
   it('uses a candy diameter of about one sixth of the pack width', () => {
     expect((JAR_CANDY_RADIUS * 2) / JAR_PACK_BOX.width).toBeCloseTo(1 / 6, 2);
   });
