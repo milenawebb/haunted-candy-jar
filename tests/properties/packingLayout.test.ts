@@ -49,7 +49,35 @@ describe('packingLayout', () => {
         fc.pre(ids.length > 0 && !ids.includes(extra));
         const a = computePacking(ids, 400, 500);
         const b = computePacking([...ids, extra], 400, 500);
-        expect(b[0].rotation).toBe(a[0].rotation);
+        expect(b[0]?.rotation).toBe(a[0]?.rotation);
+      }),
+      { numRuns: 100 },
+    );
+  });
+
+  // Validates: Requirement 13.1
+  it('fits 24 candies inside the jar with at most 10% overlap', () => {
+    fc.assert(
+      fc.property(fc.uniqueArray(fc.uuid(), { minLength: 24, maxLength: 24 }), (ids) => {
+        const w = 360;
+        const h = 480;
+        const radius = Math.min(w, h) / 12;
+        const out = computePacking(ids, w, h);
+        for (const p of out) {
+          expect(p.x).toBeGreaterThanOrEqual(0);
+          expect(p.x).toBeLessThanOrEqual(w);
+          expect(p.y).toBeGreaterThanOrEqual(0);
+          expect(p.y).toBeLessThanOrEqual(h);
+        }
+        for (let i = 0; i < out.length; i++) {
+          for (let j = i + 1; j < out.length; j++) {
+            const a = out[i];
+            const b = out[j];
+            if (!a || !b) continue;
+            const d = Math.hypot(a.x - b.x, a.y - b.y);
+            expect(d).toBeGreaterThanOrEqual(2 * radius - 0.1 * radius - 1e-6);
+          }
+        }
       }),
       { numRuns: 100 },
     );

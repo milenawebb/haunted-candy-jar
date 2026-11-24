@@ -46,7 +46,7 @@ export function computePacking(
 ): PackedPosition[] {
   if (taskIds.length === 0) return [];
 
-  const radius = Math.max(1, Math.min(jarWidth / 9, jarHeight / 9));
+  const radius = Math.max(1, Math.min(jarWidth / 12, jarHeight / 12));
   // Allow up to 10% of the radius to overlap between neighbours.
   const minDist = 2 * radius - 0.1 * radius;
   const minX = Math.min(radius, jarWidth / 2);
