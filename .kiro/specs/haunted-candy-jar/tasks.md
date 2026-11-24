@@ -154,12 +154,12 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
     - Dispatch `COMPLETE_TASK` or `DELETE_TASK` on a randomly generated task list, then `UNDO`; assert resulting tasks deep-equal the original list
     - **Validates: Requirements 5.2**
 
-- [-] 15. Implement `useReducedMotion` and `useHauntClock` hooks
+- [x] 15. Implement `useReducedMotion` and `useHauntClock` hooks
   - Create `src/hooks/useReducedMotion.ts` returning `boolean` via `window.matchMedia('(prefers-reduced-motion: reduce)').matches`, with a listener for changes
   - Create `src/hooks/useHauntClock.ts` returning the current logical timestamp; uses `setInterval` at 1 s when `hauntSpeed > 1`, or 60 s when `hauntSpeed === 1`; computes value via `computeLogicalNow` from `hauntClock.ts`
   - _Requirements: 4.7, 7.4, 7.11, 9.7, 10.3, 12.5, 15.6_
 
-- [ ] 16. Wire the desk-scene background (`DeskBackground`)
+- [-] 16. Wire the desk-scene background (`DeskBackground`)
   - Create `src/features/scene/DeskBackground.tsx` rendering `public/images/desk-scene.png` (1672x941, already in the repo) full-bleed with `object-fit: cover`; this is the single allowed bitmap asset
   - On viewports under 768 px wide use `object-position: 82% center` so the moonlit window shows behind the jar
   - Add a soft dark gradient at the top (CSS `linear-gradient`) so the title stays readable
