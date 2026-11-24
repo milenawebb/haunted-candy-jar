@@ -1,0 +1,38 @@
+/*
+ * Shared bandage style.
+ *
+ * .bandage-strip is the HTML version of the mummy-bandage look: linen
+ * background (--color-bandage), a faint woven texture, frayed (jagged) left
+ * and right ends, and dark ink (--color-bandage-ink) in Inter. ListView rows
+ * reuse it by adding the class, so rows and jar notes stay consistent:
+ *
+ *   <li className="bandage-strip">...</li>
+ *
+ * BandageNote draws the same look in SVG (pattern fill, jagged path). Its
+ * text uses .bandage-note__text, which shares the ink and font tokens.
+ * Everything here is static, so no reduced-motion fallback is needed.
+ */
+.bandage-strip {
+  background-color: var(--color-bandage);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(43, 33, 24, 0.06) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(43, 33, 24, 0.06) 0 1px, transparent 1px 4px);
+  color: var(--color-bandage-ink);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  padding-inline: 14px;
+  clip-path: polygon(
+    0 8%, 3px 0, 5px 14%, 8px 2%, calc(100% - 8px) 0, calc(100% - 5px) 12%, calc(100% - 3px) 0, 100% 10%,
+    calc(100% - 4px) 28%, 100% 44%, calc(100% - 4px) 60%, 100% 76%, calc(100% - 3px) 92%, 100% 100%,
+    calc(100% - 8px) 96%, calc(100% - 12px) 100%, 8px 100%, 4px 94%, 0 100%,
+    4px 78%, 0 62%, 4px 46%, 0 30%, 4px 18%
+  );
+}
+
+.bandage-note__text {
+  fill: var(--color-bandage-ink);
+  font-family: var(--font-body);
+  font-weight: 500;
+  pointer-events: none;
+  user-select: none;
+}

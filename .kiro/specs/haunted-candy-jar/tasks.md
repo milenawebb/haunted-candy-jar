@@ -223,7 +223,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
     - Fine-tune gradient stops, highlight shape and sparkle placement across all eight monsters for a more polished glossy hard-candy finish (no raster images)
     - _Requirements: 10.7_
 
-- [ ] 22. Implement `BandageNote` mummy-bandage note component
+- [x] 22. Implement `BandageNote` mummy-bandage note component
   - Create `src/features/candy/BandageNote.tsx`: off-white linen strip (`--color-bandage`) with a faint woven texture (SVG `<pattern>`), torn frayed edges (jagged path ends), a slight tilt (2 to 4 degrees, stable per task ID), and a short bandage tail hanging toward its candy
   - Task title truncated to about 18 chars with ellipsis, Inter at minimum 12 px, dark ink color (`--color-bandage-ink`)
   - When `selected` is true, do not expand the note; the full title is shown in the Context_Menu
