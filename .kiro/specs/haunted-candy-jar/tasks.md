@@ -301,7 +301,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
 
 ### Phase 5: Task interactions
 
-- [ ] 29. Implement `ContextMenu` with keyboard support
+- [x] 29. Implement `ContextMenu` with keyboard support
   - Create `src/features/contextMenu/ContextMenu.tsx` with four buttons: Complete, Focus, Edit, Delete
   - Menu opens beside the lifted candy and its `BandageNote` (the candy lifts out of the jar on selection); dismissing returns the candy to the jar
   - On desktop: positioned adjacent to the lifted candy via CSS absolute positioning; on mobile: `BottomSheet` variant (see task 43)
@@ -311,7 +311,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - `Complete` button in the Context_Menu dispatches `COMPLETE_TASK` as an alternative to press-and-hold
   - _Requirements: 3.2, 3.3, 3.4, 3.5, 3.6, 3.7_
 
-- [ ] 30a. Implement `MonsterPicker` component
+- [-] 30a. Implement `MonsterPicker` component
   - Create `src/features/forms/MonsterPicker.tsx`: a grid of 8 small monster buttons (one per `MonsterKind`), each showing a small `MonsterShape` thumbnail
   - Each button has an accessible name equal to the monster name (`aria-label`, for example "Pumpkin"), `aria-pressed`, a minimum 44x44 px hit area, arrow-key navigation, and a ring outline plus check mark for the selected one (not color alone)
   - Props: `value: MonsterKind | null`, `onChange(kind)`; `null` means the monster is auto-assigned

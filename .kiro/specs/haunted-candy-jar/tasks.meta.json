@@ -509,6 +509,25 @@
         "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
         "timestamp": 1795543021432
       }
+    ],
+    "29. Implement `ContextMenu` with keyboard support": [
+      {
+        "executionId": "653dc9cf-e2e1-43c2-907b-cb77f26cf5eb",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795547148753
+      },
+      {
+        "executionId": "653dc9cf-e2e1-43c2-907b-cb77f26cf5eb",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795547641371
+      }
+    ],
+    "30a. Implement `MonsterPicker` component": [
+      {
+        "executionId": "653dc9cf-e2e1-43c2-907b-cb77f26cf5eb",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795547642796
+      }
     ]
   }
 }
