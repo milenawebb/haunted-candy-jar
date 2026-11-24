@@ -325,14 +325,14 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Fully keyboard navigable; closes on Escape or Cancel without creating a task
   - _Requirements: 1.1, 1.4, 1.5, 3.3_
 
-- [-] 31. Implement `EditTaskForm` modal
+- [x] 31. Implement `EditTaskForm` modal
   - Create `src/features/forms/EditTaskForm.tsx`: same fields as `AddTaskForm` but pre-populated from the selected task's current title, due date, and `monster` (the `MonsterPicker` shows the task's current monster selected)
   - On valid submit: dispatch `EDIT_TASK`, close form
   - Inline validation on empty-title submit; no update applied
   - On Cancel: discard changes, close form; task record unchanged
   - _Requirements: 6.1, 6.2, 6.3, 6.5_
 
-- [ ] 32. Implement `UndoToast` component
+- [-] 32. Implement `UndoToast` component
   - Create `src/features/undo/UndoToast.tsx` reading `pendingUndo` from store
   - Show at bottom of screen for 6 s; `setTimeout` dispatches `UNDO_EXPIRED` on natural expiry
   - "Undo" button dispatches `UNDO` and immediately saves restored task to persistence
