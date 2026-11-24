@@ -1,0 +1,44 @@
+/* Decay overlay: wisp drift and halo pulse. Static under reduced motion. */
+.decay-overlay {
+  pointer-events: none;
+}
+
+.decay-wisp {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.decay-wisp--animated {
+  animation: decay-wisp-drift 5s ease-in-out infinite;
+}
+
+.decay-wisp--animated:nth-of-type(2) {
+  animation-duration: 6.5s;
+  animation-delay: -2s;
+}
+
+.decay-wisp--animated:nth-of-type(3) {
+  animation-duration: 7.5s;
+  animation-delay: -4s;
+}
+
+@keyframes decay-wisp-drift {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(3px, -6px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .decay-wisp--animated {
+    animation: none;
+  }
+}

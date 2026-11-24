@@ -1,6 +1,8 @@
 import type { CSSProperties } from 'react';
 import type { DecayStage, MonsterKind } from '../tasks/taskTypes';
 import { useSafeId, type MonsterArtProps } from './monsters/CandyBase';
+import { DecayOverlay } from './DecayOverlay';
+import { decayLook } from './decayLook';
 import { BatMonster } from './monsters/BatMonster';
 import { FrankensteinMonster } from './monsters/FrankensteinMonster';
 import { GravestoneMonster } from './monsters/GravestoneMonster';
@@ -25,7 +27,7 @@ import { SpiderMonster } from './monsters/SpiderMonster';
  */
 export interface MonsterShapeProps extends MonsterArtProps {
   kind: MonsterKind;
-  /** Exposed as data-decay-stage. DecayOverlay (a later task) drives the look. */
+  /** Exposed as data-decay-stage. The look comes from decayLook(stage) and DecayOverlay. */
   decayStage: DecayStage;
   /** Width in px. Default comes from --candy-size. */
   size?: number;
@@ -71,7 +73,11 @@ export function MonsterShape({
 }: MonsterShapeProps) {
   const uid = useSafeId();
   const blurId = `${uid}-blur`;
-  const art: MonsterArtProps = { highlightOpacity, sparkleOpacity };
+  const look = decayLook(decayStage);
+  const art: MonsterArtProps = {
+    highlightOpacity: highlightOpacity ?? look.highlightOpacity,
+    sparkleOpacity: sparkleOpacity ?? look.sparkleOpacity,
+  };
 
   const content = (
     <>
@@ -89,7 +95,14 @@ export function MonsterShape({
         fill="rgba(0,0,0,0.4)"
         filter={`url(#${blurId})`}
       />
-      {renderMonster(kind, art)}
+      <DecayOverlay stage={decayStage} layer="back" uid={uid} />
+      <g
+        data-part="monster-body"
+        style={look.bodyFilter === 'none' ? undefined : { filter: look.bodyFilter }}
+      >
+        {renderMonster(kind, art)}
+      </g>
+      <DecayOverlay stage={decayStage} layer="front" uid={uid} />
     </>
   );
 

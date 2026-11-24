@@ -230,7 +230,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Export a shared bandage style class (linen background, frayed ends, dark ink) that `ListView` rows reuse
   - _Requirements: 3.8, 10.1_
 
-- [ ] 23. Implement `DecayOverlay` for the five stage looks
+- [x] 23. Implement `DecayOverlay` for the five stage looks
   - Create `src/features/candy/DecayOverlay.tsx` for the stages Fresh, Dull, Spooky, Haunted, Cursed
   - Stage 1 Fresh: glossy, full highlight, no overlay
   - Stage 2 Dull: duller body and reduced highlight and sparkle opacity, no overlay
@@ -240,7 +240,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Glow halo, wisp shapes and crack lines are the non-color distinguishing attributes per Requirements 7.12 and 12.6
   - _Requirements: 7.5, 7.6, 7.7, 7.8, 7.9, 7.11, 7.12, 12.6_
 
-- [ ] 24. Implement `CandyCrack` press-and-hold crack overlay
+- [-] 24. Implement `CandyCrack` press-and-hold crack overlay
   - Create `src/features/candy/CandyCrack.tsx` accepting `progress: number` (0–1)
   - Render hairline SVG crack paths over the candy; map `progress` to path stroke-width and opacity
   - On early release (`progress` decreasing to 0), apply a CSS transition to smoothly heal (reverse) the cracks
