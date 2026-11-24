@@ -1,0 +1,38 @@
+/* Glass refraction: candies near the jar wall get a faint cool, slightly duller look. */
+.jar-pile__candy--near-wall {
+  filter: saturate(0.95) hue-rotate(8deg);
+}
+
+/* Drop from the lid to the slot, with a small bounce at the end. */
+.jar-pile__candy--drop {
+  animation: jar-pile-drop 650ms cubic-bezier(0.28, 1.25, 0.5, 1) both;
+}
+
+@keyframes jar-pile-drop {
+  from {
+    transform: translate(var(--drop-x, 0px), var(--drop-y, 0px));
+  }
+  to {
+    transform: translate(0px, 0px);
+  }
+}
+
+/* Reduced motion, and desk candies: a short fade with no movement. */
+.jar-pile__candy--fade {
+  animation: jar-pile-fade 150ms linear both;
+}
+
+@keyframes jar-pile-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jar-pile__candy--drop {
+    animation: jar-pile-fade 150ms linear both;
+  }
+}

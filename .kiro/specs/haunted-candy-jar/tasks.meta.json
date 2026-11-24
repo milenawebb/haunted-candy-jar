@@ -478,6 +478,32 @@
         "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
         "timestamp": 1795541075451
       }
+    ],
+    "28.1 Build `JarPile` core: packing layout, candy rendering, drop-in animation": [
+      {
+        "executionId": "14aa319a-286e-4b56-bdb6-0afe965c6e37",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795541905464
+      },
+      {
+        "executionId": "14aa319a-286e-4b56-bdb6-0afe965c6e37",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795542202707
+      }
+    ],
+    "28. Implement `JarPile` packing layout and drop-in animation": [
+      {
+        "executionId": "14aa319a-286e-4b56-bdb6-0afe965c6e37",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795542202750
+      }
+    ],
+    "28a. Implement `LidAnimation` for add and remove": [
+      {
+        "executionId": "14aa319a-286e-4b56-bdb6-0afe965c6e37",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795542248187
+      }
     ]
   }
 }

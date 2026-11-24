@@ -277,8 +277,8 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
     - Under `prefers-reduced-motion`, keep the 150 ms fade-out only
     - _Requirements: 4.4, 4.7_
 
-- [ ] 28. Implement `JarPile` packing layout and drop-in animation
-  - [ ] 28.1 Build `JarPile` core: packing layout, candy rendering, drop-in animation
+- [x] 28. Implement `JarPile` packing layout and drop-in animation
+  - [x] 28.1 Build `JarPile` core: packing layout, candy rendering, drop-in animation
     - Create `src/features/jar/JarPile.tsx` calling `computePacking()` to place `CandyItem` components
     - New candies drop from the jar lid to their computed position using a CSS spring transition (`cubic-bezier` bounce); under `prefers-reduced-motion`, fade in (150 ms max)
     - Render the first 24 candies inside the jar's `clipPath`; when task count exceeds 24, spill the extra candies onto the desk next to the jar (no scrolling, no "+N more" badge); all candies remain individually selectable
@@ -289,7 +289,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
     - Refine the edge-candy CSS filter to use a layered `drop-shadow` + `hue-rotate` combination matching the dual candlelight / moonlight sources
     - _Requirements: 10.1_
 
-- [ ] 28a. Implement `LidAnimation` for add and remove
+- [-] 28a. Implement `LidAnimation` for add and remove
   - Create `src/features/jar/LidAnimation.tsx` that drives `JarLid`: on candy add or remove the lid lifts and tilts (about 350 ms), the candy drops in (existing spring bounce) or floats out, then the lid settles back
   - Queue overlapping add and remove events so the lid opens once per candy, one by one
   - Expose `onLidOpen` and `onLidClose` callbacks (used by the lid sounds task 37a)
