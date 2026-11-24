@@ -2,7 +2,12 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { JarLid, lidTransform } from '../../src/features/jar/JarLid';
 import { JarScene } from '../../src/features/jar/JarScene';
-import { JAR_CANDY_RADIUS, JAR_PACK_BOX } from '../../src/features/jar/jarGeometry';
+import {
+  JAR_CANDY_RADIUS,
+  JAR_LID_PIVOT,
+  JAR_PACK_BOX,
+  JAR_VIEWBOX_HEAD,
+} from '../../src/features/jar/jarGeometry';
 
 describe('JarScene', () => {
   it('renders back glass and clips candy children', () => {
@@ -56,8 +61,16 @@ describe('JarScene', () => {
   it('applies the transform prop to the lid', () => {
     render(<JarScene lid={<JarLid transform={lidTransform(20, -12)} />} />);
     expect(screen.getByTestId('jar-lid').getAttribute('transform')).toBe(
-      'translate(0 -20) rotate(-12 200 30)',
+      `translate(0 -20) rotate(-12 ${JAR_LID_PIVOT.x} ${JAR_LID_PIVOT.y})`,
     );
+    expect(JAR_LID_PIVOT).toEqual({ x: 200, y: 28 });
+  });
+
+  it('keeps the whole knob inside the viewBox headroom', () => {
+    render(<JarScene />);
+    const knob = screen.getByTestId('jar-lid').querySelector('circle');
+    const top = Number(knob?.getAttribute('cy')) - Number(knob?.getAttribute('r'));
+    expect(top).toBeGreaterThanOrEqual(-JAR_VIEWBOX_HEAD);
   });
 
   it('renders the default desk glow behind the jar, and honors an override', () => {

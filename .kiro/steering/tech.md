@@ -45,3 +45,7 @@ MIT License. The `LICENSE` file at the repository root must contain the full MIT
 ## No external dependencies at runtime
 
 The app makes no calls to any external API, CDN, or backend service after the initial page load. It must function fully offline once loaded.
+
+## File writing
+
+Never create or edit files with shell commands (heredocs, echo, printf, cat >). Always use the built-in file editing tools. Shell writes have corrupted files in this project twice.

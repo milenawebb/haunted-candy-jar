@@ -1,10 +1,10 @@
 .empty-state {
   position: absolute;
-  /* Same box as JAR_PACK_BOX, as percentages of the 400 x 560 jar viewBox. */
+  /* Same box as JAR_PACK_BOX, as percentages of the 400 x 624 jar viewBox (y starts at -64). */
   left: calc(40 / 400 * 100%);
-  top: calc(90 / 560 * 100%);
+  top: calc((90 + 64) / 624 * 100%);
   width: calc(320 / 400 * 100%);
-  height: calc(420 / 560 * 100%);
+  height: calc(420 / 624 * 100%);
   display: flex;
   align-items: center;
   justify-content: center;

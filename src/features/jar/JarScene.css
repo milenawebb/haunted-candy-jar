@@ -1,8 +1,9 @@
 .jar-scene {
   position: relative;
   /* Also capped by height so the lid stays below the title. */
-  width: min(480px, 90vw, calc((78vh - 110px) * 400 / 560));
-  aspect-ratio: 400 / 560;
+  width: min(480px, 90vw, calc((78vh - 110px) * 400 / 624));
+  /* 400 x 624 viewBox: 560 jar body plus 64 headroom for the lid and knob. */
+  aspect-ratio: 400 / 624;
   margin-inline: auto;
 }
 
@@ -14,15 +15,19 @@
   overflow: visible;
 }
 
+/* Covers only the 560 tall jar body (below the 64 unit headroom). */
 .jar-scene__desk-glow {
   position: absolute;
-  inset: 0;
+  top: calc(64 / 624 * 100%);
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: visible;
   pointer-events: none;
 }
 
 @media (max-width: 600px) {
   .jar-scene {
-    width: min(90vw, calc((76vh - 110px) * 400 / 560));
+    width: min(90vw, calc((76vh - 110px) * 400 / 624));
   }
 }

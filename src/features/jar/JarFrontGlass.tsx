@@ -17,7 +17,6 @@ export function JarFrontGlass() {
   const winId = `hcj-front-window-${uid}`;
   const clipId = `hcj-front-clip-${uid}`;
   const wallPath = `${JAR_OUTER_PATH} ${JAR_INSIDE_PATH}`;
-
   return (
     <g
       data-testid="jar-front-glass"
@@ -60,14 +59,12 @@ export function JarFrontGlass() {
       <path d={JAR_INSIDE_PATH} fill={`url(#${edgeId})`} />
       <g clipPath={`url(#${clipId})`}>
         <rect x="40" y="100" width="150" height="420" fill={`url(#${glowId})`} />
-
         {/* Vertical light streaks. */}
         <rect x="62" y="130" width="9" height="300" rx="4.5" fill="#ffffff" opacity="0.4" />
         <rect x="78" y="150" width="3" height="200" rx="1.5" fill="#ffffff" opacity="0.28" />
         <rect x="334" y="140" width="5" height="260" rx="2.5" fill="#ffffff" opacity="0.22" />
-
-        {/* Faint window reflection on the right: a pane with two mullions. */}
-        <g transform="translate(262 170) skewY(-4)" opacity="0.9">
+        {/* Soft window reflection on the right: a pane with two mullions. */}
+        <g transform="translate(262 170) skewY(-4)" opacity="0.3">
           <rect width="70" height="96" rx="4" fill={`url(#${winId})`} />
           <rect x="33" width="4" height="96" fill="#ffffff" opacity="0.12" />
           <rect y="46" width="70" height="4" fill="#ffffff" opacity="0.12" />

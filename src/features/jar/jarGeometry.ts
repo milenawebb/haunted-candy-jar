@@ -2,10 +2,13 @@
  * Shared jar geometry. All jar layers and the candy packing use these numbers
  * so everything lines up in one SVG coordinate space.
  */
-
 export const JAR_VIEWBOX_WIDTH = 400;
-export const JAR_VIEWBOX_HEIGHT = 560;
-export const JAR_VIEWBOX = `0 0 ${JAR_VIEWBOX_WIDTH} ${JAR_VIEWBOX_HEIGHT}`;
+/** Height of the jar itself (y 0 to 560). The lid and knob rise above y 0. */
+export const JAR_BODY_HEIGHT = 560;
+/** Extra headroom above y 0 so the tall glass lid and knob are not cut off. */
+export const JAR_VIEWBOX_HEAD = 64;
+export const JAR_VIEWBOX_HEIGHT = JAR_BODY_HEIGHT + JAR_VIEWBOX_HEAD;
+export const JAR_VIEWBOX = `0 ${-JAR_VIEWBOX_HEAD} ${JAR_VIEWBOX_WIDTH} ${JAR_VIEWBOX_HEIGHT}`;
 
 /** Maximum candies that sit inside the jar. */
 export const JAR_CAPACITY = 24;
@@ -35,19 +38,21 @@ export const JAR_INSIDE_PATH =
   'M 74 36 H 326 V 70 Q 326 90 346 104 Q 360 114 360 134 V 484 ' +
   'Q 360 512 332 512 H 68 Q 40 512 40 484 V 134 Q 40 114 54 104 Q 74 90 74 70 Z';
 
-/** Y of the jar mouth (top of the inside shape), where the lid sits. */
+/** Y of the jar mouth (top of the inside shape). */
 export const JAR_MOUTH_Y = 36;
 export const JAR_MOUTH_LEFT = 74;
 export const JAR_MOUTH_RIGHT = 326;
-
 /** Horizontal center of the jar mouth. */
 export const JAR_MOUTH_CENTER_X = (JAR_MOUTH_LEFT + JAR_MOUTH_RIGHT) / 2;
 
+/** Y of the top of the outer neck, where the lid base rests. */
+export const JAR_NECK_TOP_Y = 28;
+
 /**
  * Lid pivot (viewBox units): the center of the lid's underside, resting on the
- * rim of the jar neck. Rotate the lid around this point.
+ * top of the jar neck. Rotate the lid around this point.
  */
-export const JAR_LID_PIVOT = { x: JAR_MOUTH_CENTER_X, y: 30 } as const;
+export const JAR_LID_PIVOT = { x: JAR_MOUTH_CENTER_X, y: JAR_NECK_TOP_Y } as const;
 
 /** Ids for SVG defs, shared so layers can reference the same clip. */
 export const JAR_CLIP_ID = 'hcj-jar-inside-clip';
