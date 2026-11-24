@@ -41,7 +41,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
 
 ### Phase 2: Pure logic and data model
 
-- [ ] 4. Define Task types, MonsterKind, and DecayStage
+- [x] 4. Define Task types, MonsterKind, and DecayStage
   - Create `src/features/tasks/taskTypes.ts` exporting `DecayStage`, `MonsterKind` (`'pumpkin' | 'mummy' | 'skeleton' | 'spider' | 'frankenstein' | 'vampire' | 'bat' | 'gravestone'`), and the `Task` interface exactly as specified in the design (including `monster: MonsterKind`, `isSample: boolean`, `createdAt`, `completedAt`, `dueDate`; there are no `shape` or `flavorColor` fields)
   - Export `CreateTaskInput` (with `monster: MonsterKind | null`), `EditTaskInput` (with `monster: MonsterKind`), and `FocusSession` interfaces
   - Export `DECAY_STAGE_ORDER: DecayStage[]` array in ascending severity order for ordinal comparisons
