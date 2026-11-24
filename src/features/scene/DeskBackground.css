@@ -1,0 +1,65 @@
+/*
+ * DeskBackground layout
+ *
+ * desk-scene.png is 1672x941. The desk top edge sits at about 74% of the
+ * image height and the front lip ends at about 87%. The middle of the desk
+ * (between the candle tray on the left and the window sill on the right) is
+ * empty, so the jar slot is centered horizontally and its bottom edge rests
+ * on the desk surface at about 18% from the bottom of the viewport (the
+ * jar base lands around 82% of the height, on the desk top).
+ */
+.desk-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--color-bg-deep, #0d0514);
+}
+
+.desk-bg__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center center;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Soft dark gradient so the title stays readable. */
+.desk-bg__top-gradient {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 28%;
+  min-height: 120px;
+  background: linear-gradient(
+    to bottom,
+    rgba(13, 5, 20, 0.78) 0%,
+    rgba(13, 5, 20, 0.45) 55%,
+    rgba(13, 5, 20, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* Layout slot for the jar: centered, standing on the desk surface. */
+.desk-bg__jar-slot {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  transform: translateX(-50%);
+  width: min(480px, 90vw);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+@media (max-width: 767px) {
+  .desk-bg__image {
+    object-position: 82% center;
+  }
+
+  .desk-bg__jar-slot {
+    bottom: 20%;
+  }
+}

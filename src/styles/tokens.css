@@ -5,16 +5,42 @@
   --color-candle: #ffaa44;
   --color-candle-deep: #c85a00;
   --color-moon: #b8d4ff;
-  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-mstein: #6fcb4f;
-  --monster-vampire: #b3203a;
-  --monster-bat:   --monster-bat:   --monster-ba: #8  --monster-bat:   --monster-bat:   --monster-ba: #8  --monster-ba 0  --monster--  --monster-bat:   --mon rgb  --monster-bat:   --monster-bat:   --monster-ba: #8  --monsba  --monster-bat:   /  --monster-bat:   -or  --monster-bat:   er for  --monsing e  --monster-bat:   --mg:  --monster-bat:   --monster-bat:   --monster-ba: #8  --monst'I  --monster-bat:   apple  --monster-bat:  ', s  --monster-bat:   acing sca  --monster-bat:   --monster-bat:-2:  --mo    --monster-bax;  --monster-bat:   -  -  --monster-bat:   --mons-6:  --monster-bat:   --mons
-                               sr                       OF                               sr                       OF                               sr                       OF                               sr                       OF                               sr                       OF                               sr                       OF                               sr          :                             round: none;
-  border: 0;
-  cursor: pointer;
-}
+  --color-moon-deep: #6090cc;
 
-svg,
-img {
-  display: block;
-  max-width: 100%;
+  /* Glass */
+  --color-glass: rgba(190, 220, 255, 0.18);
+  --color-glass-rim: #dcebff;
+
+  /* Bandage note */
+  --color-bandage: #efe6d2;
+  --color-bandage-ink: #2b2118;
+
+  /* Candy monsters */
+  --monster-pumpkin: #ff7a1f;
+  --monster-mummy: #e8dcc0;
+  --monster-skeleton: #f2eee2;
+  --monster-spider: #5b2a86;
+  --monster-frankenstein: #6fcb4f;
+  --monster-vampire: #b3203a;
+  --monster-bat: #3c2f63;
+  --monster-gravestone: #8e93a3;
+
+  /* Shadows */
+  --shadow-near: 1px 2px 3px rgba(200, 90, 0, 0.35);
+  --shadow-far: 4px 8px 24px rgba(80, 100, 150, 0.2);
+  --shadow-candy-contact: 0 2px 6px rgba(0, 0, 0, 0.4);
+
+  /* Fonts: Creepster for headings only, Inter for everything else */
+  --font-heading: 'Creepster', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
 }
