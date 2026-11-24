@@ -172,13 +172,13 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Maintain 60 fps by using only CSS `transform` and `opacity` for animations (GPU composited)
   - _Requirements: 10.1, 10.2, 10.3_
 
-- [-] 17. Implement `JarScene` composition and back glass layer
+- [x] 17. Implement `JarScene` composition and back glass layer
   - Create `src/features/jar/JarScene.tsx` composing three layers back to front: back glass, candies (children, rendered inside an SVG `clipPath` matching the jar's inside shape so no candy pokes through the glass), then front glass; add slots for the lid and desk glow
   - Create `src/features/jar/JarBackGlass.tsx`: inner back wall, faint glass tint (`--color-glass`), darker inner edges
   - Jar is sized to `~480 px` on desktop and `~90vw` on mobile via CSS
   - _Requirements: 10.1, 10.6, 13.1_
 
-- [ ] 17a. Implement `JarFrontGlass` layer
+- [-] 17a. Implement `JarFrontGlass` layer
   - Create `src/features/jar/JarFrontGlass.tsx`: brighter rim on the sides (`--color-glass-rim`), slightly darker edges, vertical light streaks, a faint window reflection on the right, a thick glass base, and a warm candle glow on the left side
   - _Requirements: 10.6_
 

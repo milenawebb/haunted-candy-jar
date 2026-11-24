@@ -1,0 +1,53 @@
+import type { ReactNode } from 'react';
+import { JarBackGlass } from './JarBackGlass';
+import {
+  JAR_CLIP_ID,
+  JAR_INSIDE_PATH,
+  JAR_VIEWBOX,
+} from './jarGeometry';
+import './JarScene.css';
+
+export interface JarSceneProps {
+  /** Candies, drawn in jar coordinates and clipped to the jar's inside shape. */
+  children?: ReactNode;
+  /** Front glass layer (SVG content). Drawn above the candies. */
+  frontGlass?: ReactNode;
+  /** Lid (SVG content). Drawn above the front glass. */
+  lid?: ReactNode;
+  /** Soft desk shadow and glow (HTML or SVG), drawn behind the jar. */
+  deskGlow?: ReactNode;
+  /** Candies that spill onto the desk, drawn unclipped above the glass. */
+  overflow?: ReactNode;
+}
+
+/**
+ * Composes the jar back to front: back glass, clipped candies, front glass,
+ * then lid. The desk glow sits behind the SVG.
+ */
+export function JarScene({ children, frontGlass, lid, deskGlow, overflow }: JarSceneProps) {
+  return (
+    <div className="jar-scene" data-testid="jar-scene">
+      {deskGlow ? <div className="jar-scene__desk-glow">{deskGlow}</div> : null}
+      <svg
+        className="jar-scene__svg"
+        viewBox={JAR_VIEWBOX}
+        role="group"
+        aria-label="Candy jar"
+        overflow="visible"
+      >
+        <defs>
+          <clipPath id={JAR_CLIP_ID}>
+            <path d={JAR_INSIDE_PATH} />
+          </clipPath>
+        </defs>
+        <JarBackGlass />
+        <g clipPath={`url(#${JAR_CLIP_ID})`} data-testid="jar-candies">
+          {children}
+        </g>
+        {frontGlass}
+        {lid}
+        {overflow}
+      </svg>
+    </div>
+  );
+}
