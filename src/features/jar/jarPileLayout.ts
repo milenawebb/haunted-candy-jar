@@ -12,7 +12,6 @@ import {
 } from './jarGeometry';
 /** A candy within this many units of a jar wall gets the glass refraction tint. */
 export const NEAR_WALL_DISTANCE = 14;
-
 /**
  * Desk band for spilled candies (centre y, jar user units, viewBox y 0 is the
  * jar top, the jar body bottom is y 560 and the glass base is about 532).
@@ -57,12 +56,36 @@ export const SPILL_RIGHT_MAX = 520;
  * the centre).
  */
 export const SPILL_RIGHT_MAX_COMPACT = 372;
+/**
+ * Compact right side starts a little left of the desktop 244 so the narrow
+ * band holds at least 8 spaced candies (candy edge at 224 - 27 = 197, still
+ * clear of the jar centre line, in front of the jar base).
+ */
+export const SPILL_RIGHT_MIN_COMPACT = 224;
 /** Left side, x range (same on both layouts; 40 keeps the candy edge inside the jar's left edge). */
 export const SPILL_LEFT_MIN = 40;
 export const SPILL_LEFT_MAX = 150;
 /** Number of spill slots over which the fan reaches full width. */
 const SPILL_FAN_COUNT = 14;
-
+/** Radius of a spilled candy (32 * 0.85 = 27.2 units). */
+export const SPILL_RADIUS = JAR_CANDY_RADIUS * SPILL_SIZE_FACTOR;
+/** Minimum distance between two spilled candy centres (1.4 x radius, about 38.08 units). */
+export const SPILL_MIN_DISTANCE = 1.4 * SPILL_RADIUS;
+/**
+ * Capacity at the minimum distance. The band is only 30 units tall (less than
+ * the minimum distance), so candies zig-zag between the top and bottom edge:
+ * neighbours need an x gap of about sqrt(38.08^2 - 28^2) = 26, same-row
+ * neighbours then sit 52 apart. That is about one candy per 26 units of x:
+ *   desktop: right 276 wide (about 11) + left 110 wide (about 5) = 16
+ *   compact: right 148 wide (about 6) + left 110 wide (about 5) = 11, so 8 fit
+ * Beyond that, extra candies take the spot with the largest minimum distance
+ * (they overlap a little, but never throw).
+ */
+const GRID_STEP_X = 2;
+const GRID_STEP_Y = 2;
+const EPS = 1e-9;
+/** Preferred y hugs one of the two band rows (inset up to this much) so the zig-zag stays packable. */
+const ROW_INSET = 2;
 export interface Placement {
   x: number;
   y: number;
@@ -92,7 +115,6 @@ export function partitionTasks(
   const sorted = sortByAge(tasks);
   return { inJar: sorted.slice(0, capacity), spilled: sorted.slice(capacity) };
 }
-
 /** FNV-1a hash of `salt + id`, mapped to [0, 1). */
 function hash01(id: string, salt: string): number {
   let h = 0x811c9dc5;
@@ -106,36 +128,102 @@ function hash01(id: string, salt: string): number {
   h ^= h >>> 12;
   return (h >>> 0) / 4294967296;
 }
-
+type Side = 'left' | 'right';
+type Point = { x: number; y: number };
+function sideRange(side: Side, compact: boolean): [number, number] {
+  return side === 'left'
+    ? [SPILL_LEFT_MIN, SPILL_LEFT_MAX]
+    : [compact ? SPILL_RIGHT_MIN_COMPACT : SPILL_RIGHT_MIN, compact ? SPILL_RIGHT_MAX_COMPACT : SPILL_RIGHT_MAX];
+}
 /**
- * Desk position for one spilled candy, from its id and its spill index.
- * Every fourth candy tumbles left (25%), the rest go right. The reach grows
- * with the index so later candies fan out from the jar base, and the id hash
- * adds a random offset, a y inside the desk band, and the rotation. A given
- * (id, index) always gives the same spot, whatever other ids exist.
+ * Hashed preferred desk position for one spilled candy, from its id and its
+ * spill index (no collision handling, see spillPositions). Every fourth candy
+ * tumbles left (25%), the rest go right. The reach grows with the index so
+ * later candies fan out from the jar base, and the id hash adds a random
+ * x offset, the band row (top or bottom, inset a little), and the rotation.
  */
 export function spillPosition(id: string, index: number, compact = false): Placement {
-  const left = index % 4 === 3;
+  const side: Side = index % 4 === 3 ? 'left' : 'right';
   const reach = Math.min(1, (index + 1) / SPILL_FAN_COUNT);
   const jitter = (hash01(id, 'x') - 0.5) * 36;
-  let x: number;
-  if (left) {
-    x = SPILL_LEFT_MAX - reach * (SPILL_LEFT_MAX - SPILL_LEFT_MIN) + jitter;
-  } else {
-    const max = compact ? SPILL_RIGHT_MAX_COMPACT : SPILL_RIGHT_MAX;
-    x = SPILL_RIGHT_MIN + reach * (max - SPILL_RIGHT_MIN) + jitter;
-  }
-  const xMin = left ? SPILL_LEFT_MIN : SPILL_RIGHT_MIN;
-  const xMax = left ? SPILL_LEFT_MAX : compact ? SPILL_RIGHT_MAX_COMPACT : SPILL_RIGHT_MAX;
-  x = Math.min(xMax, Math.max(xMin, x));
-  const y = SPILL_Y_MIN + hash01(id, 'y') * (SPILL_Y_MAX - SPILL_Y_MIN);
-  const rotation = (hash01(id, 'r') * 2 - 1) * SPILL_MAX_ROTATION;
-  return { x, y, rotation };
+  const [xMin, xMax] = sideRange(side, compact);
+  const x = side === 'left' ? xMax - reach * (xMax - xMin) + jitter : xMin + reach * (xMax - xMin) + jitter;
+  const inset = hash01(id, 'i') * ROW_INSET;
+  const top = hash01(id, 'y') < 0.5;
+  return {
+    x: Math.min(xMax, Math.max(xMin, x)),
+    y: top ? SPILL_Y_MIN + inset : SPILL_Y_MAX - inset,
+    rotation: (hash01(id, 'r') * 2 - 1) * SPILL_MAX_ROTATION,
+  };
 }
-
-/** Desk positions for spilled ids, in spill order (oldest first). */
+/** Smallest distance from (x, y) to any placed centre (Infinity when none). */
+function nearest(x: number, y: number, placed: readonly Point[]): number {
+  let best = Infinity;
+  for (const p of placed) best = Math.min(best, Math.hypot(p.x - x, p.y - y));
+  return best;
+}
+function gridSweep(side: Side, compact: boolean): Point[] {
+  const [xMin, xMax] = sideRange(side, compact);
+  const out: Point[] = [];
+  for (let x = xMin; x <= xMax + EPS; x += GRID_STEP_X) {
+    for (let y = SPILL_Y_MIN; y <= SPILL_Y_MAX + EPS; y += GRID_STEP_Y) out.push({ x, y });
+  }
+  return out;
+}
+/**
+ * Free spot for one candy: the hashed preferred spot; else the free grid
+ * point of the same side closest to it (fine sweep, steps of 2 units); else
+ * the same on the other side; else (band full) the grid point with the largest
+ * minimum distance. Deterministic, never throws.
+ */
+function findSpot(id: string, index: number, compact: boolean, placed: readonly Point[]): Point {
+  const pref = spillPosition(id, index, compact);
+  const side: Side = index % 4 === 3 ? 'left' : 'right';
+  const free = (p: Point) => nearest(p.x, p.y, placed) >= SPILL_MIN_DISTANCE - EPS;
+  if (free(pref)) return pref;
+  const sides: Side[] = side === 'left' ? ['left', 'right'] : ['right', 'left'];
+  for (const s of sides) {
+    let found: Point | null = null;
+    let foundD = Infinity;
+    for (const c of gridSweep(s, compact)) {
+      if (!free(c)) continue;
+      const d = Math.hypot(c.x - pref.x, c.y - pref.y);
+      if (d < foundD - EPS) {
+        foundD = d;
+        found = c;
+      }
+    }
+    if (found) return found;
+  }
+  let best: Point = pref;
+  let bestD = -1;
+  for (const s of sides) {
+    for (const c of gridSweep(s, compact)) {
+      const d = nearest(c.x, c.y, placed);
+      if (d > bestD + EPS) {
+        bestD = d;
+        best = c;
+      }
+    }
+  }
+  return best;
+}
+/**
+ * Desk positions for spilled ids, in spill order (oldest first). Candies are
+ * placed in index order and each spot depends only on earlier candies, so a
+ * spilled id keeps its spot when later ids are added.
+ */
 export function spillPositions(ids: readonly string[], compact = false): Placement[] {
-  return ids.map((id, i) => spillPosition(id, i, compact));
+  const placed: Point[] = [];
+  return ids.map((id, i) => {
+    const spot = findSpot(id, i, compact, placed);
+    placed.push(spot);
+    return {
+      x: spot.x,
+      y: spot.y,
+      rotation: (hash01(id, 'r') * 2 - 1) * SPILL_MAX_ROTATION,
+    };
+  });
 }
 /**
  * True when a candy at (x, y), given in pack box coordinates, has its edge
