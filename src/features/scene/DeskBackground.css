@@ -48,7 +48,7 @@
   left: 50%;
   bottom: 18%;
   transform: translateX(-50%);
-  width: min(480px, 90vw);
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: flex-end;

@@ -1,6 +1,7 @@
 .jar-scene {
   position: relative;
-  width: min(480px, 90vw);
+  /* Also capped by height so the lid stays below the title. */
+  width: min(480px, 90vw, calc((78vh - 110px) * 400 / 560));
   aspect-ratio: 400 / 560;
   margin-inline: auto;
 }
@@ -22,6 +23,6 @@
 
 @media (max-width: 600px) {
   .jar-scene {
-    width: 90vw;
+    width: min(90vw, calc((76vh - 110px) * 400 / 560));
   }
 }
