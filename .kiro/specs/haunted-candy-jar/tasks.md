@@ -253,7 +253,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Animate a gentle float-up and fade-out; under `prefers-reduced-motion`, render as a static image that fades in 150 ms and disappears after 1 s
   - _Requirements: 4.5, 4.7_
 
-- [-] 26. Implement `usePressAndHold` gesture hook
+- [x] 26. Implement `usePressAndHold` gesture hook
   - Create `src/hooks/usePressAndHold.ts` returning `{ handlers, crackProgress }` where `crackProgress` is 0–1
   - Support both pointer events (`pointerdown` / `pointermove` cancel / `pointerup`) and keyboard Space key (`keydown` / `keyup`) with the same 0.8 s threshold
   - Use `requestAnimationFrame` to update `crackProgress` smoothly while held
