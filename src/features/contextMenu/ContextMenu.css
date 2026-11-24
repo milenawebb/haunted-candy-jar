@@ -5,63 +5,100 @@
   color: var(--color-moon);
   font-family: var(--font-body);
 }
+
+/* Dark glass panel, like the jar: translucent purple, soft blur, thin rim light. */
 .context-menu--popover {
   position: fixed;
   z-index: 30;
-  width: 220px;
+  width: 190px;
   padding: var(--space-3);
-  background: var(--color-bg);
-  border: 2px solid var(--color-candle-deep);
+  background: rgba(26, 10, 46, 0.88);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(220, 235, 255, 0.28);
   border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(13, 5, 20, 0.75), 0 0 18px rgba(255, 170, 68, 0.25);
+  box-shadow:
+    0 8px 24px rgba(13, 5, 20, 0.7),
+    0 0 20px rgba(150, 100, 220, 0.3),
+    inset 0 1px 0 rgba(220, 235, 255, 0.12);
   animation: context-menu-pop 150ms ease-out;
 }
+
 .context-menu__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
   font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.9375rem;
+  font-weight: 600;
   line-height: 1.3;
   color: var(--color-bandage);
   overflow-wrap: anywhere;
 }
+
 .context-menu__stage {
   margin-top: var(--space-1);
-  font-size: 0.8125rem;
+  font-family: var(--font-body);
+  font-size: 12px;
   color: var(--color-moon);
 }
+
 .context-menu__actions {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-2);
 }
+
 .context-menu--sheet .context-menu__actions {
   grid-template-columns: 1fr 1fr;
 }
+
+/* Quiet outline buttons (Focus, Edit). */
 .context-menu__btn {
   min-width: 44px;
   min-height: 44px;
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-1) var(--space-3);
   font: inherit;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-bg-deep);
-  background: var(--color-candle);
-  border: 2px solid var(--color-candle-deep);
-  border-radius: 10px;
+  color: var(--color-moon);
+  background: transparent;
+  border: 1px solid var(--color-glass-rim);
+  border-radius: 999px;
   cursor: pointer;
 }
+
 .context-menu__btn:hover {
-  background: #ffc27a;
+  background: var(--color-glass);
 }
+
 .context-menu__btn:focus-visible {
   outline: 3px solid var(--color-moon);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
+
+/* Complete is the one filled, glossy candy button. */
+.context-menu__btn--primary {
+  color: var(--color-bg-deep);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 50%),
+    var(--color-candle);
+  border: 1px solid var(--color-candle-deep);
+  box-shadow: 0 2px 8px rgba(255, 170, 68, 0.35), inset 0 -2px 0 rgba(200, 90, 0, 0.4);
+}
+
+.context-menu__btn--primary:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 55%), #ffc27a;
+}
+
 /* Delete is told apart from the others by a dashed border, not color alone. */
 .context-menu__btn--danger {
-  background: var(--color-bandage);
-  border-style: dashed;
-  border-color: var(--color-bandage-ink);
+  color: var(--color-bandage);
+  background: transparent;
+  border: 1px dashed var(--color-bandage);
 }
+
 @keyframes context-menu-pop {
   from {
     opacity: 0;
@@ -70,6 +107,7 @@
     opacity: 1;
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
   .context-menu--popover {
     animation: context-menu-pop 150ms linear;

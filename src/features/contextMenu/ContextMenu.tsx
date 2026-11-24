@@ -9,16 +9,14 @@ import { useTaskStore } from '../tasks/taskStore'
 import type { Task } from '../tasks/taskTypes'
 import { BottomSheet } from './BottomSheet'
 import './ContextMenu.css'
-
 /** Mobile breakpoint, same as DeskBackground.css and JarPile. */
 const MOBILE_QUERY = '(max-width: 767px)'
 /** Gap in CSS px between the lifted candy and the popover. */
 const GAP = 12
 /** Viewport edge margin in CSS px. */
 const EDGE = 8
-/** Popover size used for placement when it cannot be measured (jsdom). */
-const FALLBACK_SIZE = { width: 200, height: 220 }
-
+/** Popover size used for placement when it cannot be measured (jsdom). Width matches ContextMenu.css. */
+const FALLBACK_SIZE = { width: 190, height: 200 }
 function useIsMobile(): boolean {
   const get = () =>
     typeof window !== 'undefined' && typeof window.matchMedia === 'function'
@@ -35,7 +33,6 @@ function useIsMobile(): boolean {
   }, [])
   return mobile
 }
-
 /** The candy's <g> in the jar SVG, found by task id (ids are never put in a selector). */
 function findCandyElement(taskId: string): SVGGraphicsElement | null {
   const all = document.querySelectorAll<SVGGraphicsElement>('[data-testid="candy-item"]')
@@ -44,17 +41,14 @@ function findCandyElement(taskId: string): SVGGraphicsElement | null {
   }
   return null
 }
-
 /** True for presses on the open candy itself (its own click toggles the selection). */
 function isSelectedCandy(target: Element): boolean {
   return target.closest('[data-testid="candy-item"][data-selected="true"]') !== null
 }
-
 interface Position {
   left: number
   top: number
 }
-
 /**
  * Where to put the popover, from the lifted candy's on-screen box.
  * Prefers the right of the candy (and its note), flips left when it would run
@@ -73,7 +67,6 @@ export function placePopover(
   top = Math.max(EDGE, Math.min(top, viewport.height - size.height - EDGE))
   return { left, top }
 }
-
 export interface ContextMenuProps {
   /**
    * Called (with the task) after Edit is chosen and the menu has closed.
@@ -88,7 +81,6 @@ export interface ContextMenuProps {
    */
   onFocus?: (task: Task) => void
 }
-
 /**
  * Menu for the selected candy: Complete, Focus, Edit, Delete.
  *
@@ -122,7 +114,6 @@ export function ContextMenu({ onEdit, onFocus }: ContextMenuProps) {
   if (!task) return null
   return <OpenMenu key={task.id} task={task} onEdit={onEdit} onFocus={onFocus} />
 }
-
 function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) {
   const { dispatch } = useTaskStore()
   const logicalNow = useHauntClock()
@@ -132,10 +123,8 @@ function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) 
   const popRef = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<Position | null>(null)
   const stage = decayFunction(task, logicalNow)
-
   const close = useCallback(() => dispatch({ type: 'SELECT_TASK', taskId: null }), [dispatch])
   const restoreFallback = useCallback(() => findCandyElement(task.id), [task.id])
-
   // Desktop placement. Re-measured after the lift transition and on resize.
   useLayoutEffect(() => {
     if (mobile) return
@@ -161,7 +150,6 @@ function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) 
       window.removeEventListener('resize', measure)
     }
   }, [mobile, reduced, task.id])
-
   // Complete and Delete clear the selection in the reducer, which closes the menu.
   const onComplete = () => dispatch({ type: 'COMPLETE_TASK', taskId: task.id, now: Date.now() })
   const onDelete = () => dispatch({ type: 'DELETE_TASK', taskId: task.id })
@@ -173,7 +161,6 @@ function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) 
     close()
     onEdit?.(task)
   }
-
   const content: ReactNode = (
     <>
       <div className="context-menu__header">
@@ -183,7 +170,7 @@ function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) 
         <p className="context-menu__stage">Stage: {stage}</p>
       </div>
       <div className="context-menu__actions">
-        <button type="button" className="context-menu__btn" onClick={onComplete}>
+        <button type="button" className="context-menu__btn context-menu__btn--primary" onClick={onComplete}>
           Complete
         </button>
         <button type="button" className="context-menu__btn" onClick={onFocusClick}>
@@ -198,7 +185,6 @@ function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) 
       </div>
     </>
   )
-
   if (mobile) {
     return (
       <BottomSheet
@@ -213,7 +199,6 @@ function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) 
       </BottomSheet>
     )
   }
-
   return (
     <Popover
       popRef={popRef}
@@ -227,7 +212,6 @@ function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) 
     </Popover>
   )
 }
-
 interface PopoverProps {
   popRef: RefObject<HTMLDivElement>
   titleId: string
@@ -237,7 +221,6 @@ interface PopoverProps {
   restoreFallback: () => HTMLElement | SVGElement | null
   children: ReactNode
 }
-
 function Popover({ popRef, titleId, pos, reduced, onClose, restoreFallback, children }: PopoverProps) {
   useFocusTrap(popRef, true, restoreFallback)
   useClickOutside(popRef, onClose, { ignore: isSelectedCandy })
