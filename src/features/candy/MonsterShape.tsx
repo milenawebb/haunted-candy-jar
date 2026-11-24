@@ -1,6 +1,10 @@
 import type { CSSProperties } from 'react';
 import type { DecayStage, MonsterKind } from '../tasks/taskTypes';
-import { CandyBase, useSafeId, type MonsterArtProps } from './monsters/CandyBase';
+import { useSafeId, type MonsterArtProps } from './monsters/CandyBase';
+import { BatMonster } from './monsters/BatMonster';
+import { FrankensteinMonster } from './monsters/FrankensteinMonster';
+import { GravestoneMonster } from './monsters/GravestoneMonster';
+import { VampireMonster } from './monsters/VampireMonster';
 import { MummyMonster } from './monsters/MummyMonster';
 import { PumpkinMonster } from './monsters/PumpkinMonster';
 import { SkeletonMonster } from './monsters/SkeletonMonster';
@@ -32,21 +36,6 @@ export interface MonsterShapeProps extends MonsterArtProps {
 const BOX_W = 100;
 const BOX_H = 108;
 
-/** TEMPORARY: simple blob for the four monsters added in task 21. */
-function PlaceholderMonster({ kind, ...art }: MonsterArtProps & { kind: MonsterKind }) {
-  const uid = useSafeId();
-  return (
-    <g data-monster={kind} data-placeholder="true">
-      <CandyBase
-        uid={uid}
-        color={`var(--monster-${kind})`}
-        {...art}
-        body={(fill) => <circle cx="50" cy="52" r="38" fill={fill} />}
-      />
-    </g>
-  );
-}
-
 function renderMonster(kind: MonsterKind, art: MonsterArtProps) {
   switch (kind) {
     case 'pumpkin':
@@ -57,9 +46,18 @@ function renderMonster(kind: MonsterKind, art: MonsterArtProps) {
       return <SkeletonMonster {...art} />;
     case 'spider':
       return <SpiderMonster {...art} />;
-    default:
-      // Task 21 replaces this with the remaining four monsters and a never check.
-      return <PlaceholderMonster kind={kind} {...art} />;
+    case 'frankenstein':
+      return <FrankensteinMonster {...art} />;
+    case 'vampire':
+      return <VampireMonster {...art} />;
+    case 'bat':
+      return <BatMonster {...art} />;
+    case 'gravestone':
+      return <GravestoneMonster {...art} />;
+    default: {
+      const unreachable: never = kind;
+      return unreachable;
+    }
   }
 }
 

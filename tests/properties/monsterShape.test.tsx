@@ -1,12 +1,12 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { MonsterShape } from '../../src/features/candy/MonsterShape';
-import type { MonsterKind } from '../../src/features/tasks/taskTypes';
+import { MONSTER_KINDS } from '../../src/utils/monsterKind';
 
-const FOUR: MonsterKind[] = ['pumpkin', 'mummy', 'skeleton', 'spider'];
+const ALL_KINDS = [...MONSTER_KINDS];
 
 describe('MonsterShape (Req 7.5, 7.6, 10.7)', () => {
-  it.each(FOUR)('%s renders an aria-hidden svg with gradient ids', (kind) => {
+  it.each(ALL_KINDS)('%s renders an aria-hidden svg with gradient ids', (kind) => {
     const { container } = render(<MonsterShape kind={kind} decayStage="Fresh" />);
     const svg = container.querySelector('svg');
     expect(svg).not.toBeNull();
@@ -17,7 +17,7 @@ describe('MonsterShape (Req 7.5, 7.6, 10.7)', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it.each(FOUR)('%s applies highlight and sparkle opacity props', (kind) => {
+  it.each(ALL_KINDS)('%s applies highlight and sparkle opacity props', (kind) => {
     const { container } = render(
       <MonsterShape kind={kind} decayStage="Dull" highlightOpacity={0.3} sparkleOpacity={0.1} />,
     );
@@ -57,8 +57,15 @@ describe('MonsterShape (Req 7.5, 7.6, 10.7)', () => {
     expect(inner?.getAttribute('width')).toBe('72');
   });
 
-  it('falls back to a placeholder for kinds not yet drawn', () => {
-    const { container } = render(<MonsterShape kind="bat" decayStage="Fresh" />);
-    expect(container.querySelector('[data-monster="bat"]')).not.toBeNull();
+  it('renders all eight kinds as real monsters (no placeholder)', () => {
+    expect(MONSTER_KINDS).toHaveLength(8);
+    for (const kind of MONSTER_KINDS) {
+      const { container, unmount } = render(<MonsterShape kind={kind} decayStage="Fresh" />);
+      expect(container.querySelector(`[data-monster="${kind}"]`)).not.toBeNull();
+      expect(container.querySelector('[data-placeholder]')).toBeNull();
+      expect(container.querySelectorAll('[data-part="highlight"]')).toHaveLength(1);
+      expect(container.querySelectorAll('[data-part="sparkle"]')).toHaveLength(1);
+      unmount();
+    }
   });
 });
