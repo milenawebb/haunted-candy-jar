@@ -60,35 +60,35 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Function must have no side effects and no imported external state
   - _Requirements: 7.2, 7.3, 8.1_
 
-  - [ ]* 6.1 Write property tests for `decayFunction`, due-date path correctness (Property 4)
+  - [x]* 6.1 Write property tests for `decayFunction`, due-date path correctness (Property 4)
     - **Property 4: Decay function, due-date path correctness**
     - **Validates: Requirements 7.2**
 
-  - [ ]* 6.2 Write property tests for `decayFunction`, age-based path correctness (Property 5)
+  - [x]* 6.2 Write property tests for `decayFunction`, age-based path correctness (Property 5)
     - **Property 5: Decay function, age-based path correctness**
     - **Validates: Requirements 7.3**
 
-  - [ ]* 6.3 Write property tests for `decayFunction`, monotonic non-decrease (Property 6)
+  - [x]* 6.3 Write property tests for `decayFunction`, monotonic non-decrease (Property 6)
     - **Property 6: Decay function monotonicity**
     - Use `fc.integer()` pairs sorted as `[min, max]` to form T1 ≤ T2; assert `stageOrdinal(decayFunction(task, T2)) >= stageOrdinal(decayFunction(task, T1))`
     - **Validates: Requirements 8.2, 8.3**
 
-- [ ] 7. Implement `idGen`, `taskIdToMonster`, and `createTask` helper
+- [x] 7. Implement `idGen`, `taskIdToMonster`, and `createTask` helper
   - Create `src/utils/idGen.ts` exporting `generateId()`: use `crypto.randomUUID()` with a `Math.random()`-based UUID v4 fallback for old Safari
   - Create `src/utils/monsterKind.ts` (pure) exporting `MONSTER_KINDS` (the eight kinds in a fixed order) and `taskIdToMonster(id: string): MonsterKind` (deterministic hash of `id` modulo 8)
   - Create `src/features/tasks/createTask.ts` exporting `createTask(input: CreateTaskInput, now: number): Task` (pure function, sets `id` via `generateId()`, `createdAt = now`, `completedAt = null`, `isSample = false`, and uses `taskIdToMonster(id)` for `monster` if `input.monster` is null)
   - _Requirements: 1.1, 1.5_
 
-  - [ ]* 7.1 Write property tests for `createTask`, required field population (Property 1)
+  - [x]* 7.1 Write property tests for `createTask`, required field population (Property 1)
     - **Property 1: Task creation populates all required fields**
     - **Validates: Requirements 1.1**
 
-  - [ ]* 7.2 Write property tests for `createTask`, empty-title rejection (Property 2)
+  - [x]* 7.2 Write property tests for `createTask`, empty-title rejection (Property 2)
     - **Property 2: Empty-title rejection**
     - Generate strings where `s.trim().length === 0`; assert `createTask` throws or returns null
     - **Validates: Requirements 1.4**
 
-- [ ] 8. Implement `persistence.ts` localStorage layer
+- [-] 8. Implement `persistence.ts` localStorage layer
   - Create `src/utils/persistence.ts` with `loadTasks(): Task[]` and `saveTasks(tasks: Task[]): void`
   - `loadTasks` reads key `hcj_tasks` from localStorage, parses JSON, validates with `validateTaskList`; on any error (missing key, parse failure, schema mismatch) logs a warning and returns `[]`
   - `saveTasks` serialises to JSON and writes within a try/catch; on failure logs to console (never throws)

@@ -122,6 +122,60 @@
         "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
         "timestamp": 1795526362225
       }
+    ],
+    "6.1 Write property tests for `decayFunction`, due-date path correctness (Property 4)": [
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526377280
+      }
+    ],
+    "6.2 Write property tests for `decayFunction`, age-based path correctness (Property 5)": [
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526379490
+      }
+    ],
+    "6.3 Write property tests for `decayFunction`, monotonic non-decrease (Property 6)": [
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526380063
+      }
+    ],
+    "7. Implement `idGen`, `taskIdToMonster`, and `createTask` helper": [
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526382862
+      },
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526482792
+      }
+    ],
+    "7.1 Write property tests for `createTask`, required field population (Property 1)": [
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526482731
+      }
+    ],
+    "7.2 Write property tests for `createTask`, empty-title rejection (Property 2)": [
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526482844
+      }
+    ],
+    "8. Implement `persistence.ts` localStorage layer": [
+      {
+        "executionId": "1ef13237-809b-4b4f-86fe-f252196fdb7c",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795526487387
+      }
     ]
   }
 }
