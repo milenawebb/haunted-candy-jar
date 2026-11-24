@@ -53,7 +53,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Export a `validateTaskList(unknown): Task[]` helper that runs the array schema and throws a descriptive error on mismatch
   - _Requirements: 2.4, 2.5, 16.3_
 
-- [ ] 6. Implement `decayFunction` pure function
+- [x] 6. Implement `decayFunction` pure function
   - Create `src/features/tasks/decayFunction.ts` exporting `decayFunction(task: Task, logicalNow: number): DecayStage`
   - Implement the due-date path thresholds from Requirement 7.2 (Fresh > 48 h, Dull ≤ 48 h, Spooky ≤ 24 h, Haunted ≤ 2 h or ≤ 24 h past due, Cursed > 24 h past due)
   - Implement the age-based path thresholds from Requirement 7.3 (Fresh < 3 d, Dull 3–7 d, Spooky 7–14 d, Haunted 14–21 d, Cursed ≥ 21 d)
