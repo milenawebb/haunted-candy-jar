@@ -88,7 +88,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
     - Generate strings where `s.trim().length === 0`; assert `createTask` throws or returns null
     - **Validates: Requirements 1.4**
 
-- [-] 8. Implement `persistence.ts` localStorage layer
+- [x] 8. Implement `persistence.ts` localStorage layer
   - Create `src/utils/persistence.ts` with `loadTasks(): Task[]` and `saveTasks(tasks: Task[]): void`
   - `loadTasks` reads key `hcj_tasks` from localStorage, parses JSON, validates with `validateTaskList`; on any error (missing key, parse failure, schema mismatch) logs a warning and returns `[]`
   - `saveTasks` serialises to JSON and writes within a try/catch; on failure logs to console (never throws)
