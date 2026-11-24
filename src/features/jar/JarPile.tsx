@@ -3,6 +3,11 @@ import type { CSSProperties } from 'react';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { CandyItem, DEFAULT_CANDY_SIZE } from '../candy/CandyItem';
 import { useTaskStore } from '../tasks/taskStore';
+import {
+  ADDED_TO_DESK_MESSAGE,
+  ADDED_TO_JAR_MESSAGE,
+  useAnnounce,
+} from '../undo/announce';
 import { JarScene, type JarSceneProps } from './JarScene';
 import { JAR_LID_PIVOT } from './jarGeometry';
 import { LidAnimation, useLidSequence } from './LidAnimation';
@@ -11,6 +16,9 @@ import './JarPile.css';
 
 /** Matches the mobile breakpoint in DeskBackground.css. */
 const COMPACT_QUERY = '(max-width: 767px)';
+
+/** How long a new candy glows (two 1 s pulses). */
+export const NEW_CANDY_GLOW_MS = 2000;
 
 /** True on narrow viewports, where the desk spill uses a narrower spread. False without matchMedia. */
 function useCompactSpill(): boolean {
@@ -36,6 +44,7 @@ export interface JarPileProps extends Omit<JarSceneProps, 'children' | 'overflow
   /** Called when the lid starts to close (for the glass clink sound). */
   onLidClose?: () => void;
 }
+
 /**
  * The jar with its candies, wired to the task store.
  *
@@ -59,40 +68,95 @@ export interface JarPileProps extends Omit<JarSceneProps, 'children' | 'overflow
  * its slot with a bouncy CSS transition. Under prefers-reduced-motion it only
  * fades in (150 ms), with no movement.
  *
+ * New candy feedback: a single newly added candy (same detection as the
+ * drop-in) is announced to screen readers (jar or desk) when its id appears,
+ * and glows for about 2 s once it is visible (after the lid releases it).
+ * Several candies appearing at once (import, demo seeding) get no feedback.
+ *
  * Validates: Requirements 1.2, 13.1, 13.2, 13.3
  */
 export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) {
   const { state } = useTaskStore();
   const reduced = useReducedMotion();
   const compact = useCompactSpill();
+  const { announce } = useAnnounce();
   // Lid sequence (see LidAnimation.tsx). A newly added candy stays hidden
   // until the lid is open, then its drop-in animation starts. Under reduced
   // motion nothing waits: the candy just fades in.
   const lid = useLidSequence({ tasks: state.tasks, onLidOpen, onLidClose });
   const entries = useMemo(() => layoutPile(state.tasks, compact), [state.tasks, compact]);
   const selectedId = state.selectedTaskId;
+
   // Track which candies are new since first render. Ids are pruned when a task
   // goes away, so an undone delete drops in again.
   const seen = useRef<Set<string> | null>(null);
   const dropping = useRef<Set<string>>(new Set());
+  // Zone of a new candy waiting to be announced, and ids waiting to glow.
+  const toAnnounce = useRef<PileEntry['zone'] | null>(null);
+  const toGlow = useRef<Set<string>>(new Set());
+  const glowTimers = useRef<Map<string, number>>(new Map());
+  const [glowing, setGlowing] = useState<ReadonlySet<string>>(new Set());
   const [, rerender] = useReducer((n: number) => n + 1, 0);
   const currentIds = new Set(entries.map((e) => e.task.id));
   if (seen.current === null) {
     seen.current = new Set(currentIds);
   } else {
-    for (const id of currentIds) {
+    const added: PileEntry[] = [];
+    for (const entry of entries) {
+      const id = entry.task.id;
       if (!seen.current.has(id)) {
         seen.current.add(id);
         dropping.current.add(id);
+        added.push(entry);
       }
+    }
+    // Only a single add (or an undo restore) gets feedback. A batch at once is
+    // an import or demo seeding, which would light up the whole jar.
+    const [only] = added;
+    if (only && added.length === 1) {
+      toAnnounce.current = only.zone;
+      toGlow.current.add(only.task.id);
     }
     for (const id of seen.current) {
       if (!currentIds.has(id)) {
         seen.current.delete(id);
         dropping.current.delete(id);
+        toGlow.current.delete(id);
       }
     }
   }
+
+  // Announce at add time; start each glow once its candy is visible.
+  useEffect(() => {
+    if (toAnnounce.current) {
+      announce(toAnnounce.current === 'jar' ? ADDED_TO_JAR_MESSAGE : ADDED_TO_DESK_MESSAGE);
+      toAnnounce.current = null;
+    }
+    for (const id of [...toGlow.current]) {
+      if (lid.isWaiting(id)) continue;
+      toGlow.current.delete(id);
+      setGlowing((prev) => new Set(prev).add(id));
+      glowTimers.current.set(
+        id,
+        window.setTimeout(() => {
+          glowTimers.current.delete(id);
+          setGlowing((prev) => {
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+          });
+        }, NEW_CANDY_GLOW_MS),
+      );
+    }
+  });
+  useEffect(() => {
+    const timers = glowTimers.current;
+    return () => {
+      for (const t of timers.values()) window.clearTimeout(t);
+      timers.clear();
+    };
+  }, []);
+
   const renderEntry = (entry: PileEntry) => {
     const id = entry.task.id;
     const isDropping = dropping.current.has(id);
@@ -111,6 +175,14 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
         style['--drop-y'] = `${JAR_LID_PIVOT.y - entry.y}px`;
       }
     }
+    // A separate nested group carries the glow filter, so it never clobbers
+    // the near-wall tint filter on the wrapper. Always rendered so toggling
+    // the glow does not remount the candy.
+    const glowClass = glowing.has(id)
+      ? reduced
+        ? 'jar-pile__glow-static'
+        : 'jar-pile__glow'
+      : undefined;
     return (
       <g
         key={id}
@@ -124,22 +196,26 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
           if (dropping.current.delete(id)) rerender();
         }}
       >
-        <CandyItem
-          task={entry.task}
-          x={entry.x}
-          y={entry.y}
-          rotation={entry.rotation}
-          size={DEFAULT_CANDY_SIZE * entry.sizeFactor}
-        />
+        <g className={glowClass} data-testid="jar-pile-glow">
+          <CandyItem
+            task={entry.task}
+            x={entry.x}
+            y={entry.y}
+            rotation={entry.rotation}
+            size={DEFAULT_CANDY_SIZE * entry.sizeFactor}
+          />
+        </g>
       </g>
     );
   };
+
   const inJar = entries.filter((e) => e.zone === 'jar' && e.task.id !== selectedId);
   // Lower (closer) desk candies draw on top of higher ones.
   const desk = entries
     .filter((e) => e.zone === 'desk' && e.task.id !== selectedId)
     .sort((a, b) => a.y - b.y);
   const selected = entries.find((e) => e.task.id === selectedId);
+
   return (
     <JarScene
       lid={<LidAnimation phase={lid.phase} />}

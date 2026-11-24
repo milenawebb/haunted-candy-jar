@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
 import { useTaskStore } from '../tasks/taskStore'
 import type { PendingUndo } from '../tasks/taskReducer'
+import { useAnnounce } from './announce'
 import './UndoToast.css'
 
 /** How long the undo toast stays up before the action is committed (Req 5.1). */
@@ -57,8 +58,13 @@ function ToastBody({ pending }: { pending: PendingUndo }) {
 export function UndoToast() {
   const { state } = useTaskStore()
   const pending = state.pendingUndo
+  const { message } = useAnnounce()
   return (
     <div className="undo-toast-region" role="status" aria-live="polite">
+      {/* Separate visually hidden child: an announcement never replaces the undo text. */}
+      <span className="undo-toast__announce" data-testid="announce">
+        {message}
+      </span>
       {pending && (
         <ToastBody key={`${pending.task.id}:${pending.action}`} pending={pending} />
       )}

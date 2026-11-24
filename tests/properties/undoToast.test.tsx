@@ -6,7 +6,6 @@ import type { Task } from '../../src/features/tasks/taskTypes'
 import { UNDO_DURATION_MS, UndoToast } from '../../src/features/undo/UndoToast'
 import { MONSTER_KINDS } from '../../src/utils/monsterKind'
 import { TASKS_KEY } from '../../src/utils/persistence'
-
 function makeTask(i: number): Task {
   return {
     id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
@@ -18,7 +17,6 @@ function makeTask(i: number): Task {
     completedAt: null,
   }
 }
-
 /** Exposes the store so tests can dispatch and read the task list. */
 function Probe() {
   const { state, dispatch } = useTaskStore()
@@ -40,7 +38,6 @@ function Probe() {
     </div>
   )
 }
-
 function renderApp() {
   return render(
     <TaskStoreProvider>
@@ -49,12 +46,10 @@ function renderApp() {
     </TaskStoreProvider>,
   )
 }
-
 const listed = (): Task[] => JSON.parse(screen.getByTestId('tasks').textContent ?? '[]')
 const stored = (): unknown => JSON.parse(window.localStorage.getItem(TASKS_KEY) ?? 'null')
 const click = (name: string) => fireEvent.click(screen.getByText(name))
 const tick = (ms: number) => act(() => void vi.advanceTimersByTime(ms))
-
 describe('UndoToast', () => {
   beforeEach(() => {
     window.localStorage.clear()
@@ -65,27 +60,25 @@ describe('UndoToast', () => {
     cleanup()
     vi.useRealTimers()
   })
-
   it('keeps an empty polite live region mounted with no toast', () => {
     renderApp()
     const region = screen.getByRole('status')
     expect(region).toHaveAttribute('aria-live', 'polite')
-    expect(region).toBeEmptyDOMElement()
+    // Only the (empty) visually hidden announce child is present.
+    expect(region.textContent).toBe('')
+    expect(screen.queryByTestId('undo-toast')).toBeNull()
   })
-
   it('shows the completing text after Complete', () => {
     renderApp()
     click('probe-complete-1')
     expect(screen.getByRole('status')).toHaveTextContent('Task completed (a ghost cheers)')
   })
-
   it('shows the deleting text after Delete', () => {
     renderApp()
     click('probe-delete-1')
     expect(screen.getByRole('status')).toHaveTextContent('Candy tossed')
     expect(UNDO_DURATION_MS).toBe(6000)
   })
-
   it('auto-expires at 6000 ms and commits a completion', () => {
     renderApp()
     click('probe-complete-1')
@@ -98,7 +91,6 @@ describe('UndoToast', () => {
     expect(listed().map((t) => t.id)).toEqual([makeTask(2).id])
     expect((stored() as Task[]).map((t) => t.id)).toEqual([makeTask(2).id])
   })
-
   it('Undo restores the exact prior list, saves it, and never expires later', () => {
     renderApp()
     const before = listed()
@@ -111,7 +103,6 @@ describe('UndoToast', () => {
     tick(UNDO_DURATION_MS * 2)
     expect(listed()).toEqual(before)
   })
-
   it('a second action commits the first at once and restarts the timer', () => {
     renderApp()
     click('probe-complete-1')
@@ -127,7 +118,6 @@ describe('UndoToast', () => {
     // Undo after expiry has nothing to restore.
     expect(listed()).toEqual([])
   })
-
   it('dismiss commits the action', () => {
     renderApp()
     click('probe-complete-1')
@@ -135,7 +125,6 @@ describe('UndoToast', () => {
     expect(screen.queryByTestId('undo-toast')).toBeNull()
     expect(listed().map((t) => t.id)).toEqual([makeTask(2).id])
   })
-
   it('clears its timer on unmount', () => {
     const setSpy = vi.spyOn(window, 'setTimeout')
     const clearSpy = vi.spyOn(window, 'clearTimeout')
@@ -150,7 +139,6 @@ describe('UndoToast', () => {
     setSpy.mockRestore()
     clearSpy.mockRestore()
   })
-
   it('Validates: Requirement 5.2 undo leaves the list and storage unchanged', () => {
     const taskArb = fc.record({
       id: fc.uuid(),
