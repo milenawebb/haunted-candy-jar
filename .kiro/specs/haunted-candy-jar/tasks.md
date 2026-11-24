@@ -137,7 +137,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
 
 ### Phase 3: Core UI shell
 
-- [ ] 14. Implement `AppReducer` and `TaskStoreContext`
+- [x] 14. Implement `AppReducer` and `TaskStoreContext`
   - Create `src/features/tasks/taskReducer.ts` with `appReducer(state: AppState, action: AppAction): AppState`, pure function implementing all 13 action types from the design
   - `CREATE_TASK`: validates non-empty trimmed title (no-op if empty), calls `createTask`, appends to `tasks`
   - `COMPLETE_TASK`: sets `completedAt`, sets `pendingUndo`
@@ -149,12 +149,12 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Create `src/features/tasks/taskStore.tsx` with `TaskStoreProvider` and `useTaskStore()` hook; wire `useReducer` with `appReducer`; on mount load from persistence; write to persistence (via `saveTasks`) in a `useEffect` after every state change
   - _Requirements: 1.1, 1.3, 2.1, 2.2, 5.1, 5.2, 5.3, 5.5, 6.2, 6.4_
 
-  - [ ]* 14.1 Write property tests for undo restoring prior task state (Property 7)
+  - [x]* 14.1 Write property tests for undo restoring prior task state (Property 7)
     - **Property 7: Undo restores prior task state**
     - Dispatch `COMPLETE_TASK` or `DELETE_TASK` on a randomly generated task list, then `UNDO`; assert resulting tasks deep-equal the original list
     - **Validates: Requirements 5.2**
 
-- [ ] 15. Implement `useReducedMotion` and `useHauntClock` hooks
+- [-] 15. Implement `useReducedMotion` and `useHauntClock` hooks
   - Create `src/hooks/useReducedMotion.ts` returning `boolean` via `window.matchMedia('(prefers-reduced-motion: reduce)').matches`, with a listener for changes
   - Create `src/hooks/useHauntClock.ts` returning the current logical timestamp; uses `setInterval` at 1 s when `hauntSpeed > 1`, or 60 s when `hauntSpeed === 1`; computes value via `computeLogicalNow` from `hauntClock.ts`
   - _Requirements: 4.7, 7.4, 7.11, 9.7, 10.3, 12.5, 15.6_
