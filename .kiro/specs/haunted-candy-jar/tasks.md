@@ -47,7 +47,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Export `DECAY_STAGE_ORDER: DecayStage[]` array in ascending severity order for ordinal comparisons
   - _Requirements: 1.1, 7.1, 19.1_
 
-- [ ] 5. Implement Zod schema for Task validation
+- [x] 5. Implement Zod schema for Task validation
   - Create `src/utils/taskSchema.ts` with `MonsterKindSchema` (enum of the eight kinds), `TaskSchema`, and `PersistedTaskListSchema` (array of `TaskSchema`)
   - `TaskSchema` must match the exact fields in the `Task` interface including `monster: MonsterKindSchema`
   - Export a `validateTaskList(unknown): Task[]` helper that runs the array schema and throws a descriptive error on mismatch
