@@ -23,7 +23,7 @@ const GLOW_STRONG = 'drop-shadow(0 0 6px rgba(190, 120, 255, 0.95))';
 
 const LOOKS: Record<DecayStage, DecayLook> = {
   Fresh: {
-    highlightOpacity: 0.85,
+    highlightOpacity: 0.75,
     sparkleOpacity: 0.9,
     bodyFilter: 'none',
     glowLevel: 0,
@@ -31,7 +31,7 @@ const LOOKS: Record<DecayStage, DecayLook> = {
     cracks: false,
   },
   Dull: {
-    highlightOpacity: 0.4,
+    highlightOpacity: 0.35,
     sparkleOpacity: 0.3,
     bodyFilter: 'saturate(0.75) brightness(0.92)',
     glowLevel: 0,
@@ -39,7 +39,7 @@ const LOOKS: Record<DecayStage, DecayLook> = {
     cracks: false,
   },
   Spooky: {
-    highlightOpacity: 0.35,
+    highlightOpacity: 0.31,
     sparkleOpacity: 0.25,
     bodyFilter: `saturate(0.7) brightness(0.88) ${GLOW_FAINT}`,
     glowLevel: 1,
@@ -47,7 +47,7 @@ const LOOKS: Record<DecayStage, DecayLook> = {
     cracks: false,
   },
   Haunted: {
-    highlightOpacity: 0.3,
+    highlightOpacity: 0.26,
     sparkleOpacity: 0.2,
     bodyFilter: `saturate(0.65) brightness(0.85) ${GLOW_STRONG}`,
     glowLevel: 2,
@@ -55,7 +55,7 @@ const LOOKS: Record<DecayStage, DecayLook> = {
     cracks: false,
   },
   Cursed: {
-    highlightOpacity: 0.15,
+    highlightOpacity: 0.13,
     sparkleOpacity: 0.1,
     bodyFilter: `saturate(0.15) brightness(0.6) ${GLOW_STRONG}`,
     glowLevel: 2,

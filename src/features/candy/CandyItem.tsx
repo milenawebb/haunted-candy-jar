@@ -10,11 +10,15 @@ import type { Task } from '../tasks/taskTypes';
 import { BandageNote } from './BandageNote';
 import { CandyCrack } from './CandyCrack';
 import { GhostCheer } from './GhostCheer';
-import { MonsterShape } from './MonsterShape';
+import { CANDY_ART_FILL, MonsterShape } from './MonsterShape';
 import './CandyItem.css';
 
-/** Default candy width in jar user units (one candy diameter of the packing layout). */
-export const DEFAULT_CANDY_SIZE = JAR_CANDY_RADIUS * 2;
+/**
+ * Default candy box width in jar user units. The monster art fills
+ * CANDY_ART_FILL of the box, so the visible candy is exactly one packing
+ * diameter wide and neighbours touch.
+ */
+export const DEFAULT_CANDY_SIZE = (JAR_CANDY_RADIUS * 2) / CANDY_ART_FILL;
 /** Minimum tappable target in CSS pixels, on every viewport (style rule). */
 export const HIT_MIN_PX = 44;
 /** A selected candy lifts straight up by this many jar user units... */
@@ -78,7 +82,6 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
   const reduced = useReducedMotion();
   const stage = decayFunction(task, logicalNow);
   const selected = state.selectedTaskId === task.id;
-
   const [phase, setPhase] = useState<Phase>('idle');
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -86,7 +89,6 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
   const rootRef = useRef<SVGGElement>(null);
   const downAt = useRef(0);
   const suppressClick = useRef(false);
-
   const completing = phase !== 'idle' && task.completedAt !== null;
 
   useLayoutEffect(() => {
@@ -115,7 +117,6 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
   const endPress = () => {
     if (Date.now() - downAt.current >= TAP_MAX_MS) suppressClick.current = true;
   };
-
   const onPointerDown = (e: PointerEvent<SVGGElement>) => {
     downAt.current = Date.now();
     suppressClick.current = false;
@@ -207,7 +208,6 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
         fill="transparent"
         pointerEvents="all"
       />
-
       <g className={liftClass} data-testid="candy-lift" style={liftStyle}>
         <g className={visualClass} data-testid="candy-visual">
           <g transform={`rotate(${rotation})`}>
@@ -221,18 +221,16 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
             </g>
           </g>
         </g>
-
         {/* Focus ring: dark under-stroke plus dashed light stroke, a shape cue and not color alone. */}
         <g className="candy-item__focus-ring" aria-hidden="true" pointerEvents="none" fill="none">
-          <circle r={size * 0.66} stroke="#12061c" strokeWidth="5" />
-          <circle r={size * 0.66} stroke="#fff8ee" strokeWidth="2.5" strokeDasharray="6 4" />
+          <circle r={size * 0.6} stroke="#12061c" strokeWidth="5" />
+          <circle r={size * 0.6} stroke="#fff8ee" strokeWidth="2.5" strokeDasharray="6 4" />
         </g>
-
         {showNote && (
           <g
             className="candy-item__note"
             data-testid="candy-note"
-            transform={`translate(0 ${-half - 28})`}
+            transform={`translate(0 ${-half - 22})`}
             aria-hidden="true"
             pointerEvents="none"
           >
@@ -240,7 +238,6 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
           </g>
         )}
       </g>
-
       {completing && (
         <g transform={`translate(${-50 * ghostScale} ${-60 * ghostScale}) scale(${ghostScale})`} pointerEvents="none">
           <GhostCheer onDone={finish} />

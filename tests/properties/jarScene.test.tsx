@@ -8,7 +8,6 @@ import {
   JAR_PACK_BOX,
   JAR_VIEWBOX_HEAD,
 } from '../../src/features/jar/jarGeometry';
-
 describe('JarScene', () => {
   it('renders back glass and clips candy children', () => {
     render(
@@ -21,7 +20,6 @@ describe('JarScene', () => {
     expect(clipped.getAttribute('clip-path')).toContain('url(#');
     expect(clipped.contains(screen.getByTestId('candy'))).toBe(true);
   });
-
   it('puts the lid after the candies in paint order', () => {
     render(<JarScene lid={<g data-testid="lid" />} frontGlass={<g data-testid="front" />} />);
     const nodes = Array.from(screen.getByRole('group', { name: 'Candy jar' }).children);
@@ -30,7 +28,6 @@ describe('JarScene', () => {
     expect(idx('jar-candies')).toBeLessThan(idx('front'));
     expect(idx('front')).toBeLessThan(idx('lid'));
   });
-
   it('renders the default front glass above the candies, and honors an override', () => {
     const { unmount } = render(<JarScene />);
     const front = screen.getByTestId('jar-front-glass');
@@ -44,7 +41,6 @@ describe('JarScene', () => {
     render(<JarScene frontGlass={<g data-testid="front" />} />);
     expect(screen.queryByTestId('jar-front-glass')).toBeNull();
   });
-
   it('renders the default lid with a knob above the front glass, and honors an override', () => {
     const { unmount } = render(<JarScene />);
     const lid = screen.getByTestId('jar-lid');
@@ -57,7 +53,6 @@ describe('JarScene', () => {
     render(<JarScene lid={<g data-testid="lid" />} />);
     expect(screen.queryByTestId('jar-lid')).toBeNull();
   });
-
   it('applies the transform prop to the lid', () => {
     render(<JarScene lid={<JarLid transform={lidTransform(20, -12)} />} />);
     expect(screen.getByTestId('jar-lid').getAttribute('transform')).toBe(
@@ -65,14 +60,12 @@ describe('JarScene', () => {
     );
     expect(JAR_LID_PIVOT).toEqual({ x: 200, y: 28 });
   });
-
   it('keeps the whole knob inside the viewBox headroom', () => {
     render(<JarScene />);
     const knob = screen.getByTestId('jar-lid').querySelector('circle');
     const top = Number(knob?.getAttribute('cy')) - Number(knob?.getAttribute('r'));
     expect(top).toBeGreaterThanOrEqual(-JAR_VIEWBOX_HEAD);
   });
-
   it('renders the default desk glow behind the jar, and honors an override', () => {
     const { unmount } = render(<JarScene />);
     const glow = screen.getByTestId('desk-glow');
@@ -86,8 +79,7 @@ describe('JarScene', () => {
     expect(screen.getByTestId('my-glow')).toBeTruthy();
     expect(screen.queryByTestId('desk-glow')).toBeNull();
   });
-
-  it('uses a candy diameter of about one sixth of the pack width', () => {
-    expect((JAR_CANDY_RADIUS * 2) / JAR_PACK_BOX.width).toBeCloseTo(1 / 6, 2);
+  it('uses a candy diameter of about one fifth of the pack width', () => {
+    expect((JAR_CANDY_RADIUS * 2) / JAR_PACK_BOX.width).toBeCloseTo(1 / 5, 2);
   });
 });

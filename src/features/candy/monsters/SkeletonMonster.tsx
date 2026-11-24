@@ -15,14 +15,16 @@ export function SkeletonMonster(props: MonsterArtProps) {
         body={(fill) => <path d={SKULL} fill={fill} />}
         face={
           <g>
-            <ellipse cx="36" cy="46" rx="11" ry="13" fill={FACE_DARK} />
-            <ellipse cx="64" cy="46" rx="11" ry="13" fill={FACE_DARK} />
-            <path d="M50 57 L44 69 L56 69 Z" fill={FACE_DARK} />
-            <rect x="32" y="75" width="36" height="11" rx="2.5" fill="#fffdf3" stroke={FACE_DARK} strokeWidth="2" />
-            <g stroke={FACE_DARK} strokeWidth="1.6">
-              <path d="M41 75 L41 86" />
-              <path d="M50 75 L50 86" />
-              <path d="M59 75 L59 86" />
+            <ellipse cx="36" cy="46" rx="12" ry="14" fill={FACE_DARK} />
+            <ellipse cx="64" cy="46" rx="12" ry="14" fill={FACE_DARK} />
+            <circle cx="36" cy="47" r="3" fill="#f3ecff" opacity="0.85" />
+            <circle cx="64" cy="47" r="3" fill="#f3ecff" opacity="0.85" />
+            <path d="M50 57 L43.5 70 L56.5 70 Z" fill={FACE_DARK} />
+            <rect x="31" y="75" width="38" height="12" rx="3" fill="#fffdf3" stroke={FACE_DARK} strokeWidth="2.6" />
+            <g stroke={FACE_DARK} strokeWidth="2.4">
+              <path d="M40.5 75 L40.5 87" />
+              <path d="M50 75 L50 87" />
+              <path d="M59.5 75 L59.5 87" />
             </g>
           </g>
         }

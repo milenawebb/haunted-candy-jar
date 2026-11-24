@@ -10,35 +10,30 @@ import {
   JAR_CAPACITY,
   JAR_PACK_BOX,
 } from './jarGeometry';
-
 /** A candy within this many units of a jar wall gets the glass refraction tint. */
-export const NEAR_WALL_DISTANCE = 12;
-
+export const NEAR_WALL_DISTANCE = 14;
 /** Centre of the first desk row, just in front of the jar base (jar base is at y 532). */
-export const SPILL_ROW_Y = 552;
-/** Candies per row on the desk. Seven diameters fit inside the 400 unit jar width. */
-export const SPILL_PER_ROW = 7;
-/** Horizontal distance between spilled candy centres. */
-export const SPILL_STEP_X = 54;
+export const SPILL_ROW_Y = 566;
+/** Candies per row on the desk. Five diameters (64 units each) fit inside the 400 unit jar width. */
+export const SPILL_PER_ROW = 5;
+/** Horizontal distance between spilled candy centres (a little over one diameter). */
+export const SPILL_STEP_X = 68;
 /** Vertical distance between desk rows. */
-export const SPILL_STEP_Y = 46;
+export const SPILL_STEP_Y = 56;
 /** Horizontal centre of the desk spill (the jar centre). */
 export const SPILL_CENTER_X = 200;
-
 export interface Placement {
   x: number;
   y: number;
   /** Degrees, within +/-15. */
   rotation: number;
 }
-
 export interface PileEntry extends Placement {
   task: Task;
   zone: 'jar' | 'desk';
   /** True when an in-jar candy sits within NEAR_WALL_DISTANCE of the glass. */
   nearWall: boolean;
 }
-
 /** Oldest first. Ties break on id so the order is total and stable. */
 export function sortByAge(tasks: readonly Task[]): Task[] {
   return tasks.slice().sort((a, b) => {
@@ -46,7 +41,6 @@ export function sortByAge(tasks: readonly Task[]): Task[] {
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
   });
 }
-
 /** The oldest `capacity` tasks stay in the jar; the rest spill onto the desk. */
 export function partitionTasks(
   tasks: readonly Task[],
@@ -55,7 +49,6 @@ export function partitionTasks(
   const sorted = sortByAge(tasks);
   return { inJar: sorted.slice(0, capacity), spilled: sorted.slice(capacity) };
 }
-
 /**
  * Desk positions for spilled candies: rows of SPILL_PER_ROW in front of the
  * jar base, each row centred on the jar. Later rows sit lower and are offset
@@ -75,7 +68,6 @@ export function spillPositions(count: number): Placement[] {
   }
   return result;
 }
-
 /**
  * True when a candy at (x, y), given in pack box coordinates, has its edge
  * within `threshold` units of the left wall, right wall or floor of the box.
@@ -90,7 +82,6 @@ export function isNearWall(
   const gap = Math.min(x, box.width - x, box.height - y) - radius;
   return gap <= threshold;
 }
-
 /**
  * Full layout for every task still in the store. In-jar candies are packed
  * from the sorted ids of the in-jar set, then offset into jar coordinates.

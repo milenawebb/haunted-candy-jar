@@ -1,45 +1,58 @@
 import { CandyBase, FACE_DARK, useSafeId, type MonsterArtProps } from './CandyBase';
 
-const HEAD = 'M20 20 L80 20 Q88 20 88 28 L88 80 Q88 90 78 90 L22 90 Q12 90 12 80 L12 28 Q12 20 20 20 Z';
-const BOLT = 'color-mix(in srgb, #8d95a8 70%, black)';
-const HAIR = '#2a2f1f';
+const BOLT = '#9aa3b8';
+const BOLT_EDGE = '#3b4254';
+const HAIR = '#15121a';
 
-/** Flat-topped square-ish body, neck bolts on the sides, stitched brow and mouth. */
+/** Tall rounded-rectangle green head, black jagged fringe, side bolts, stitched smile. */
 export function FrankensteinMonster(props: MonsterArtProps) {
   const uid = useSafeId();
-  const bolts = (
-    <g>
-      <rect x="2" y="50" width="12" height="7" rx="2.5" fill={BOLT} />
-      <rect x="2" y="46" width="4" height="15" rx="2" fill={BOLT} />
-      <rect x="86" y="50" width="12" height="7" rx="2.5" fill={BOLT} />
-      <rect x="94" y="46" width="4" height="15" rx="2" fill={BOLT} />
-    </g>
-  );
+  const clipId = `${uid}-head-clip`;
+  const bolt = (side: 'left' | 'right') => {
+    const flip = side === 'right' ? 'translate(100 0) scale(-1 1)' : undefined;
+    return (
+      <g transform={flip} fill={BOLT} stroke={BOLT_EDGE} strokeWidth="1.5" strokeLinejoin="round">
+        <rect x="9" y="52" width="12" height="9" rx="3" />
+        <rect x="8" y="47" width="6" height="19" rx="3" />
+      </g>
+    );
+  };
   return (
     <g data-monster="frankenstein">
       <CandyBase
         uid={uid}
         color="var(--monster-frankenstein)"
         {...props}
-        back={bolts}
-        body={(fill) => <path d={HEAD} fill={fill} />}
+        back={
+          <g>
+            {bolt('left')}
+            {bolt('right')}
+          </g>
+        }
+        body={(fill) => <rect x="18" y="8" width="64" height="84" rx="20" fill={fill} />}
         face={
           <g>
-            <path d="M12 28 Q12 20 20 20 L80 20 Q88 20 88 28 L88 36 L76 31 L64 37 L50 31 L36 37 L24 31 L12 36 Z" fill={HAIR} />
-            <path d="M24 46 L44 43" stroke={FACE_DARK} strokeWidth="3" strokeLinecap="round" />
-            <path d="M76 46 L56 43" stroke={FACE_DARK} strokeWidth="3" strokeLinecap="round" />
-            <circle cx="34" cy="54" r="5.5" fill="#fff" />
-            <circle cx="66" cy="54" r="5.5" fill="#fff" />
-            <circle cx="35" cy="55" r="2.8" fill={FACE_DARK} />
-            <circle cx="65" cy="55" r="2.8" fill={FACE_DARK} />
-            <path d="M30 74 L70 74" stroke={FACE_DARK} strokeWidth="3" strokeLinecap="round" />
-            <g stroke={FACE_DARK} strokeWidth="2" strokeLinecap="round">
-              <path d="M38 69 L38 79" />
-              <path d="M46 69 L46 79" />
-              <path d="M54 69 L54 79" />
-              <path d="M62 69 L62 79" />
+            <clipPath id={clipId}>
+              <rect x="18" y="8" width="64" height="84" rx="20" />
+            </clipPath>
+            <path
+              clipPath={`url(#${clipId})`}
+              d="M16 6 L84 6 L84 30 L76 40 L67 28 L58 40 L50 27 L42 40 L33 28 L24 40 L16 30 Z"
+              fill={HAIR}
+            />
+            <path d="M29 47 L45 47 M55 47 L71 47" stroke={FACE_DARK} strokeWidth="3.4" strokeLinecap="round" />
+            <circle cx="37" cy="57" r="7" fill="#fff" stroke={FACE_DARK} strokeWidth="1.5" />
+            <circle cx="63" cy="57" r="7" fill="#fff" stroke={FACE_DARK} strokeWidth="1.5" />
+            <circle cx="38" cy="58" r="3.4" fill={FACE_DARK} />
+            <circle cx="62" cy="58" r="3.4" fill={FACE_DARK} />
+            <path d="M32 74 Q50 86 68 74" stroke={FACE_DARK} strokeWidth="3.4" fill="none" strokeLinecap="round" />
+            <g stroke={FACE_DARK} strokeWidth="2.2" strokeLinecap="round">
+              <path d="M38 75 L36.5 81" />
+              <path d="M44 78.5 L43 85" />
+              <path d="M50 80 L50 86.5" />
+              <path d="M56 78.5 L57 85" />
+              <path d="M62 75 L63.5 81" />
             </g>
-            <path d="M70 26 L70 44 M65 31 L75 31 M65 37 L75 37" stroke={FACE_DARK} strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.7" />
           </g>
         }
       />
