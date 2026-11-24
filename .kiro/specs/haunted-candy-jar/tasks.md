@@ -128,7 +128,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
     - **Property 8: Whisper gain budget is bounded**
     - **Validates: Requirements 11.1, 11.2**
 
-- [-] 13. Checkpoint, run all property-based tests, fix any failures
+- [x] 13. Checkpoint, run all property-based tests, fix any failures
   - Execute `npx vitest --run` and confirm all property-based tests pass
   - Ensure all pure modules have no TypeScript errors (`tsc --noEmit`)
   - _Requirements: 8.3_
