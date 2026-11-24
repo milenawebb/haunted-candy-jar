@@ -103,7 +103,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Export `HauntSpeed` type alias `= 1 | 60 | 3600`
   - _Requirements: 15.5, 15.6, 15.7_
 
-- [ ] 10. Implement `exportImport.ts` serialisation helpers
+- [x] 10. Implement `exportImport.ts` serialisation helpers
   - Create `src/utils/exportImport.ts` exporting `serializeTaskList(tasks: Task[]): string` (JSON stringify) and `deserializeTaskList(raw: string): Task[]` (parse + Zod validate, throws descriptive error on failure)
   - Export `downloadJson(filename: string, data: string): void`, creates a Blob URL, clicks it, revokes it
   - _Requirements: 2.4, 2.5, 16.1, 16.2, 16.3, 16.4_
@@ -112,7 +112,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
     - **Property 3: Task serialisation round-trip**
     - **Validates: Requirements 2.5, 16.4**
 
-- [ ] 11. Implement `packingLayout.ts` stable candy positions
+- [-] 11. Implement `packingLayout.ts` stable candy positions
   - Create `src/utils/packingLayout.ts` exporting `computePacking(taskIds: string[], jarWidth: number, jarHeight: number): Array<{x: number, y: number, rotation: number}>`
   - Use a seeded LCG random number generator initialised from a numeric hash of the sorted `taskIds` joined string; positions settle toward the bottom of the jar
   - Rotation per candy is ±15° derived from the individual task `id`
