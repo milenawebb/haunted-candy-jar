@@ -1,0 +1,20 @@
+:root {
+  /* Palette */
+  --color-bg: #1a0a2e;
+  --color-bg-deep: #0d0514;
+  --color-candle: #ffaa44;
+  --color-candle-deep: #c85a00;
+  --color-moon: #b8d4ff;
+  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-moon-deep: #  --color-mstein: #6fcb4f;
+  --monster-vampire: #b3203a;
+  --monster-bat:   --monster-bat:   --monster-ba: #8  --monster-bat:   --monster-bat:   --monster-ba: #8  --monster-ba 0  --monster--  --monster-bat:   --mon rgb  --monster-bat:   --monster-bat:   --monster-ba: #8  --monsba  --monster-bat:   /  --monster-bat:   -or  --monster-bat:   er for  --monsing e  --monster-bat:   --mg:  --monster-bat:   --monster-bat:   --monster-ba: #8  --monst'I  --monster-bat:   apple  --monster-bat:  ', s  --monster-bat:   acing sca  --monster-bat:   --monster-bat:-2:  --mo    --monster-bax;  --monster-bat:   -  -  --monster-bat:   --mons-6:  --monster-bat:   --mons
+                               sr                       OF                               sr                       OF                               sr                       OF                               sr                       OF                               sr                       OF                               sr                       OF                               sr          :                             round: none;
+  border: 0;
+  cursor: pointer;
+}
+
+svg,
+img {
+  display: block;
+  max-width: 100%;
+}

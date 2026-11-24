@@ -29,7 +29,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - Create `public/_redirects` with a single-page app rewrite rule (`/* /index.html 200`) for Cloudflare Pages
   - _Requirements: 19.2, 19.3, 19.4_
 
-- [ ] 3. Self-host fonts and establish global CSS design tokens
+- [x] 3. Self-host fonts and establish global CSS design tokens
   - Place `Creepster-Regular.woff2` and `Inter-VariableFont.woff2` in `public/fonts/`
   - Create `src/styles/fonts.css` with `@font-face` declarations for both fonts (no CDN fetch)
   - Create `src/styles/tokens.css` defining CSS custom properties for every color token (`--color-bg`, `--color-bg-deep`, `--color-candle`, `--color-candle-deep`, `--color-moon`, `--color-moon-deep`, plus the glass tokens `--color-glass` and `--color-glass-rim`, the bandage tokens `--color-bandage` and `--color-bandage-ink`, and the monster tokens `--monster-pumpkin`, `--monster-mummy`, `--monster-skeleton`, `--monster-spider`, `--monster-frankenstein`, `--monster-vampire`, `--monster-bat`, `--monster-gravestone`), shadow styles, and spacing scale; there are no `flavor-*` tokens (values are in the design palette table)

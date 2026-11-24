@@ -1,0 +1,16 @@
+/* Self-hosted fonts (both SIL OFL). No CDN requests at runtime. */
+@font-face {
+  font-family: 'Creepster';
+  src: url('/fonts/Creepster-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-VariableFont.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
