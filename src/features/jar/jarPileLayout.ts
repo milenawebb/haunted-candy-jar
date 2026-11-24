@@ -10,8 +10,10 @@ import {
   JAR_CAPACITY,
   JAR_PACK_BOX,
 } from './jarGeometry';
+
 /** A candy within this many units of a jar wall gets the glass refraction tint. */
 export const NEAR_WALL_DISTANCE = 14;
+
 /**
  * Desk band for spilled candies (centre y, jar user units, viewBox y 0 is the
  * jar top, the jar body bottom is y 560 and the glass base is about 532).
@@ -40,15 +42,20 @@ export const NEAR_WALL_DISTANCE = 14;
  */
 export const SPILL_Y_MIN = 548;
 export const SPILL_Y_MAX = 578;
+
 /** Spilled candies are drawn at this fraction of the in-jar candy size. */
 export const SPILL_SIZE_FACTOR = 0.85;
+
 /** Rotation limit for spilled candies, degrees. */
 export const SPILL_MAX_ROTATION = 25;
+
 /** Jar centre x. */
 export const SPILL_CENTER_X = 200;
+
 /** Right side, x range. Desktop reaches 520 (320 units, about 260 px at 1280 wide). */
 export const SPILL_RIGHT_MIN = 244;
 export const SPILL_RIGHT_MAX = 520;
+
 /**
  * Compact (mobile, under 768px) right side. The jar is about 90vw wide there,
  * so 372 is the jar's right edge (400) minus a candy radius and a small
@@ -56,21 +63,27 @@ export const SPILL_RIGHT_MAX = 520;
  * the centre).
  */
 export const SPILL_RIGHT_MAX_COMPACT = 372;
+
 /**
  * Compact right side starts a little left of the desktop 244 so the narrow
  * band holds at least 8 spaced candies (candy edge at 224 - 27 = 197, still
  * clear of the jar centre line, in front of the jar base).
  */
 export const SPILL_RIGHT_MIN_COMPACT = 224;
+
 /** Left side, x range (same on both layouts; 40 keeps the candy edge inside the jar's left edge). */
 export const SPILL_LEFT_MIN = 40;
 export const SPILL_LEFT_MAX = 150;
+
 /** Number of spill slots over which the fan reaches full width. */
 const SPILL_FAN_COUNT = 14;
+
 /** Radius of a spilled candy (32 * 0.85 = 27.2 units). */
 export const SPILL_RADIUS = JAR_CANDY_RADIUS * SPILL_SIZE_FACTOR;
+
 /** Minimum distance between two spilled candy centres (1.4 x radius, about 38.08 units). */
 export const SPILL_MIN_DISTANCE = 1.4 * SPILL_RADIUS;
+
 /**
  * Capacity at the minimum distance. The band is only 30 units tall (less than
  * the minimum distance), so candies zig-zag between the top and bottom edge:
@@ -84,14 +97,46 @@ export const SPILL_MIN_DISTANCE = 1.4 * SPILL_RADIUS;
 const GRID_STEP_X = 2;
 const GRID_STEP_Y = 2;
 const EPS = 1e-9;
+
 /** Preferred y hugs one of the two band rows (inset up to this much) so the zig-zag stays packable. */
 const ROW_INSET = 2;
+
+/**
+ * Where a user may drop a desk candy (centre, jar units). The y range is the
+ * spill band above. The x range is the whole desk width, 40 to 520 on desktop
+ * and 40 to 372 on compact. The gap between the left and right spill sides
+ * (x 150 to 244) is allowed here: the band lies below the glass base (y 532),
+ * so a candy there rests on the desk in front of the jar and never inside the
+ * jar body. 40 and the compact 372 keep the candy on screen; the automatic
+ * scatter simply avoids the gap, a user drop does not have to.
+ */
+export function deskBandBounds(compact: boolean): { xMin: number; xMax: number; yMin: number; yMax: number } {
+  return {
+    xMin: SPILL_LEFT_MIN,
+    xMax: compact ? SPILL_RIGHT_MAX_COMPACT : SPILL_RIGHT_MAX,
+    yMin: SPILL_Y_MIN,
+    yMax: SPILL_Y_MAX,
+  };
+}
+
+/** Clamps a candy centre into the desk band. Idempotent. Non-finite input falls to the band minimum. */
+export function clampToDeskBand(
+  pos: { x: number; y: number },
+  compact: boolean,
+): { x: number; y: number } {
+  const b = deskBandBounds(compact);
+  const clamp = (v: number, lo: number, hi: number) =>
+    Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : lo;
+  return { x: clamp(pos.x, b.xMin, b.xMax), y: clamp(pos.y, b.yMin, b.yMax) };
+}
+
 export interface Placement {
   x: number;
   y: number;
   /** Degrees, within +/-SPILL_MAX_ROTATION (+/-15 for in-jar candies). */
   rotation: number;
 }
+
 export interface PileEntry extends Placement {
   task: Task;
   zone: 'jar' | 'desk';
@@ -100,6 +145,7 @@ export interface PileEntry extends Placement {
   /** Candy size relative to the in-jar size (1 in the jar, SPILL_SIZE_FACTOR on the desk). */
   sizeFactor: number;
 }
+
 /** Oldest first. Ties break on id so the order is total and stable. */
 export function sortByAge(tasks: readonly Task[]): Task[] {
   return tasks.slice().sort((a, b) => {
@@ -107,6 +153,7 @@ export function sortByAge(tasks: readonly Task[]): Task[] {
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
   });
 }
+
 /** The oldest `capacity` tasks stay in the jar; the rest spill onto the desk. */
 export function partitionTasks(
   tasks: readonly Task[],
@@ -115,6 +162,7 @@ export function partitionTasks(
   const sorted = sortByAge(tasks);
   return { inJar: sorted.slice(0, capacity), spilled: sorted.slice(capacity) };
 }
+
 /** FNV-1a hash of `salt + id`, mapped to [0, 1). */
 function hash01(id: string, salt: string): number {
   let h = 0x811c9dc5;
@@ -128,13 +176,16 @@ function hash01(id: string, salt: string): number {
   h ^= h >>> 12;
   return (h >>> 0) / 4294967296;
 }
+
 type Side = 'left' | 'right';
 type Point = { x: number; y: number };
+
 function sideRange(side: Side, compact: boolean): [number, number] {
   return side === 'left'
     ? [SPILL_LEFT_MIN, SPILL_LEFT_MAX]
     : [compact ? SPILL_RIGHT_MIN_COMPACT : SPILL_RIGHT_MIN, compact ? SPILL_RIGHT_MAX_COMPACT : SPILL_RIGHT_MAX];
 }
+
 /**
  * Hashed preferred desk position for one spilled candy, from its id and its
  * spill index (no collision handling, see spillPositions). Every fourth candy
@@ -156,12 +207,14 @@ export function spillPosition(id: string, index: number, compact = false): Place
     rotation: (hash01(id, 'r') * 2 - 1) * SPILL_MAX_ROTATION,
   };
 }
+
 /** Smallest distance from (x, y) to any placed centre (Infinity when none). */
 function nearest(x: number, y: number, placed: readonly Point[]): number {
   let best = Infinity;
   for (const p of placed) best = Math.min(best, Math.hypot(p.x - x, p.y - y));
   return best;
 }
+
 function gridSweep(side: Side, compact: boolean): Point[] {
   const [xMin, xMax] = sideRange(side, compact);
   const out: Point[] = [];
@@ -170,6 +223,7 @@ function gridSweep(side: Side, compact: boolean): Point[] {
   }
   return out;
 }
+
 /**
  * Free spot for one candy: the hashed preferred spot; else the free grid
  * point of the same side closest to it (fine sweep, steps of 2 units); else
@@ -208,16 +262,30 @@ function findSpot(id: string, index: number, compact: boolean, placed: readonly 
   }
   return best;
 }
+
 /**
  * Desk positions for spilled ids, in spill order (oldest first). Candies are
  * placed in index order and each spot depends only on earlier candies, so a
  * spilled id keeps its spot when later ids are added.
+ *
+ * `pins` (optional, same length as ids) holds user-dropped positions. A pinned
+ * candy takes its (clamped) position as is. All pins are placed first, so the
+ * unpinned candies are then placed in index order and avoid them.
  */
-export function spillPositions(ids: readonly string[], compact = false): Placement[] {
-  const placed: Point[] = [];
+export function spillPositions(
+  ids: readonly string[],
+  compact = false,
+  pins: readonly (Point | undefined)[] = [],
+): Placement[] {
+  const pinned: (Point | undefined)[] = ids.map((_, i) => {
+    const p = pins[i];
+    return p ? clampToDeskBand(p, compact) : undefined;
+  });
+  const placed: Point[] = pinned.filter((p): p is Point => p !== undefined);
   return ids.map((id, i) => {
-    const spot = findSpot(id, i, compact, placed);
-    placed.push(spot);
+    const pin = pinned[i];
+    const spot = pin ?? findSpot(id, i, compact, placed);
+    if (!pin) placed.push(spot);
     return {
       x: spot.x,
       y: spot.y,
@@ -225,6 +293,7 @@ export function spillPositions(ids: readonly string[], compact = false): Placeme
     };
   });
 }
+
 /**
  * True when a candy at (x, y), given in pack box coordinates, has its edge
  * within `threshold` units of the left wall, right wall or floor of the box.
@@ -239,9 +308,12 @@ export function isNearWall(
   const gap = Math.min(x, box.width - x, box.height - y) - radius;
   return gap <= threshold;
 }
+
 /**
  * Full layout for every task still in the store. In-jar candies are packed
  * from the sorted ids of the in-jar set, then offset into jar coordinates.
+ * A saved deskPos only applies to spilled candies; in the jar it is ignored
+ * (but stays on the task).
  */
 export function layoutPile(tasks: readonly Task[], compact = false): PileEntry[] {
   const { inJar, spilled } = partitionTasks(tasks);
@@ -265,6 +337,7 @@ export function layoutPile(tasks: readonly Task[], compact = false): PileEntry[]
   const desk = spillPositions(
     spilled.map((t) => t.id),
     compact,
+    spilled.map((t) => t.deskPos),
   );
   spilled.forEach((task, i) => {
     const p = desk[i] as Placement;

@@ -13,6 +13,11 @@ export const MonsterKindSchema = z.enum([
   'gravestone',
 ]);
 
+export const DeskPosSchema = z.object({
+  x: z.number().finite(),
+  y: z.number().finite(),
+});
+
 export const TaskSchema = z.object({
   id: z.string().min(1),
   title: z.string().refine((s) => s.trim().length > 0, {
@@ -23,6 +28,7 @@ export const TaskSchema = z.object({
   isSample: z.boolean(),
   createdAt: z.number().finite(),
   completedAt: z.number().finite().nullable(),
+  deskPos: DeskPosSchema.optional(),
 });
 
 export const PersistedTaskListSchema = z.array(TaskSchema);

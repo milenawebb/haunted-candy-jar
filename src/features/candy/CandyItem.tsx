@@ -1,9 +1,10 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, PointerEvent } from 'react';
-import { usePressAndHold } from '../../hooks/usePressAndHold';
+import { MOVE_SLOP_PX, usePressAndHold } from '../../hooks/usePressAndHold';
 import { useHauntClock } from '../../hooks/useHauntClock';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { JAR_CANDY_RADIUS } from '../jar/jarGeometry';
+import { clampToDeskBand } from '../jar/jarPileLayout';
 import { decayFunction } from '../tasks/decayFunction';
 import { useTaskStore } from '../tasks/taskStore';
 import type { Task } from '../tasks/taskTypes';
@@ -19,14 +20,32 @@ import './CandyItem.css';
  * diameter wide and neighbours touch.
  */
 export const DEFAULT_CANDY_SIZE = (JAR_CANDY_RADIUS * 2) / CANDY_ART_FILL;
+
 /** Minimum tappable target in CSS pixels, on every viewport (style rule). */
 export const HIT_MIN_PX = 44;
+
 /** A selected candy lifts straight up by this many jar user units... */
 export const LIFT_OFFSET_UNITS = 40;
+
 /** ...and grows by this factor, so it reads as coming forward out of the jar. */
 export const LIFT_SCALE = 1.2;
+
 /** A press that lasts at least this long (ms) is a hold attempt, not a tap, so its click is ignored. */
 export const TAP_MAX_MS = 250;
+
+/** Arrow key nudge for a selected desk candy, in jar user units (Shift uses the big step). */
+export const NUDGE_STEP = 6;
+export const NUDGE_STEP_BIG = 18;
+
+/** Hint read after the accessible name of a desk candy. */
+export const DESK_HINT = 'Arrow keys move it on the desk when selected';
+
+const ARROWS: Record<string, [number, number]> = {
+  ArrowLeft: [-1, 0],
+  ArrowRight: [1, 0],
+  ArrowUp: [0, -1],
+  ArrowDown: [0, 1],
+};
 
 export interface CandyItemProps {
   task: Task;
@@ -43,6 +62,12 @@ export interface CandyItemProps {
    * where that API is missing (jsdom) the scale is taken as 1.
    */
   jarScale?: number;
+  /**
+   * Set for candies on the desk. They can be dragged (past the hold slop) and
+   * nudged with the arrow keys, and drops are clamped to the desk band.
+   * Candies in the jar leave this unset and ignore drags and arrows.
+   */
+  desk?: { compact: boolean };
   /** Called once after the completion ghost has finished and the candy is unmounted. */
   onDone?: () => void;
 }
@@ -74,9 +99,16 @@ type Phase = 'idle' | 'completing' | 'gone';
  * (instant under reduced motion) and shows its note. JarPile owns z-order and
  * should draw the selected candy last and outside the jar clip.
  *
- * Validates: Requirements 3.1, 3.6, 3.7, 4.1, 4.2, 4.3, 4.5, 4.6, 4.10, 12.3
+ * Desk candies (`desk` prop) can also be dragged. A drag starts when the
+ * pointer travels past MOVE_SLOP_PX, the same slop that cancels the hold, so a
+ * still hold still completes. The candy follows the pointer (client px divided
+ * by the measured scale), the drop is clamped to the desk band and saved with
+ * SET_DESK_POS, and the click that follows never toggles selection. There is
+ * no easing on the drop, so reduced motion needs no special case.
+ *
+ * Validates: Requirements 3.1, 3.6, 3.7, 4.1, 4.2, 4.3, 4.5, 4.6, 4.10, 12.3, 13.3
  */
-export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jarScale, onDone }: CandyItemProps) {
+export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jarScale, desk, onDone }: CandyItemProps) {
   const { state, dispatch } = useTaskStore();
   const logicalNow = useHauntClock();
   const reduced = useReducedMotion();
@@ -86,9 +118,15 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [measured, setMeasured] = useState(1);
+  const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null);
   const rootRef = useRef<SVGGElement>(null);
   const downAt = useRef(0);
   const suppressClick = useRef(false);
+  // Pointer press origin (client px) while a desk candy is pressed; null otherwise.
+  const press = useRef<{ cx: number; cy: number } | null>(null);
+  const dragging = useRef(false);
+  const lastDrag = useRef<{ x: number; y: number } | null>(null);
+
   // A task completed from the context menu never ran the hold gesture, so the
   // phase is still 'idle'; completedAt alone decides, unless the ghost has finished.
   const completing = phase !== 'gone' && task.completedAt !== null;
@@ -108,6 +146,8 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
 
   const { handlers, crackProgress } = usePressAndHold({
     onComplete: () => {
+      // A drag cancels the hold at the slop; this is a second guard.
+      if (dragging.current) return;
       setPhase('completing');
       dispatch({ type: 'COMPLETE_TASK', taskId: task.id, now: Date.now() });
     },
@@ -121,19 +161,63 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
   const endPress = () => {
     if (Date.now() - downAt.current >= TAP_MAX_MS) suppressClick.current = true;
   };
+
   const onPointerDown = (e: PointerEvent<SVGGElement>) => {
     downAt.current = Date.now();
     suppressClick.current = false;
+    dragging.current = false;
+    press.current =
+      desk && !completing && (e.button === undefined || e.button === 0)
+        ? { cx: e.clientX, cy: e.clientY }
+        : null;
     handlers.onPointerDown(e);
   };
+
+  const onPointerMove = (e: PointerEvent<SVGGElement>) => {
+    // The hook cancels the hold once the pointer passes the slop.
+    handlers.onPointerMove(e);
+    const origin = press.current;
+    if (!desk || !origin || completing) return;
+    const dx = e.clientX - origin.cx;
+    const dy = e.clientY - origin.cy;
+    if (!dragging.current) {
+      if (Math.hypot(dx, dy) <= MOVE_SLOP_PX) return;
+      dragging.current = true;
+      // Keep receiving moves when the pointer outruns the candy.
+      try {
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+      } catch {
+        /* capture is a nicety, not required */
+      }
+    }
+    const next = clampToDeskBand({ x: x + dx / scale, y: y + dy / scale }, desk.compact);
+    lastDrag.current = next;
+    setDragPos(next);
+  };
+
+  const finishDrag = (save: boolean) => {
+    press.current = null;
+    if (!dragging.current) return;
+    dragging.current = false;
+    suppressClick.current = true; // the click after a drag must not select
+    const drop = lastDrag.current;
+    lastDrag.current = null;
+    setDragPos(null);
+    if (save && drop) dispatch({ type: 'SET_DESK_POS', taskId: task.id, pos: drop });
+  };
+
   const onPointerUp = (e: PointerEvent<SVGGElement>) => {
     endPress();
     handlers.onPointerUp(e);
+    finishDrag(true);
   };
+
   const onPointerCancel = (e: PointerEvent<SVGGElement>) => {
     endPress();
     handlers.onPointerCancel(e);
+    finishDrag(false);
   };
+
   const onClick = () => {
     if (suppressClick.current) {
       suppressClick.current = false;
@@ -142,10 +226,21 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
     if (completing) return;
     toggleSelect();
   };
+
   const onKeyDown = (e: KeyboardEvent<SVGGElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (!completing) toggleSelect();
+      return;
+    }
+    const arrow = ARROWS[e.key];
+    if (arrow) {
+      if (desk && selected && !completing) {
+        e.preventDefault();
+        const step = e.shiftKey ? NUDGE_STEP_BIG : NUDGE_STEP;
+        const pos = clampToDeskBand({ x: x + arrow[0] * step, y: y + arrow[1] * step }, desk.compact);
+        dispatch({ type: 'SET_DESK_POS', taskId: task.id, pos });
+      }
       return;
     }
     handlers.onKeyDown(e);
@@ -169,22 +264,27 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
   };
   const liftClass = reduced ? 'candy-item__lift candy-item__lift--instant' : 'candy-item__lift';
   const visualClass = completing ? 'candy-item__visual candy-item__visual--fading' : 'candy-item__visual';
+  const rootClass = ['candy-item', desk ? 'candy-item--desk' : '', dragPos ? 'candy-item--dragging' : '']
+    .filter(Boolean)
+    .join(' ');
+  const hintId = `candy-hint-${task.id}`;
 
   return (
     <g
       ref={rootRef}
-      className="candy-item"
+      className={rootClass}
       data-testid="candy-item"
       data-task-id={task.id}
       data-decay-stage={stage}
       data-selected={selected ? 'true' : 'false'}
-      transform={`translate(${x} ${y})`}
+      transform={`translate(${dragPos?.x ?? x} ${dragPos?.y ?? y})`}
       role="button"
       tabIndex={0}
       aria-label={`${task.title}, ${stage}`}
+      aria-describedby={desk ? hintId : undefined}
       aria-pressed={selected}
       onPointerDown={onPointerDown}
-      onPointerMove={handlers.onPointerMove}
+      onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
       onPointerLeave={(e) => {
@@ -202,6 +302,7 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
       onClick={onClick}
       onContextMenu={(e) => e.preventDefault()}
     >
+      {desk && <desc id={hintId}>{DESK_HINT}</desc>}
       {/* Axis-aligned (not rotated) so the target never shrinks with candy rotation. */}
       <rect
         data-testid="candy-hit-area"

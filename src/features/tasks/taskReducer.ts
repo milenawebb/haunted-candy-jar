@@ -2,6 +2,7 @@
 import { createTask } from './createTask';
 import type {
   CreateTaskInput,
+  DeskPos,
   EditTaskInput,
   FocusSession,
   Task,
@@ -34,6 +35,7 @@ export type AppAction =
   | { type: 'COMPLETE_TASK'; taskId: string; now?: number }
   | { type: 'DELETE_TASK'; taskId: string }
   | { type: 'EDIT_TASK'; taskId: string; payload: EditTaskInput }
+  | { type: 'SET_DESK_POS'; taskId: string; pos: DeskPos }
   | { type: 'SELECT_TASK'; taskId: string | null }
   | { type: 'UNDO' }
   | { type: 'UNDO_EXPIRED' }
@@ -120,6 +122,17 @@ export function appReducer(state: AppState, action: AppAction): AppState {
                 monster: action.payload.monster,
               }
             : t,
+        ),
+      };
+    }
+    case 'SET_DESK_POS': {
+      const { x, y } = action.pos;
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return state;
+      if (!state.tasks.some((t) => t.id === action.taskId)) return state;
+      return {
+        ...state,
+        tasks: state.tasks.map((t) =>
+          t.id === action.taskId ? { ...t, deskPos: { x, y } } : t,
         ),
       };
     }

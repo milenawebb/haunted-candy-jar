@@ -56,7 +56,8 @@ export interface JarPileProps extends Omit<JarSceneProps, 'children' | 'overflow
  *   The desk spill is drawn inside the same SVG as the jar (JarScene sets
  *   overflow visible), so the viewBox is unchanged and the jar body never
  *   moves. The vertical band and horizontal spread (narrower under 768px) are
- *   documented in jarPileLayout.ts.
+ *   documented in jarPileLayout.ts. Desk candies can be dragged or nudged
+ *   (CandyItem `desk` prop); a saved task.deskPos overrides the scatter spot.
  * - The selected candy is drawn last, in the overflow layer, so its lift is
  *   not cut off by the jar clip. It keeps its slot in the layout and returns
  *   there on deselect.
@@ -80,10 +81,12 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
   const reduced = useReducedMotion();
   const compact = useCompactSpill();
   const { announce } = useAnnounce();
+
   // Lid sequence (see LidAnimation.tsx). A newly added candy stays hidden
   // until the lid is open, then its drop-in animation starts. Under reduced
   // motion nothing waits: the candy just fades in.
   const lid = useLidSequence({ tasks: state.tasks, onLidOpen, onLidClose });
+
   const entries = useMemo(() => layoutPile(state.tasks, compact), [state.tasks, compact]);
   const selectedId = state.selectedTaskId;
 
@@ -97,6 +100,7 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
   const glowTimers = useRef<Map<string, number>>(new Map());
   const [glowing, setGlowing] = useState<ReadonlySet<string>>(new Set());
   const [, rerender] = useReducer((n: number) => n + 1, 0);
+
   const currentIds = new Set(entries.map((e) => e.task.id));
   if (seen.current === null) {
     seen.current = new Set(currentIds);
@@ -149,6 +153,7 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
       );
     }
   });
+
   useEffect(() => {
     const timers = glowTimers.current;
     return () => {
@@ -203,6 +208,7 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
             y={entry.y}
             rotation={entry.rotation}
             size={DEFAULT_CANDY_SIZE * entry.sizeFactor}
+            desk={entry.zone === 'desk' ? { compact } : undefined}
           />
         </g>
       </g>

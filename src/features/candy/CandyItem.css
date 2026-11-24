@@ -8,6 +8,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Desk candies can be dragged: stop the browser from scrolling or panning instead. */
+.candy-item--desk {
+  cursor: grab;
+  touch-action: none;
+}
+
+.candy-item--dragging {
+  cursor: grabbing;
+}
+
 /* Lift out of the jar: a short transform transition. */
 .candy-item__lift {
   transition: transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1.15);

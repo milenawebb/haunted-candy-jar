@@ -12,6 +12,12 @@ export type MonsterKind =
   | 'bat'
   | 'gravestone';
 
+/** A position in jar SVG user units. */
+export interface DeskPos {
+  x: number;
+  y: number;
+}
+
 export interface Task {
   id: string; // crypto.randomUUID()
   title: string; // non-empty after trim
@@ -20,6 +26,8 @@ export interface Task {
   isSample: boolean; // true for seeded demo candies
   createdAt: number; // real wall-clock timestamp at creation (ms)
   completedAt: number | null; // real wall-clock timestamp on completion, or null
+  /** Where the user dropped this candy on the desk. Only used while it is spilled. */
+  deskPos?: DeskPos;
 }
 
 export interface FocusSession {
