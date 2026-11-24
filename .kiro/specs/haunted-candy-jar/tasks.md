@@ -311,13 +311,13 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - `Complete` button in the Context_Menu dispatches `COMPLETE_TASK` as an alternative to press-and-hold
   - _Requirements: 3.2, 3.3, 3.4, 3.5, 3.6, 3.7_
 
-- [-] 30a. Implement `MonsterPicker` component
+- [x] 30a. Implement `MonsterPicker` component
   - Create `src/features/forms/MonsterPicker.tsx`: a grid of 8 small monster buttons (one per `MonsterKind`), each showing a small `MonsterShape` thumbnail
   - Each button has an accessible name equal to the monster name (`aria-label`, for example "Pumpkin"), `aria-pressed`, a minimum 44x44 px hit area, arrow-key navigation, and a ring outline plus check mark for the selected one (not color alone)
   - Props: `value: MonsterKind | null`, `onChange(kind)`; `null` means the monster is auto-assigned
   - _Requirements: 1.5, 12.1, 12.3_
 
-- [ ] 30. Implement `AddTaskForm` modal
+- [-] 30. Implement `AddTaskForm` modal
   - Create `src/features/forms/AddTaskForm.tsx`: title `<input>` (required), due date `<input type="date">` (optional), and the `MonsterPicker` (task 30a) in place of the old flavor and shape pickers
   - Inline validation message on empty-title submit; no task created
   - On valid submit: dispatch `CREATE_TASK`, close form

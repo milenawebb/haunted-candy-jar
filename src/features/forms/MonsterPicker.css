@@ -1,0 +1,66 @@
+.monster-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.monster-picker__grid {
+  display: grid;
+  gap: 8px;
+  justify-content: start;
+}
+
+.monster-picker__button {
+  position: relative;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.monster-picker__button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.monster-picker__button:focus-visible {
+  outline: 2px dashed var(--color-moon, #b8d4ff);
+  outline-offset: 2px;
+}
+
+.monster-picker__button[data-selected='true'] {
+  border-style: solid;
+  border-color: var(--color-candle, #ffaa44);
+  box-shadow: 0 0 0 2px rgba(255, 170, 68, 0.35);
+  background: rgba(255, 170, 68, 0.14);
+}
+
+.monster-picker__check {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  pointer-events: none;
+}
+
+.monster-picker__hint {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--color-moon, #b8d4ff);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monster-picker__button {
+    transition: none;
+  }
+}
