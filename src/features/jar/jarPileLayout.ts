@@ -16,46 +16,45 @@ export const NEAR_WALL_DISTANCE = 14;
 
 /**
  * Desk band for spilled candies (centre y, jar user units, viewBox y 0 is the
- * jar top, the jar body bottom is y 560 and the glass base is about 532).
+ * jar top, the jar body bottom is y 684 and the glass base is about 656).
  *
  * Derivation. The background is object-fit: cover on a 1672x941 image, centred
  * vertically, so scale s = max(W / 1672, H / 941) and the image top sits at
  * y0 = (H - 941 s) / 2 on screen. The desk top is at 74% and the front lip at
  * 87% of the image height: deskTop = y0 + 0.74 * 941 s, lip = y0 + 0.87 * 941 s.
- * The jar slot bottom (user y 560) is 18% (20% under 768px) above the viewport
+ * The jar slot bottom (user y 684) is 18% (20% under 768px) above the viewport
  * bottom, and one user unit is u = jarWidth / 400 px, where
- * jarWidth = min(480, 0.9 W, (0.78 H - 110) * 400 / 624). So a screen y maps
- * to user y = 560 - (slotBottom - screenY) / u. Worked out:
- *   1280x800:  desk top y 482, lip y 608
- *   1920x1080: desk top y 486, lip y 606
- *   390x844:   desk top y 501, lip y 629
- * The common band is therefore y 501 to 606. A spilled candy has radius
+ * jarWidth = min(480, 0.9 W, (0.78 H - 110) * 400 / 748) (0.76 H under 600px
+ * wide). So a screen y maps to user y = 684 - (slotBottom - screenY) / u.
+ * Worked out:
+ *   1280x800:  u 0.687, desk top y 591, lip y 742
+ *   1920x1080: u 0.979, desk top y 596, lip y 739
+ *   390x844:   u 0.711, desk top y 613, lip y 767
+ * The common band is therefore y 613 to 739. A spilled candy has radius
  * 32 * 0.85 = 27.2, so its bottom (y + 27.2) must stay above the lip:
- * y <= 578. The centre must also sit well below the desk top so it reads as
- * resting on the surface: y >= 548 (bottom at 575 at the lowest). Bounds are
- * deliberately conservative.
+ * y <= 711. The centre must also sit well below the desk top so it reads as
+ * resting on the surface: y >= 672 (bottom at 699 at the lowest). Bounds are
+ * deliberately conservative. (Same 30 unit band as before the jar grew, moved
+ * down by the 124 units the jar body gained.)
  *
  * Assumptions: 74% and 87% are the desk top and lip fractions documented in
  * DeskBackground.css (not re-measured here); the jar is not cropped by an
  * extremely wide and short viewport (for example 1920x600 the desk top falls
  * below the jar base and no band in jar units is reliable).
  */
-export const SPILL_Y_MIN = 548;
-export const SPILL_Y_MAX = 578;
+export const SPILL_Y_MIN = 672;
+export const SPILL_Y_MAX = 702;
 
 /** Spilled candies are drawn at this fraction of the in-jar candy size. */
 export const SPILL_SIZE_FACTOR = 0.85;
-
 /** Rotation limit for spilled candies, degrees. */
 export const SPILL_MAX_ROTATION = 25;
 
 /** Jar centre x. */
 export const SPILL_CENTER_X = 200;
-
-/** Right side, x range. Desktop reaches 520 (320 units, about 260 px at 1280 wide). */
+/** Right side, x range. Desktop reaches 520 (320 units, about 220 px at 1280 wide). */
 export const SPILL_RIGHT_MIN = 244;
 export const SPILL_RIGHT_MAX = 520;
-
 /**
  * Compact (mobile, under 768px) right side. The jar is about 90vw wide there,
  * so 372 is the jar's right edge (400) minus a candy radius and a small
@@ -63,27 +62,22 @@ export const SPILL_RIGHT_MAX = 520;
  * the centre).
  */
 export const SPILL_RIGHT_MAX_COMPACT = 372;
-
 /**
  * Compact right side starts a little left of the desktop 244 so the narrow
  * band holds at least 8 spaced candies (candy edge at 224 - 27 = 197, still
  * clear of the jar centre line, in front of the jar base).
  */
 export const SPILL_RIGHT_MIN_COMPACT = 224;
-
 /** Left side, x range (same on both layouts; 40 keeps the candy edge inside the jar's left edge). */
 export const SPILL_LEFT_MIN = 40;
 export const SPILL_LEFT_MAX = 150;
-
 /** Number of spill slots over which the fan reaches full width. */
 const SPILL_FAN_COUNT = 14;
 
 /** Radius of a spilled candy (32 * 0.85 = 27.2 units). */
 export const SPILL_RADIUS = JAR_CANDY_RADIUS * SPILL_SIZE_FACTOR;
-
 /** Minimum distance between two spilled candy centres (1.4 x radius, about 38.08 units). */
 export const SPILL_MIN_DISTANCE = 1.4 * SPILL_RADIUS;
-
 /**
  * Capacity at the minimum distance. The band is only 30 units tall (less than
  * the minimum distance), so candies zig-zag between the top and bottom edge:
@@ -97,7 +91,6 @@ export const SPILL_MIN_DISTANCE = 1.4 * SPILL_RADIUS;
 const GRID_STEP_X = 2;
 const GRID_STEP_Y = 2;
 const EPS = 1e-9;
-
 /** Preferred y hugs one of the two band rows (inset up to this much) so the zig-zag stays packable. */
 const ROW_INSET = 2;
 
@@ -105,7 +98,7 @@ const ROW_INSET = 2;
  * Where a user may drop a desk candy (centre, jar units). The y range is the
  * spill band above. The x range is the whole desk width, 40 to 520 on desktop
  * and 40 to 372 on compact. The gap between the left and right spill sides
- * (x 150 to 244) is allowed here: the band lies below the glass base (y 532),
+ * (x 150 to 244) is allowed here: the band lies below the glass base (y 656),
  * so a candy there rests on the desk in front of the jar and never inside the
  * jar body. 40 and the compact 372 keep the candy on screen; the automatic
  * scatter simply avoids the gap, a user drop does not have to.

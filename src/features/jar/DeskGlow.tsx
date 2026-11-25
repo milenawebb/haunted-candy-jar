@@ -3,7 +3,7 @@ import './DeskGlow.css';
 /**
  * Soft shadow and warm candle glow on the desk under the jar. Static radial
  * gradients, so it needs no reduced-motion fallback. The layers extend past
- * the jar width and are centered on the jar base (y 532 of 560).
+ * the jar width and are centered on the jar base (y 656 of 684).
  */
 export function DeskGlow() {
   return (

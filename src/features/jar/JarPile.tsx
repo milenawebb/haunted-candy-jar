@@ -49,8 +49,8 @@ export interface JarPileProps extends Omit<JarSceneProps, 'children' | 'overflow
  * The jar with its candies, wired to the task store.
  *
  * Layers (see jarPileLayout.ts for the pure math):
- * - In the clip group: the oldest 24 candies, each at its packed slot.
- * - In the overflow layer (unclipped, above the glass): candies beyond 24,
+ * - In the clip group: the oldest 40 candies, each at its packed slot.
+ * - In the overflow layer (unclipped, above the glass): candies beyond 40,
  *   scattered loosely on the desk around the jar base (mostly to the right,
  *   a few to the left), at 85% size, sorted by y so lower candies draw on top.
  *   The desk spill is drawn inside the same SVG as the jar (JarScene sets
@@ -100,7 +100,6 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
   const glowTimers = useRef<Map<string, number>>(new Map());
   const [glowing, setGlowing] = useState<ReadonlySet<string>>(new Set());
   const [, rerender] = useReducer((n: number) => n + 1, 0);
-
   const currentIds = new Set(entries.map((e) => e.task.id));
   if (seen.current === null) {
     seen.current = new Set(currentIds);

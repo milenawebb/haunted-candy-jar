@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { buildDemoTasks, parseDemoCount } from '../../src/dev/demoSeed'
+import { JAR_CAPACITY } from '../../src/features/jar/jarGeometry'
+import { partitionTasks } from '../../src/features/jar/jarPileLayout'
 import { decayFunction } from '../../src/features/tasks/decayFunction'
 import { DECAY_STAGE_ORDER } from '../../src/features/tasks/taskTypes'
 import { MONSTER_KINDS } from '../../src/utils/monsterKind'
@@ -20,7 +22,7 @@ describe('demoSeed (temporary dev helper)', () => {
   })
 
   it('generates N candies with unique ids and no em dashes', () => {
-    for (const n of [9, 24, 30, 40]) {
+    for (const n of [9, 24, 40, 45, 60]) {
       const tasks = buildDemoTasks(n, NOW)
       expect(tasks).toHaveLength(n)
       expect(new Set(tasks.map((t) => t.id)).size).toBe(n)
@@ -32,6 +34,14 @@ describe('demoSeed (temporary dev helper)', () => {
     expect(parseDemoCount('')).toBeNull()
     expect(parseDemoCount('?demo=1')).toBe(8)
     expect(parseDemoCount('?demo=30')).toBe(30)
-    expect(parseDemoCount('?demo=99')).toBe(40)
+    expect(parseDemoCount('?demo=45')).toBe(45)
+    expect(parseDemoCount('?demo=99')).toBe(60)
+  })
+
+  it('?demo=45 gives a full jar of 40 and a desk spill of 5', () => {
+    const tasks = buildDemoTasks(parseDemoCount('?demo=45')!, NOW)
+    const { inJar, spilled } = partitionTasks(tasks)
+    expect(inJar).toHaveLength(JAR_CAPACITY)
+    expect(spilled).toHaveLength(5)
   })
 })

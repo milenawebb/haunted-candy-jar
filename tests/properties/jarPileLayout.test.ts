@@ -4,6 +4,7 @@ import {
   JAR_CANDY_RADIUS,
   JAR_CAPACITY,
   JAR_PACK_BOX,
+  JAR_SHOULDER_Y,
 } from '../../src/features/jar/jarGeometry';
 import {
   NEAR_WALL_DISTANCE,
@@ -34,21 +35,25 @@ function makeTask(i: number, createdAt = i): Task {
     completedAt: null,
   };
 }
-const taskCount = fc.integer({ min: 0, max: 60 });
+
+const taskCount = fc.integer({ min: 0, max: 80 });
 const idList = (min: number, max: number) =>
   fc.uniqueArray(fc.uuid(), { minLength: min, maxLength: max });
 
 describe('partitionTasks', () => {
-  it('keeps the oldest 24 in the jar and spills the rest', () => {
-    const tasks = Array.from({ length: 26 }, (_, i) => makeTask(i, 1000 - i));
+  it('keeps the oldest 40 in the jar and spills the rest', () => {
+    const total = JAR_CAPACITY + 2;
+    const tasks = Array.from({ length: total }, (_, i) => makeTask(i, 1000 - i));
     const { inJar, spilled } = partitionTasks(tasks);
+    expect(JAR_CAPACITY).toBe(40);
     expect(inJar).toHaveLength(JAR_CAPACITY);
     expect(spilled).toHaveLength(2);
     // Highest index has the oldest createdAt in this fixture.
-    expect(inJar[0]?.id).toBe('task-0025');
+    expect(inJar[0]?.id).toBe(`task-${String(total - 1).padStart(4, '0')}`);
     expect(spilled.map((t) => t.id)).toEqual(['task-0001', 'task-0000']);
   });
-  it('Validates: Requirement 13.2 (jar holds min(n, 24), the rest spill)', () => {
+
+  it('Validates: Requirement 13.2 (jar holds min(n, 40), the rest spill)', () => {
     fc.assert(
       fc.property(taskCount, (n) => {
         const tasks = Array.from({ length: n }, (_, i) => makeTask(i));
@@ -68,6 +73,7 @@ describe('spillPositions', () => {
     expect(spillPositions([])).toEqual([]);
     expect(spillPositions(['a', 'b', 'c'])).toHaveLength(3);
   });
+
   it('Validates: Requirement 13.2 (deterministic per id, unaffected by later ids)', () => {
     fc.assert(
       fc.property(idList(1, 30), idList(0, 10), fc.boolean(), (ids, more, compact) => {
@@ -79,6 +85,7 @@ describe('spillPositions', () => {
       { numRuns: 100 },
     );
   });
+
   it('Validates: Requirement 13.2 (every spill sits inside the desk band, rotation <= 25 degrees)', () => {
     fc.assert(
       fc.property(idList(0, 40), fc.boolean(), (ids, compact) => {
@@ -96,6 +103,7 @@ describe('spillPositions', () => {
       { numRuns: 100 },
     );
   });
+
   it('Validates: Requirement 13.2 (mostly right of the jar centre, y varies)', () => {
     fc.assert(
       fc.property(idList(20, 20), (ids) => {
@@ -107,6 +115,7 @@ describe('spillPositions', () => {
       { numRuns: 100 },
     );
   });
+
   it('Validates: Requirement 13.2 (compact spread is narrower than desktop)', () => {
     const ids = Array.from({ length: 30 }, (_, i) => `id-${i}`);
     const wide = Math.max(...spillPositions(ids).map((p) => p.x));
@@ -123,6 +132,7 @@ describe('isNearWall', () => {
     expect(isNearWall(JAR_PACK_BOX.width - r, 100)).toBe(true);
     expect(isNearWall(JAR_PACK_BOX.width / 2, JAR_PACK_BOX.height / 2)).toBe(false);
   });
+
   it('Validates: Requirement 13.1 (near-wall means edge within 12 units of a wall)', () => {
     fc.assert(
       fc.property(
@@ -163,6 +173,21 @@ describe('layoutPile', () => {
     );
     expect(SPILL_SIZE_FACTOR).toBe(0.85);
   });
+
+  it('Validates: Requirement 13.1 (a full jar of 40 never rises above the shoulder)', () => {
+    fc.assert(
+      fc.property(fc.uniqueArray(fc.uuid(), { minLength: JAR_CAPACITY, maxLength: JAR_CAPACITY }), (ids) => {
+        const tasks = ids.map((id, i) => ({ ...makeTask(i), id }));
+        const jar = layoutPile(tasks).filter((e) => e.zone === 'jar');
+        expect(jar).toHaveLength(JAR_CAPACITY);
+        // Top edge of the highest candy (smallest y) must be at or below the shoulder.
+        const top = Math.min(...jar.map((e) => e.y - JAR_CANDY_RADIUS));
+        expect(top).toBeGreaterThanOrEqual(JAR_SHOULDER_Y);
+      }),
+      { numRuns: 300 },
+    );
+  });
+
   it('is independent of input order', () => {
     const tasks = Array.from({ length: 10 }, (_, i) => makeTask(i));
     const a = layoutPile(tasks);

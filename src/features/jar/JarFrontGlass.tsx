@@ -54,37 +54,34 @@ export function JarFrontGlass() {
           <path d={JAR_INSIDE_PATH} />
         </clipPath>
       </defs>
-
       {/* Darker inner edges, then warm candle glow on the left side. */}
       <path d={JAR_INSIDE_PATH} fill={`url(#${edgeId})`} />
       <g clipPath={`url(#${clipId})`}>
-        <rect x="40" y="100" width="150" height="420" fill={`url(#${glowId})`} />
+        <rect x="40" y="100" width="150" height="544" fill={`url(#${glowId})`} />
         {/* Vertical light streaks. */}
-        <rect x="62" y="130" width="9" height="300" rx="4.5" fill="#ffffff" opacity="0.4" />
-        <rect x="78" y="150" width="3" height="200" rx="1.5" fill="#ffffff" opacity="0.28" />
-        <rect x="334" y="140" width="5" height="260" rx="2.5" fill="#ffffff" opacity="0.22" />
+        <rect x="62" y="130" width="9" height="400" rx="4.5" fill="#ffffff" opacity="0.4" />
+        <rect x="78" y="150" width="3" height="260" rx="1.5" fill="#ffffff" opacity="0.28" />
+        <rect x="334" y="140" width="5" height="340" rx="2.5" fill="#ffffff" opacity="0.22" />
         {/* Soft window reflection on the right: a pane with two mullions. */}
-        <g transform="translate(262 170) skewY(-4)" opacity="0.3">
+        <g transform="translate(262 190) skewY(-4)" opacity="0.3">
           <rect width="70" height="96" rx="4" fill={`url(#${winId})`} />
           <rect x="33" width="4" height="96" fill="#ffffff" opacity="0.12" />
           <rect y="46" width="70" height="4" fill="#ffffff" opacity="0.12" />
         </g>
       </g>
-
       {/* Thick glass base with a bright top edge. */}
       <path
-        d="M 40 484 Q 40 512 68 512 H 332 Q 360 512 360 484 Q 360 494 332 494 H 68 Q 40 494 40 484 Z"
+        d="M 40 608 Q 40 636 68 636 H 332 Q 360 636 360 608 Q 360 618 332 618 H 68 Q 40 618 40 608 Z"
         fill={`url(#${baseId})`}
       />
       <path
-        d="M 44 494 H 356"
+        d="M 44 618 H 356"
         stroke="#ffffff"
         strokeOpacity="0.45"
         strokeWidth="1.5"
         strokeLinecap="round"
         fill="none"
       />
-
       {/* Glass wall between the outer and inside outlines. */}
       <path d={wallPath} fillRule="evenodd" fill={`url(#${rimId})`} />
       <path

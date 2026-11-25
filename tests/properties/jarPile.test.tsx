@@ -1,9 +1,11 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { JarPile } from '../../src/features/jar/JarPile';
+import { JAR_CAPACITY } from '../../src/features/jar/jarGeometry';
 import { TaskStoreProvider, useTaskStore } from '../../src/features/tasks/taskStore';
 import type { Task } from '../../src/features/tasks/taskTypes';
 import { TASKS_KEY } from '../../src/utils/persistence';
+
 function makeTask(i: number): Task {
   return {
     id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
@@ -15,16 +17,19 @@ function makeTask(i: number): Task {
     completedAt: null,
   };
 }
+
 function seed(n: number) {
   window.localStorage.setItem(
     TASKS_KEY,
     JSON.stringify(Array.from({ length: n }, (_, i) => makeTask(i + 1))),
   );
 }
+
 /** SVG elements expose className as an object, so read the attribute. */
 function cls(el: Element): string {
   return el.getAttribute('class') ?? '';
 }
+
 function Adder() {
   const { dispatch } = useTaskStore();
   return (
@@ -38,6 +43,7 @@ function Adder() {
     </button>
   );
 }
+
 function setup() {
   return render(
     <TaskStoreProvider>
@@ -46,6 +52,7 @@ function setup() {
     </TaskStoreProvider>,
   );
 }
+
 function mockReducedMotion(matches: boolean) {
   window.matchMedia = ((query: string) => ({
     matches,
@@ -58,16 +65,20 @@ function mockReducedMotion(matches: boolean) {
     dispatchEvent: () => false,
   })) as unknown as typeof window.matchMedia;
 }
+
 describe('JarPile', () => {
   const originalMatchMedia = window.matchMedia;
+
   beforeEach(() => {
     window.localStorage.clear();
     mockReducedMotion(false);
   });
+
   afterEach(() => {
     window.matchMedia = originalMatchMedia;
     vi.restoreAllMocks();
   });
+
   it('renders 3 tasks as 3 candy buttons inside the jar clip group', () => {
     seed(3);
     setup();
@@ -75,21 +86,23 @@ describe('JarPile', () => {
     expect(within(jar).getAllByRole('button')).toHaveLength(3);
     expect(within(screen.getByTestId('jar-overflow')).queryAllByRole('button')).toHaveLength(0);
   });
-  it('puts 24 candies in the jar and 2 on the desk when 26 tasks exist, all selectable', () => {
-    seed(26);
+
+  it('puts 40 candies in the jar and 1 on the desk when 41 tasks exist, all selectable', () => {
+    seed(JAR_CAPACITY + 1);
     setup();
     const jar = screen.getByTestId('jar-candies');
     const overflow = screen.getByTestId('jar-overflow');
-    expect(within(jar).getAllByRole('button')).toHaveLength(24);
+    expect(within(jar).getAllByRole('button')).toHaveLength(JAR_CAPACITY);
     const spilled = within(overflow).getAllByRole('button');
-    expect(spilled).toHaveLength(2);
+    expect(spilled).toHaveLength(1);
     for (const btn of [...within(jar).getAllByRole('button'), ...spilled]) {
       expect(btn.getAttribute('aria-pressed')).toBe('false');
     }
     // Desk candies are drawn sorted by y, so pick one by name, not by DOM order.
-    fireEvent.click(within(overflow).getByRole('button', { name: /Task 25/ }));
-    expect(within(overflow).getByRole('button', { name: /Task 25/ }).getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(within(overflow).getByRole('button', { name: /Task 41/ }));
+    expect(within(overflow).getByRole('button', { name: /Task 41/ }).getAttribute('aria-pressed')).toBe('true');
   });
+
   it('draws a selected in-jar candy last, in the overflow layer', () => {
     seed(3);
     setup();
@@ -99,6 +112,7 @@ describe('JarPile', () => {
     expect(within(overflow).getAllByRole('button')).toHaveLength(1);
     expect(overflow.querySelector('[aria-pressed="true"]')).toBeTruthy();
   });
+
   it('does not animate candies present on first render', () => {
     seed(3);
     setup();
@@ -107,6 +121,7 @@ describe('JarPile', () => {
       expect(cls(el)).not.toContain('--fade');
     }
   });
+
   it('drops a new candy in from the lid once the lid is open', () => {
     vi.useFakeTimers();
     seed(2);
@@ -126,6 +141,7 @@ describe('JarPile', () => {
     expect(dropping).toHaveLength(1);
     expect(dropping[0]!.style.getPropertyValue('--drop-y')).toMatch(/px$/);
   });
+
   it('adds no drop transform under reduced motion, only a fade', () => {
     mockReducedMotion(true);
     seed(2);

@@ -59,7 +59,7 @@ Top-level directories:
 - `jar/JarLid.tsx`: Lid with round knob.
 - `jar/DeskGlow.tsx`: Soft shadow and warm glow on the desk under the jar.
 - `jar/LidAnimation.tsx`: Lid lift, tilt, settle; coordinates candy drop in and float out.
-- `jar/JarPile.tsx`: Precomputed packing layout, drop-in animation, jar capacity 24, extra candies spill onto the desk.
+- `jar/JarPile.tsx`: Precomputed packing layout, drop-in animation, jar capacity 40, extra candies spill onto the desk.
 - `jar/ListView.tsx`: Accessible list view for keyboard and screen reader use.
 - `jar/EmptyState.tsx`: Friendly prompt shown when task list is empty.
 - `contextMenu/ContextMenu.tsx`: Complete, Focus, Edit, Delete actions.

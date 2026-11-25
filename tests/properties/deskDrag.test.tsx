@@ -3,6 +3,7 @@ import fc from 'fast-check';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NUDGE_STEP, NUDGE_STEP_BIG } from '../../src/features/candy/CandyItem';
 import { JarPile } from '../../src/features/jar/JarPile';
+import { JAR_CAPACITY } from '../../src/features/jar/jarGeometry';
 import {
   SPILL_LEFT_MIN,
   SPILL_RIGHT_MAX,
@@ -20,6 +21,11 @@ import { deserializeTaskList, serializeTaskList } from '../../src/utils/exportIm
 import { TASKS_KEY } from '../../src/utils/persistence';
 import { TaskSchema } from '../../src/utils/taskSchema';
 
+/** First task that spills onto the desk (the jar holds the oldest JAR_CAPACITY). */
+const DESK_N = JAR_CAPACITY + 2;
+/** A y that lies inside the desk band. */
+const DESK_Y = SPILL_Y_MIN + 10;
+
 function makeTask(i: number, extra: Partial<Task> = {}): Task {
   return {
     id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
@@ -32,7 +38,6 @@ function makeTask(i: number, extra: Partial<Task> = {}): Task {
     ...extra,
   };
 }
-
 const tasksOf = (n: number, extra: Record<number, Partial<Task>> = {}) =>
   Array.from({ length: n }, (_, i) => makeTask(i + 1, extra[i + 1]));
 
@@ -66,8 +71,8 @@ describe('clampToDeskBand', () => {
   });
 
   it('leaves a position that is already on the desk alone', () => {
-    expect(clampToDeskBand({ x: 300, y: 560 }, false)).toEqual({ x: 300, y: 560 });
-    expect(clampToDeskBand({ x: 450, y: 560 }, true)).toEqual({ x: SPILL_RIGHT_MAX_COMPACT, y: 560 });
+    expect(clampToDeskBand({ x: 300, y: DESK_Y }, false)).toEqual({ x: 300, y: DESK_Y });
+    expect(clampToDeskBand({ x: 450, y: DESK_Y }, true)).toEqual({ x: SPILL_RIGHT_MAX_COMPACT, y: DESK_Y });
   });
 });
 
@@ -76,8 +81,8 @@ describe('SET_DESK_POS reducer', () => {
     const [a, b] = tasksOf(2) as [Task, Task];
     const pendingUndo = { kind: 'delete', task: makeTask(9) } as unknown as AppState['pendingUndo'];
     const before: AppState = { ...initialAppState, tasks: [a, b], pendingUndo };
-    const after = appReducer(before, { type: 'SET_DESK_POS', taskId: a.id, pos: { x: 100, y: 560 } });
-    expect(after.tasks[0]?.deskPos).toEqual({ x: 100, y: 560 });
+    const after = appReducer(before, { type: 'SET_DESK_POS', taskId: a.id, pos: { x: 100, y: DESK_Y } });
+    expect(after.tasks[0]?.deskPos).toEqual({ x: 100, y: DESK_Y });
     expect(after.tasks[1]).toBe(b);
     expect(after.pendingUndo).toBe(pendingUndo);
   });
@@ -144,15 +149,17 @@ describe('export and import with deskPos', () => {
 
 describe('layout with deskPos', () => {
   it('uses the saved position for a spilled candy and avoids it for the others', () => {
-    const pinned = { x: 300, y: 560 };
-    const plain = layoutPile(tasksOf(28));
-    const pinnedLayout = layoutPile(tasksOf(28, { 26: { deskPos: pinned } }));
-    const entry = pinnedLayout.find((e) => e.task.title === 'Task 26');
+    const pinned = { x: 300, y: DESK_Y };
+    const title = `Task ${DESK_N}`;
+    const total = JAR_CAPACITY + 4;
+    const plain = layoutPile(tasksOf(total));
+    const pinnedLayout = layoutPile(tasksOf(total, { [DESK_N]: { deskPos: pinned } }));
+    const entry = pinnedLayout.find((e) => e.task.title === title);
     expect(entry?.zone).toBe('desk');
     expect({ x: entry?.x, y: entry?.y }).toEqual(pinned);
     // Determinism, and unpinned desk candies keep clear of the pinned one.
-    expect(layoutPile(tasksOf(28, { 26: { deskPos: pinned } }))).toEqual(pinnedLayout);
-    for (const e of pinnedLayout.filter((p) => p.zone === 'desk' && p.task.title !== 'Task 26')) {
+    expect(layoutPile(tasksOf(total, { [DESK_N]: { deskPos: pinned } }))).toEqual(pinnedLayout);
+    for (const e of pinnedLayout.filter((p) => p.zone === 'desk' && p.task.title !== title)) {
       expect(Math.hypot(e.x - pinned.x, e.y - pinned.y)).toBeGreaterThan(30);
     }
     expect(plain.filter((e) => e.zone === 'desk')).toHaveLength(4);
@@ -164,10 +171,10 @@ describe('layout with deskPos', () => {
   });
 
   it('ignores deskPos for a candy that is in the jar, and keeps it on the task', () => {
-    const tasks = tasksOf(5, { 2: { deskPos: { x: 300, y: 560 } } });
+    const tasks = tasksOf(5, { 2: { deskPos: { x: 300, y: DESK_Y } } });
     const plain = layoutPile(tasksOf(5));
     expect(layoutPile(tasks)).toEqual(plain.map((e, i) => ({ ...e, task: tasks[i] })));
-    expect(tasks[1]?.deskPos).toEqual({ x: 300, y: 560 });
+    expect(tasks[1]?.deskPos).toEqual({ x: 300, y: DESK_Y });
   });
 });
 
@@ -192,11 +199,10 @@ const tx = (el: Element) => {
   const m = /translate\(([-\d.]+) ([-\d.]+)\)/.exec(el.getAttribute('transform') ?? '');
   return { x: Number(m?.[1]), y: Number(m?.[2]) };
 };
-
 const deskCandy = (n: number) =>
   within(screen.getByTestId('jar-overflow')).getByRole('button', { name: new RegExp(`Task ${n},`) });
-
-const pos26 = () => latest.tasks.find((x) => x.title === 'Task 26')?.deskPos;
+const deskTitle = `Task ${DESK_N}`;
+const posDesk = () => latest.tasks.find((x) => x.title === deskTitle)?.deskPos;
 
 describe('desk candies in JarPile', () => {
   const originalMatchMedia = window.matchMedia;
@@ -219,24 +225,24 @@ describe('desk candies in JarPile', () => {
   });
 
   it('renders a spilled candy at its saved deskPos, with an unchanged accessible name and a hint', () => {
-    setup(tasksOf(26, { 26: { deskPos: { x: 333, y: 560 } } }));
-    const el = deskCandy(26);
-    expect(tx(el)).toEqual({ x: 333, y: 560 });
-    expect(el.getAttribute('aria-label')).toMatch(/^Task 26, \w+$/);
+    setup(tasksOf(DESK_N, { [DESK_N]: { deskPos: { x: 333, y: DESK_Y } } }));
+    const el = deskCandy(DESK_N);
+    expect(tx(el)).toEqual({ x: 333, y: DESK_Y });
+    expect(el.getAttribute('aria-label')).toMatch(new RegExp(`^Task ${DESK_N}, \\w+$`));
     const hint = document.getElementById(el.getAttribute('aria-describedby') ?? '');
     expect(hint?.textContent).toBe('Arrow keys move it on the desk when selected');
   });
 
   it('jar candies are not draggable and have no hint', () => {
-    setup(tasksOf(26));
+    setup(tasksOf(DESK_N));
     const jarBtn = within(screen.getByTestId('jar-candies')).getAllByRole('button')[0] as Element;
     expect(jarBtn.getAttribute('aria-describedby')).toBeNull();
     expect(jarBtn.getAttribute('class')).not.toContain('candy-item--desk');
   });
 
   it('a drag past 10 px saves deskPos, and neither completes nor selects', () => {
-    setup(tasksOf(26, { 26: { deskPos: { x: 300, y: 560 } } }));
-    const el = deskCandy(26);
+    setup(tasksOf(DESK_N, { [DESK_N]: { deskPos: { x: 300, y: DESK_Y } } }));
+    const el = deskCandy(DESK_N);
     fireEvent.pointerDown(el, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
     fireEvent.pointerMove(el, { pointerId: 1, clientX: 130, clientY: 100 });
     fireEvent.pointerMove(el, { pointerId: 1, clientX: 160, clientY: 100 });
@@ -244,68 +250,67 @@ describe('desk candies in JarPile', () => {
     expect(tx(el).x).toBeCloseTo(360, 5);
     fireEvent.pointerUp(el, { pointerId: 1, clientX: 160, clientY: 100 });
     fireEvent.click(el);
-    expect(pos26()?.x).toBeCloseTo(360, 5);
-    expect(pos26()?.y).toBe(560);
-    expect(latest.tasks.find((x) => x.title === 'Task 26')?.completedAt).toBeNull();
+    expect(posDesk()?.x).toBeCloseTo(360, 5);
+    expect(posDesk()?.y).toBe(DESK_Y);
+    expect(latest.tasks.find((x) => x.title === deskTitle)?.completedAt).toBeNull();
     expect(latest.selectedTaskId).toBeNull();
   });
 
   it('a drop past the desk edge is clamped', () => {
-    setup(tasksOf(26, { 26: { deskPos: { x: 500, y: 560 } } }));
-    const el = deskCandy(26);
+    setup(tasksOf(DESK_N, { [DESK_N]: { deskPos: { x: 500, y: DESK_Y } } }));
+    const el = deskCandy(DESK_N);
     fireEvent.pointerDown(el, { button: 0, pointerId: 1, clientX: 0, clientY: 0 });
     fireEvent.pointerMove(el, { pointerId: 1, clientX: 400, clientY: -300 });
     fireEvent.pointerUp(el, { pointerId: 1, clientX: 400, clientY: -300 });
-    expect(pos26()).toEqual({ x: SPILL_RIGHT_MAX, y: SPILL_Y_MIN });
+    expect(posDesk()).toEqual({ x: SPILL_RIGHT_MAX, y: SPILL_Y_MIN });
   });
 
   it('a movement within 10 px is not a drag', () => {
-    setup(tasksOf(26));
-    const el = deskCandy(26);
+    setup(tasksOf(DESK_N));
+    const el = deskCandy(DESK_N);
     fireEvent.pointerDown(el, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
     fireEvent.pointerMove(el, { pointerId: 1, clientX: 105, clientY: 104 });
     fireEvent.pointerUp(el, { pointerId: 1, clientX: 105, clientY: 104 });
-    expect(pos26()).toBeUndefined();
+    expect(posDesk()).toBeUndefined();
   });
 
   it('a still 800 ms hold on a desk candy still completes', () => {
     vi.useFakeTimers();
-    setup(tasksOf(26));
-    const el = deskCandy(26);
+    setup(tasksOf(DESK_N));
+    const el = deskCandy(DESK_N);
     fireEvent.pointerDown(el, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
     act(() => {
       vi.advanceTimersByTime(850);
     });
-    expect(latest.tasks.find((x) => x.title === 'Task 26')?.completedAt).not.toBeNull();
+    expect(latest.tasks.find((x) => x.title === deskTitle)?.completedAt).not.toBeNull();
   });
 
   it('a hold that turns into a drag does not complete', () => {
     vi.useFakeTimers();
-    setup(tasksOf(26));
-    const el = deskCandy(26);
+    setup(tasksOf(DESK_N));
+    const el = deskCandy(DESK_N);
     fireEvent.pointerDown(el, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
     fireEvent.pointerMove(el, { pointerId: 1, clientX: 140, clientY: 100 });
     act(() => {
       vi.advanceTimersByTime(1500);
     });
-    expect(latest.tasks.find((x) => x.title === 'Task 26')?.completedAt).toBeNull();
+    expect(latest.tasks.find((x) => x.title === deskTitle)?.completedAt).toBeNull();
   });
 
   it('arrow keys nudge a selected desk candy (Shift for a bigger step), not a jar candy', () => {
-    setup(tasksOf(26, { 26: { deskPos: { x: 300, y: 560 } } }));
-    const el = deskCandy(26);
+    setup(tasksOf(DESK_N, { [DESK_N]: { deskPos: { x: 300, y: DESK_Y } } }));
+    const el = deskCandy(DESK_N);
     // Not selected yet: the arrow does nothing.
     fireEvent.keyDown(el, { key: 'ArrowRight' });
-    expect(pos26()).toEqual({ x: 300, y: 560 });
+    expect(posDesk()).toEqual({ x: 300, y: DESK_Y });
     fireEvent.click(el);
     expect(latest.selectedTaskId).not.toBeNull();
-    fireEvent.keyDown(deskCandy(26), { key: 'ArrowRight' });
-    expect(pos26()).toEqual({ x: 300 + NUDGE_STEP, y: 560 });
-    fireEvent.keyDown(deskCandy(26), { key: 'ArrowLeft', shiftKey: true });
-    expect(pos26()).toEqual({ x: 300 + NUDGE_STEP - NUDGE_STEP_BIG, y: 560 });
-    fireEvent.keyDown(deskCandy(26), { key: 'ArrowUp', shiftKey: true });
-    expect(pos26()?.y).toBe(SPILL_Y_MIN);
-
+    fireEvent.keyDown(deskCandy(DESK_N), { key: 'ArrowRight' });
+    expect(posDesk()).toEqual({ x: 300 + NUDGE_STEP, y: DESK_Y });
+    fireEvent.keyDown(deskCandy(DESK_N), { key: 'ArrowLeft', shiftKey: true });
+    expect(posDesk()).toEqual({ x: 300 + NUDGE_STEP - NUDGE_STEP_BIG, y: DESK_Y });
+    fireEvent.keyDown(deskCandy(DESK_N), { key: 'ArrowUp', shiftKey: true });
+    expect(posDesk()?.y).toBe(SPILL_Y_MIN);
     const jarBtn = within(screen.getByTestId('jar-candies')).getAllByRole('button')[0] as Element;
     fireEvent.click(jarBtn);
     fireEvent.keyDown(jarBtn, { key: 'ArrowRight' });

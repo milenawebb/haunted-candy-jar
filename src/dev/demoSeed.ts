@@ -9,8 +9,10 @@ import type { Task } from '../features/tasks/taskTypes';
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
+
 export const DEMO_DEFAULT_COUNT = 8;
-export const DEMO_MAX_COUNT = 40;
+/** Above the jar capacity (40) so ?demo=45 shows a full jar plus a desk spill. */
+export const DEMO_MAX_COUNT = 60;
 
 interface Spec {
   title: string;
@@ -44,7 +46,7 @@ const EXTRA_TITLES = [
   'Count the pumpkins',
 ];
 
-/** Parses `?demo=` from a query string. Null when absent, else 8 to 40 (1 means 8). */
+/** Parses `?demo=` from a query string. Null when absent, else 8 to 60 (1 means 8). */
 export function parseDemoCount(search: string): number | null {
   const raw = new URLSearchParams(search).get('demo');
   if (raw === null) return null;
