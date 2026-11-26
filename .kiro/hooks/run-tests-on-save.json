@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Run tests on save",
+      "description": "Runs the test suite when the agent saves a TypeScript file under src.",
+      "trigger": "PostFileSave",
+      "matcher": "(^|/)src/.*\\.tsx?$",
+      "action": { "type": "command", "command": "npm run test:run -- --reporter=dot" },
+      "timeout": 180
+    }
+  ]
+}

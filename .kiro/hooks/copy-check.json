@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Copy check",
+      "description": "Reviews user-facing strings in a saved feature component. Reports problems only.",
+      "trigger": "PostFileSave",
+      "matcher": "(^|/)src/features/.*\\.tsx$",
+      "action": {
+        "type": "agent",
+        "prompt": "Copy check for the file that was just saved. Read only that file and .kiro/steering/style.md. Check user-facing strings only (JSX text, aria-label, title, placeholder, alt, and toast or announcement messages). Flag: any em dash character; copy that is not short, playful and spooky-cute per the UI copy voice in style.md (for example gory or harsh words); and copy that is unclear about what to tap next. Report only problems as a short list of file, line and suggested fix. If there are no problems, reply with one line: Copy check passed. Do not edit any files."
+      }
+    }
+  ]
+}
