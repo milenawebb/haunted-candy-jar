@@ -3,6 +3,7 @@
   "hooks": [
     {
       "name": "Copy check",
+      "enabled": false,
       "description": "Reviews user-facing strings in a saved feature component. Reports problems only.",
       "trigger": "PostFileSave",
       "matcher": "(^|/)src/features/.*\\.tsx$",

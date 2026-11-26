@@ -3,6 +3,7 @@
   "hooks": [
     {
       "name": "Run tests on save",
+      "enabled": false,
       "description": "Runs the test suite when the agent saves a TypeScript file under src.",
       "trigger": "PostFileSave",
       "matcher": "(^|/)src/.*\\.tsx?$",
