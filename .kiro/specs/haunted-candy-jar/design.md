@@ -16,7 +16,7 @@ The design is organised around four concerns:
 | Decision | Choice | Rationale |
 |---|---|---|
 | State management | `useReducer` + React Context | No external library needed; reducer is a pure function, easy to unit-test; keeps dependency count low for a hackathon |
-| Persistence | `localStorage` (JSON) | Simpler API than IndexedDB; ≤24 tasks fit well inside the 5–10 MB limit; synchronous reads keep startup fast |
+| Persistence | `localStorage` (JSON) | Simpler API than IndexedDB; ≤40 tasks fit well inside the 5–10 MB limit; synchronous reads keep startup fast |
 | Property-based testing library | `fast-check` + `@fast-check/vitest` | Standard pairing for TypeScript + Vitest; first-class arbitrary generators; shrinking built-in |
 | Visual rendering | One bitmap background (`desk-scene.png`); inline SVG for the jar and candy monsters; CSS keyframe animations for decay glow and wisps; Canvas 2D for shatter particles | SVG stays crisp at any DPI; CSS GPU-composited animations hit 60 fps without JS; Canvas gives per-frame control for the burst effect; the single photo-style background gives the scene its richness without a large asset pipeline |
 | Sound synthesis | Web Audio API, `OscillatorNode`, `GainNode`, `BiquadFilterNode`, `StereoPannerNode` | Zero file payload; API is universally supported on target browsers; sufficient for spooky synth tones |
@@ -353,7 +353,7 @@ On top sit the **lid with a round knob** (`JarLid`) and a warm candle glow on th
 - When a new candy is added, `LidAnimation` lifts and tilts the lid, the candy **drops in from the lid** and animates to its computed position using a CSS spring transition (or `spring()` from a small physics helper), then the lid settles back. Under `prefers-reduced-motion`, the lid does not move and the candy fades in (150 ms max).
 - Every candy maintains a minimum 44×44 px tappable hit area regardless of visual size or rotation, enforced via a transparent SVG `<rect>` hit target.
 
-**Overflow (>24 candies):** the jar holds 24 candies. When the task list exceeds 24 incomplete items, the extra candies spill onto the desk next to the jar (positions from `packingLayout.ts`, drawn outside the clip path, in front of the desk). There is no scrolling and no "+N more" badge. All candies, inside the jar or on the desk, remain individually selectable.
+**Overflow (>40 candies):** the jar holds 40 candies. When the task list exceeds 40 incomplete items, the extra candies spill onto the desk next to the jar (positions from `packingLayout.ts`, drawn outside the clip path, in front of the desk). There is no scrolling and no "+N more" badge. All candies, inside the jar or on the desk, remain individually selectable.
 
 ### LidAnimation
 

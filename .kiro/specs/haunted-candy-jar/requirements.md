@@ -8,7 +8,7 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 
 - **App**: The Haunted Candy Jar single-page application running in the browser.
 - **Desk_Scene**: The full-bleed background image `public/images/desk-scene.png` (1672x941) showing a purple desk, melting candles on the left and a moonlit window on the right. It is the single allowed bitmap asset in the App.
-- **Jar**: The SVG glass jar (with lid and round knob) standing on the desk in the empty middle of the Desk_Scene, with a visible capacity of 24 Candy items; extra Candy items spill onto the desk next to the Jar.
+- **Jar**: The SVG glass jar (with lid and round knob) standing on the desk in the empty middle of the Desk_Scene, with a visible capacity of 40 Candy items; extra Candy items spill onto the desk next to the Jar.
 - **Candy**: A visual representation of one task: a glossy hard-candy monster rendered in code (SVG, with CSS and Canvas for effects).
 - **Monster_Kind**: The monster design of a Candy, one of eight values: pumpkin, mummy, skeleton, spider, frankenstein, vampire, bat, gravestone. It is user-assigned or auto-assigned.
 - **Bandage_Note**: The mummy-bandage note attached to a Candy that shows the task title: an off-white linen strip with a faint woven texture, torn frayed edges, a slight tilt, and a short bandage tail hanging toward its Candy.
@@ -230,8 +230,8 @@ Haunted Candy Jar is a browser-only to-do and focus timer app with a spooky Hall
 
 #### Acceptance Criteria
 
-1. THE App SHALL display up to 24 Candy items in the Jar simultaneously without any two Candies overlapping in a way that makes an individual Candy untappable.
-2. WHEN the Task list contains more than 24 incomplete Tasks, THE App SHALL keep the first 24 Candy items inside the Jar and let the extra Candy items spill onto the desk next to the Jar, where each remains visible and tappable.
+1. THE App SHALL display up to 40 Candy items in the Jar simultaneously without any two Candies overlapping in a way that makes an individual Candy untappable.
+2. WHEN the Task list contains more than 40 incomplete Tasks, THE App SHALL keep the first 40 Candy items inside the Jar and let the extra Candy items spill onto the desk next to the Jar, where each remains visible and tappable.
 3. THE App SHALL ensure that all Candy items, whether inside the Jar or spilled onto the desk, remain individually selectable.
 
 ---

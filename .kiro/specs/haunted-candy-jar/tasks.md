@@ -281,7 +281,7 @@ Build the Haunted Candy Jar SPA from scratch in React + TypeScript + Vite. Tasks
   - [x] 28.1 Build `JarPile` core: packing layout, candy rendering, drop-in animation
     - Create `src/features/jar/JarPile.tsx` calling `computePacking()` to place `CandyItem` components
     - New candies drop from the jar lid to their computed position using a CSS spring transition (`cubic-bezier` bounce); under `prefers-reduced-motion`, fade in (150 ms max)
-    - Render the first 24 candies inside the jar's `clipPath`; when task count exceeds 24, spill the extra candies onto the desk next to the jar (no scrolling, no "+N more" badge); all candies remain individually selectable
+    - Render the first 40 candies inside the jar's `clipPath`; when task count exceeds 40, spill the extra candies onto the desk next to the jar (no scrolling, no "+N more" badge); all candies remain individually selectable
     - Apply a subtle 5% desaturation + cool tint CSS filter to candies whose position is within ~12 px of a jar wall
     - _Requirements: 1.2, 13.1, 13.2, 13.3_
 
