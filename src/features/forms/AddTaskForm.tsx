@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useTaskStore } from '../tasks/taskStore'
 import type { MonsterKind } from '../tasks/taskTypes'
-import { FormFrame, TaskFields, dateInputToTimestamp } from './taskFormShared'
+import { FormFrame, TaskFields, dateTimeInputToTimestamp } from './taskFormShared'
 import './AddTaskForm.css'
 
 export { TITLE_MAX_LENGTH, dateInputToTimestamp } from './taskFormShared'
@@ -14,6 +14,7 @@ function FormBody({ onClose, headingId }: { onClose: () => void; headingId: stri
   const { dispatch } = useTaskStore()
   const [title, setTitle] = useState('')
   const [due, setDue] = useState('')
+  const [time, setTime] = useState('')
   const [monster, setMonster] = useState<MonsterKind | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,7 +26,7 @@ function FormBody({ onClose, headingId }: { onClose: () => void; headingId: stri
     }
     dispatch({
       type: 'CREATE_TASK',
-      payload: { title: title.trim(), dueDate: dateInputToTimestamp(due), monster },
+      payload: { title: title.trim(), dueDate: dateTimeInputToTimestamp(due, time), monster },
       now: Date.now(),
     })
     onClose()
@@ -44,6 +45,8 @@ function FormBody({ onClose, headingId }: { onClose: () => void; headingId: stri
         }}
         due={due}
         onDueChange={setDue}
+        time={time}
+        onTimeChange={setTime}
         monster={monster}
         onMonsterChange={setMonster}
         error={error}

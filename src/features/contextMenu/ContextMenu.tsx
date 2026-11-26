@@ -4,6 +4,7 @@ import { useClickOutside } from '../../hooks/useClickOutside'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
 import { useHauntClock } from '../../hooks/useHauntClock'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
+import { formatDueLabel } from '../forms/taskFormShared'
 import { decayFunction } from '../tasks/decayFunction'
 import { useTaskStore } from '../tasks/taskStore'
 import type { Task } from '../tasks/taskTypes'
@@ -123,6 +124,7 @@ function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) 
   const popRef = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<Position | null>(null)
   const stage = decayFunction(task, logicalNow)
+  const dueLabel = formatDueLabel(task.dueDate)
   const close = useCallback(() => dispatch({ type: 'SELECT_TASK', taskId: null }), [dispatch])
   const restoreFallback = useCallback(() => findCandyElement(task.id), [task.id])
   // Desktop placement. Re-measured after the lift transition and on resize.
@@ -168,6 +170,7 @@ function OpenMenu({ task, onEdit, onFocus }: ContextMenuProps & { task: Task }) 
           {task.title}
         </h2>
         <p className="context-menu__stage">Stage: {stage}</p>
+        {dueLabel && <p className="context-menu__stage context-menu__due">{dueLabel}</p>}
       </div>
       <div className="context-menu__actions">
         <button type="button" className="context-menu__btn context-menu__btn--primary" onClick={onComplete}>

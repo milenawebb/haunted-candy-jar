@@ -27,6 +27,27 @@ export function dateInputToTimestamp(value: string): number | null {
 }
 
 /**
+ * Date plus optional time ("HH:MM") to a timestamp in local time. With a valid
+ * time the result is that local date and time (seconds and ms 0). With an empty
+ * or malformed time it falls back to end of day, like dateInputToTimestamp.
+ * Returns null when the date is empty or malformed.
+ */
+export function dateTimeInputToTimestamp(date: string, time: string): number | null {
+  const endOfDay = dateInputToTimestamp(date)
+  if (endOfDay === null) return null
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(time)
+  if (!match) return endOfDay
+  const day = new Date(endOfDay)
+  const result = new Date(day.getFullYear(), day.getMonth(), day.getDate(), Number(match[1]), Number(match[2]), 0, 0)
+  const ts = result.getTime()
+  return Number.isNaN(ts) ? endOfDay : ts
+}
+
+function isLocalEndOfDay(date: Date): boolean {
+  return date.getHours() === 23 && date.getMinutes() === 59 && date.getSeconds() === 59 && date.getMilliseconds() === 999
+}
+
+/**
  * Inverse of dateInputToTimestamp: the local calendar date of a timestamp as
  * "YYYY-MM-DD". Returns '' for null or a non-finite value.
  */
@@ -40,23 +61,55 @@ export function timestampToDateInput(timestamp: number | null): string {
   return `${y}-${m}-${d}`
 }
 
+/**
+ * The local time of a timestamp as "HH:MM", or '' for null, a non-finite value
+ * or local end of day (23:59:59.999, meaning "no time chosen").
+ */
+export function timestampToTimeInput(timestamp: number | null): string {
+  if (timestamp === null || !Number.isFinite(timestamp)) return ''
+  const date = new Date(timestamp)
+  if (Number.isNaN(date.getTime()) || isLocalEndOfDay(date)) return ''
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+/**
+ * Short due label for the context menu: "Due Jan 22, 3:00 PM", or "Due Jan 22"
+ * for end-of-day due dates. Returns '' for null or an invalid timestamp.
+ * `locale` defaults to the user's locale.
+ */
+export function formatDueLabel(timestamp: number | null, locale?: string): string {
+  if (timestamp === null || !Number.isFinite(timestamp)) return ''
+  const date = new Date(timestamp)
+  if (Number.isNaN(date.getTime())) return ''
+  const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
+  if (!isLocalEndOfDay(date)) {
+    options.hour = 'numeric'
+    options.minute = '2-digit'
+  }
+  return `Due ${new Intl.DateTimeFormat(locale, options).format(date)}`
+}
+
 export interface TaskFieldsProps {
   title: string
   onTitleChange: (value: string) => void
   due: string
   onDueChange: (value: string) => void
+  time: string
+  onTimeChange: (value: string) => void
   monster: MonsterKind | null
   onMonsterChange: (kind: MonsterKind | null) => void
   error: string | null
 }
 
-/** Title, due date and monster picker fields. */
+/** Title, due date, optional due time and monster picker fields. */
 export function TaskFields(props: TaskFieldsProps) {
-  const { title, onTitleChange, due, onDueChange, monster, onMonsterChange, error } = props
+  const { title, onTitleChange, due, onDueChange, time, onTimeChange, monster, onMonsterChange, error } = props
   const uid = useId()
   const titleId = `${uid}-title`
   const dueId = `${uid}-due`
+  const timeId = `${uid}-time`
   const errorId = `${uid}-error`
+
   return (
     <>
       <div className="add-task-form__field">
@@ -92,7 +145,23 @@ export function TaskFields(props: TaskFieldsProps) {
           className="add-task-form__input"
           type="date"
           value={due}
-          onChange={(e) => onDueChange(e.target.value)}
+          onChange={(e) => {
+            onDueChange(e.target.value)
+            if (!e.target.value) onTimeChange('')
+          }}
+        />
+      </div>
+      <div className="add-task-form__field">
+        <label htmlFor={timeId} className="add-task-form__label">
+          Time (optional)
+        </label>
+        <input
+          id={timeId}
+          className="add-task-form__input"
+          type="time"
+          value={due ? time : ''}
+          disabled={!due}
+          onChange={(e) => onTimeChange(e.target.value)}
         />
       </div>
       <div className="add-task-form__field">
@@ -106,6 +175,7 @@ function Modal({ onClose, headingId, children }: { onClose: () => void; headingI
   const ref = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   useFocusTrap(ref, true)
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -116,6 +186,7 @@ function Modal({ onClose, headingId, children }: { onClose: () => void; headingI
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
+
   return (
     <div
       className={reduced ? 'add-task-backdrop add-task-backdrop--fade' : 'add-task-backdrop'}

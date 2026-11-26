@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useTaskStore } from '../tasks/taskStore'
 import type { MonsterKind, Task } from '../tasks/taskTypes'
-import { FormFrame, TaskFields, dateInputToTimestamp, timestampToDateInput } from './taskFormShared'
+import { FormFrame, TaskFields, dateTimeInputToTimestamp, timestampToDateInput, timestampToTimeInput } from './taskFormShared'
 import './AddTaskForm.css'
 
 export interface EditTaskFormProps {
@@ -12,8 +12,10 @@ export interface EditTaskFormProps {
 function FormBody({ task, onClose, headingId }: EditTaskFormProps & { headingId: string }) {
   const { dispatch } = useTaskStore()
   const initialDue = timestampToDateInput(task.dueDate)
+  const initialTime = timestampToTimeInput(task.dueDate)
   const [title, setTitle] = useState(task.title)
   const [due, setDue] = useState(initialDue)
+  const [time, setTime] = useState(initialTime)
   const [monster, setMonster] = useState<MonsterKind>(task.monster)
   const [error, setError] = useState<string | null>(null)
 
@@ -23,8 +25,9 @@ function FormBody({ task, onClose, headingId }: EditTaskFormProps & { headingId:
       setError('Give your candy a name!')
       return
     }
-    // An untouched date keeps the original timestamp exactly (no time-of-day shift).
-    const dueDate = due === initialDue ? task.dueDate : dateInputToTimestamp(due)
+    // Untouched date and time keep the original timestamp exactly (no shifting).
+    const unchanged = due === initialDue && time === initialTime
+    const dueDate = unchanged ? task.dueDate : dateTimeInputToTimestamp(due, time)
     dispatch({
       type: 'EDIT_TASK',
       taskId: task.id,
@@ -46,6 +49,8 @@ function FormBody({ task, onClose, headingId }: EditTaskFormProps & { headingId:
         }}
         due={due}
         onDueChange={setDue}
+        time={time}
+        onTimeChange={setTime}
         monster={monster}
         // A task always has a monster, so clicking the selected one (null) keeps the current value.
         onMonsterChange={(kind) => {

@@ -104,16 +104,58 @@ describe('spillPositions', () => {
     );
   });
 
+  // Spill candies zig-zag between two rows inside the 30 unit band, so the number of
+  // distinct rounded y values can be as few as 3. The meaningful property is that
+  // both rows are used, so check the y span instead of counting distinct values.
+  const checkMostlyRightAndBothRows = (ids: string[]) => {
+    const pos = spillPositions(ids);
+    const right = pos.filter((p) => p.x > SPILL_CENTER_X).length;
+    expect(right / pos.length).toBeGreaterThanOrEqual(0.6);
+    const ys = pos.map((p) => p.y);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThanOrEqual(20);
+  };
+
   it('Validates: Requirement 13.2 (mostly right of the jar centre, y varies)', () => {
     fc.assert(
       fc.property(idList(20, 20), (ids) => {
-        const pos = spillPositions(ids);
-        const right = pos.filter((p) => p.x > SPILL_CENTER_X).length;
-        expect(right / pos.length).toBeGreaterThanOrEqual(0.6);
-        expect(new Set(pos.map((p) => Math.round(p.y))).size).toBeGreaterThan(3);
+        checkMostlyRightAndBothRows(ids);
       }),
       { numRuns: 100 },
     );
+  });
+
+  it('Validates: Requirement 13.2 (regression: seed 1078746940, mostly right, both rows used)', () => {
+    fc.assert(
+      fc.property(idList(20, 20), (ids) => {
+        checkMostlyRightAndBothRows(ids);
+      }),
+      { seed: 1078746940, numRuns: 100 },
+    );
+  });
+
+  it('Validates: Requirement 13.2 (regression: shrunk counterexample ids, mostly right, both rows used)', () => {
+    checkMostlyRightAndBothRows([
+      '82e17400-5dab-54a8-aec8-f443d5cd464f',
+      '47faabad-6e81-2a5f-bfff-eff900000003',
+      '0000009b-0000-1000-8000-000000000000',
+      '00000000-5433-4416-8dea-012fc928d3ad',
+      '00000000-0000-1000-8000-000000000000',
+      '00000000-0000-1000-8000-000008678acf',
+      '00000000-0000-1000-8000-00000000113a',
+      '2d844b80-1088-2d6e-8000-0000a9b61a79',
+      '00000000-0000-1000-8000-000800000000',
+      '00000000-0000-1000-86ba-6a2d00000000',
+      '00000000-0000-1000-8000-000025c68804',
+      '00000002-0000-1000-8000-00008b476739',
+      '00000000-0000-1000-8000-00005649bd8f',
+      '00000000-0000-1000-8000-000000000001',
+      '00000000-0000-1000-8000-000000000002',
+      '00000000-0000-1000-8000-000000000003',
+      '00000000-0000-1000-8000-000000000004',
+      '00000000-0000-1000-8000-000000000005',
+      '00000000-0000-1000-8000-000000000006',
+      '00000000-0000-1000-8000-000000000007',
+    ]);
   });
 
   it('Validates: Requirement 13.2 (compact spread is narrower than desktop)', () => {

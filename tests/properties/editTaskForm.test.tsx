@@ -89,7 +89,8 @@ describe('EditTaskForm', () => {
     expect(stored()[0]).toMatchObject({
       title: 'Feed the cobweb',
       monster: 'bat',
-      dueDate: new Date(2031, 0, 2, 23, 59, 59, 999).getTime(),
+      // The pre-filled time (10:30) is kept when only the date changes.
+      dueDate: new Date(2031, 0, 2, 10, 30, 0, 0).getTime(),
     })
   })
 
