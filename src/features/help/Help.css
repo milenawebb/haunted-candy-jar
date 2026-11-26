@@ -1,0 +1,189 @@
+/* Top right, opposite the bottom-right "Add a candy" button and clear of the bottom-centre undo toast. */
+.help-button {
+  position: fixed;
+  top: clamp(12px, 3vh, 32px);
+  right: var(--space-4);
+  z-index: 20;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-moon);
+  background: rgba(26, 10, 46, 0.88);
+  border: 1px solid rgba(220, 235, 255, 0.4);
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(13, 5, 20, 0.7), 0 0 14px rgba(150, 100, 220, 0.35);
+  cursor: pointer;
+}
+
+.help-button:focus-visible,
+.help-link:focus-visible {
+  outline: 3px solid var(--color-moon);
+  outline-offset: 2px;
+}
+
+.help-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  color: var(--color-moon);
+  font-family: var(--font-body);
+}
+
+.help-panel__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.75rem;
+  color: var(--color-candle);
+}
+
+.help-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.help-stages,
+.help-gestures {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.help-stages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.help-stages li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.help-stages li > svg {
+  flex: none;
+}
+
+.help-stages strong {
+  color: var(--color-bandage);
+}
+
+.help-stages--small {
+  flex-direction: row;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.help-stages--small li {
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 12px;
+}
+
+.help-panel__note {
+  margin: 0;
+  padding: var(--space-3);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  background: rgba(13, 5, 20, 0.6);
+  border: 1px dashed var(--color-moon-deep);
+  border-radius: 10px;
+}
+
+.help-gestures {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+}
+
+.help-gestures li::before {
+  content: '* ';
+  color: var(--color-candle);
+}
+
+.help-panel__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.help-link {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--color-moon);
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.help-intro {
+  align-items: center;
+  text-align: center;
+}
+
+.help-intro__art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 90px;
+}
+
+.help-intro__text {
+  margin: 0;
+  min-height: 4.2em;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.help-intro__steps {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 12px;
+}
+
+.help-dots {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+/* Current dot is filled and larger; the others are hollow rings. Not color only. */
+.help-dot {
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--color-moon);
+  border-radius: 50%;
+}
+
+.help-dot--on {
+  width: 12px;
+  height: 12px;
+  margin: -2px;
+  background: var(--color-candle);
+  border-color: var(--color-candle);
+}
+
+.help-intro__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.help-intro__back:disabled {
+  visibility: hidden;
+}

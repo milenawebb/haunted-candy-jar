@@ -4,6 +4,7 @@ import { validateTaskList } from './taskSchema';
 
 export const TASKS_KEY = 'hcj_tasks';
 export const SOUND_KEY = 'hcj_sound';
+export const SEEN_INTRO_KEY = 'hcj_seen_intro';
 
 function getStorage(): Storage | null {
   try {
@@ -54,5 +55,30 @@ export function saveSoundEnabled(enabled: boolean): void {
     storage.setItem(SOUND_KEY, enabled ? 'true' : 'false');
   } catch (err) {
     console.error('Could not save sound setting.', err);
+  }
+}
+
+/**
+ * True once the first-visit intro was dismissed. When storage is unavailable
+ * this returns true, so a visitor who cannot remember the choice is not nagged
+ * on every load (the help button still reopens the intro).
+ */
+export function loadSeenIntro(): boolean {
+  try {
+    const storage = getStorage();
+    if (!storage) return true;
+    return storage.getItem(SEEN_INTRO_KEY) === 'true';
+  } catch {
+    return true;
+  }
+}
+
+export function saveSeenIntro(): void {
+  try {
+    const storage = getStorage();
+    if (!storage) throw new Error('localStorage is unavailable');
+    storage.setItem(SEEN_INTRO_KEY, 'true');
+  } catch (err) {
+    console.error('Could not remember the intro.', err);
   }
 }
