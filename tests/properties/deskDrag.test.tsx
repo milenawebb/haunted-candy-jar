@@ -25,6 +25,8 @@ import { TaskSchema } from '../../src/utils/taskSchema';
 const DESK_N = JAR_CAPACITY + 2;
 /** A y that lies inside the desk band. */
 const DESK_Y = SPILL_Y_MIN + 10;
+/** Recent, so the age path keeps every fixture Fresh (Cursed candies leave the jar). */
+const BASE_TIME = Date.now() - 60_000;
 
 function makeTask(i: number, extra: Partial<Task> = {}): Task {
   return {
@@ -33,7 +35,7 @@ function makeTask(i: number, extra: Partial<Task> = {}): Task {
     dueDate: null,
     monster: 'pumpkin',
     isSample: false,
-    createdAt: 1_700_000_000_000 + i,
+    createdAt: BASE_TIME + i,
     completedAt: null,
     ...extra,
   };

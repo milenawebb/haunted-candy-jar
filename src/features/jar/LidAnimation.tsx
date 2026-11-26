@@ -7,11 +7,13 @@ import { JAR_LID_PIVOT } from './jarGeometry';
 import {
   advance,
   diffLidEvents,
+  diffZoneEvents,
   enqueue,
   initialLidQueue,
   isLidOpen,
   type LidPhase,
   type LidQueueState,
+  type ZoneSnapshot,
 } from './lidQueue';
 import './LidAnimation.css';
 
@@ -23,12 +25,19 @@ export const LID_TILT_DEG = -12;
 export const LID_OPEN_MS = 350;
 export const LID_HOLD_ADD_MS = 500; // candy drop-in (650 ms spring) is mostly done
 export const LID_HOLD_REMOVE_MS = 400; // candy floats out
+export const LID_HOLD_ESCAPE_MS = 850; // candy hop (800 ms) is done
 export const LID_CLOSE_MS = 350;
 /** Reduced motion: the lid stays put, so phases only pace the callbacks. */
 export const LID_REDUCED_MS = 150;
 
 export interface UseLidSequenceOptions {
   tasks: readonly Task[];
+  /**
+   * Zone and Cursed state of every live candy (optional). When it changes,
+   * candies that escaped the jar or came back get their own lid events. Keep
+   * it referentially stable between renders where nothing changed.
+   */
+  snapshot?: ZoneSnapshot;
   /** Called when the lid starts to open (lid creak sound). */
   onLidOpen?: () => void;
   /** Called when the lid starts to close (glass clink sound). */
@@ -37,7 +46,7 @@ export interface UseLidSequenceOptions {
 
 export interface LidSequence {
   phase: LidPhase;
-  /** True while a newly added candy must wait for the lid before it drops. */
+  /** True while a newly added or escaping candy must wait for the lid before it moves. */
   isWaiting: (id: string) => boolean;
 }
 
@@ -47,30 +56,40 @@ function phaseMs(queue: LidQueueState, reduced: boolean): number {
     case 'opening':
       return LID_OPEN_MS;
     case 'open':
-      return queue.current?.kind === 'remove' ? LID_HOLD_REMOVE_MS : LID_HOLD_ADD_MS;
+      if (queue.current?.kind === 'remove') return LID_HOLD_REMOVE_MS;
+      return queue.current?.kind === 'escape' ? LID_HOLD_ESCAPE_MS : LID_HOLD_ADD_MS;
     default:
       return LID_CLOSE_MS;
   }
 }
 
 /**
- * Watches the task list and runs the lid sequence for each add or remove,
- * one candy at a time (see lidQueue.ts for the rules). The first render and
- * whole-list replacements (imports, samples) are silent.
+ * Watches the task list and runs the lid sequence for each add, remove or
+ * escape, one candy at a time (see lidQueue.ts for the rules). The first
+ * render and whole-list replacements (imports, samples) are silent.
  *
  * Under reduced motion the callbacks still fire in order, candies never wait
  * for the lid (they just fade in), and the lid does not move.
  */
-export function useLidSequence({ tasks, onLidOpen, onLidClose }: UseLidSequenceOptions): LidSequence {
+export function useLidSequence({ tasks, snapshot, onLidOpen, onLidClose }: UseLidSequenceOptions): LidSequence {
   const reduced = useReducedMotion();
-  const [track, setTrack] = useState<{ tasks: readonly Task[]; queue: LidQueueState }>(() => ({
+  const [track, setTrack] = useState<{
+    tasks: readonly Task[];
+    snapshot: ZoneSnapshot | undefined;
+    queue: LidQueueState;
+  }>(() => ({
     tasks,
+    snapshot,
     queue: initialLidQueue,
   }));
   // Derive the queue from the new task list during render, so a new candy is
   // already marked as waiting in the same frame it appears.
-  if (track.tasks !== tasks) {
-    setTrack({ tasks, queue: enqueue(track.queue, diffLidEvents(track.tasks, tasks)) });
+  if (track.tasks !== tasks || track.snapshot !== snapshot) {
+    const events = [
+      ...(track.tasks !== tasks ? diffLidEvents(track.tasks, tasks) : []),
+      ...(track.snapshot && snapshot ? diffZoneEvents(track.snapshot, snapshot) : []),
+    ];
+    setTrack({ tasks, snapshot, queue: enqueue(track.queue, events) });
   }
   const { queue } = track;
   const activeEvent = queue.current;

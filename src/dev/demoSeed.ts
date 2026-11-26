@@ -3,6 +3,14 @@
  * Remove this file (and the demo wiring in taskStore.tsx) once task 39
  * (sampleData) lands. Loaded by dynamic import behind import.meta.env.DEV,
  * so it is not part of the production bundle.
+ *
+ * Jar versus desk split. Cursed candies escape the jar and sit on the desk,
+ * and they do not count toward the jar capacity of 40. So the seed has two
+ * kinds of extras: a few Cursed ones (the first eight already hold two, and
+ * one more extra is Cursed per 25 extras) and many non-cursed ones. For N=45
+ * that is 3 Cursed on the desk, 42 non-cursed of which the oldest 40 fill the
+ * jar and 2 overflow onto the desk, so one URL shows a full jar, escaped
+ * candies and overflow together.
  */
 import { MONSTER_KINDS } from '../utils/monsterKind';
 import type { Task } from '../features/tasks/taskTypes';
@@ -34,9 +42,11 @@ const BASE: readonly Spec[] = [
   { title: 'Hug a tombstone', due: null, age: 30 * DAY }, // Cursed (age)
 ];
 
-/** Extra candies cycle these: due offsets (due path) and ages (age path). */
-const EXTRA_DUE = [5 * DAY, 30 * HOUR, 10 * HOUR, 1 * HOUR, -3 * DAY];
-const EXTRA_AGE = [DAY, 5 * DAY, 10 * DAY, 17 * DAY, 30 * DAY];
+/** Extra candies cycle these (not Cursed): due offsets (due path) and ages (age path). */
+const EXTRA_DUE = [5 * DAY, 30 * HOUR, 10 * HOUR, 1 * HOUR];
+const EXTRA_AGE = [DAY, 5 * DAY, 10 * DAY, 17 * DAY];
+/** Every 25th extra (the 25th, 50th) is Cursed, alternating due path and age path. */
+const CURSED_EVERY = 25;
 const EXTRA_TITLES = [
   'Sort the candy corn',
   'Light a candle',
@@ -64,11 +74,18 @@ export function buildDemoTasks(count: number, now: number): Task[] {
       spec = BASE[i]!;
     } else {
       const k = i - BASE.length;
-      spec = {
-        title: EXTRA_TITLES[k % EXTRA_TITLES.length]!,
-        due: k % 2 === 0 ? EXTRA_DUE[k % EXTRA_DUE.length]! : null,
-        age: EXTRA_AGE[k % EXTRA_AGE.length]!,
-      };
+      const title = EXTRA_TITLES[k % EXTRA_TITLES.length]!;
+      if ((k + 1) % CURSED_EVERY === 0) {
+        const dueCursed = ((k + 1) / CURSED_EVERY) % 2 === 1;
+        spec = { title, due: dueCursed ? -3 * DAY : null, age: dueCursed ? 6 * DAY : 30 * DAY };
+      } else {
+        const step = k >> 1;
+        spec = {
+          title,
+          due: k % 2 === 0 ? EXTRA_DUE[step % EXTRA_DUE.length]! : null,
+          age: EXTRA_AGE[step % EXTRA_AGE.length]!,
+        };
+      }
     }
     tasks.push({
       id: `demo-${i + 1}`,

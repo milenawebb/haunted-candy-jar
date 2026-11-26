@@ -7,6 +7,8 @@ export const ANNOUNCE_CLEAR_MS = 4000
 
 export const ADDED_TO_JAR_MESSAGE = 'Added to the jar'
 export const ADDED_TO_DESK_MESSAGE = 'Jar is full, it landed on the desk'
+export const CANDY_ESCAPED_MESSAGE = 'A candy escaped!'
+export const CANDY_BACK_IN_JAR_MESSAGE = 'Back in the jar'
 
 interface AnnounceContextValue {
   message: string

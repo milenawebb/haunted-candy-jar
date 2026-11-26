@@ -38,10 +38,24 @@ describe('demoSeed (temporary dev helper)', () => {
     expect(parseDemoCount('?demo=99')).toBe(60)
   })
 
-  it('?demo=45 gives a full jar of 40 and a desk spill of 5', () => {
+  it('?demo=45 gives 3 escaped Cursed candies, a full jar of 40 and 2 overflow on the desk', () => {
     const tasks = buildDemoTasks(parseDemoCount('?demo=45')!, NOW)
-    const { inJar, spilled } = partitionTasks(tasks)
+    const { inJar, escaped, overflow, spilled } = partitionTasks(tasks, JAR_CAPACITY, NOW)
+    expect(escaped).toHaveLength(3)
+    expect(tasks.filter((t) => decayFunction(t, NOW) !== 'Cursed')).toHaveLength(42)
     expect(inJar).toHaveLength(JAR_CAPACITY)
+    expect(overflow).toHaveLength(2)
     expect(spilled).toHaveLength(5)
+    // Cursed candies never sit in the jar.
+    expect(inJar.every((t) => decayFunction(t, NOW) !== 'Cursed')).toBe(true)
+  })
+
+  it('every size from 8 up keeps all five stages and at least two Cursed candies', () => {
+    for (const n of [8, 9, 24, 40, 60]) {
+      const tasks = buildDemoTasks(n, NOW)
+      const stages = tasks.map((t) => decayFunction(t, NOW))
+      expect(new Set(stages)).toEqual(new Set(DECAY_STAGE_ORDER))
+      expect(stages.filter((s) => s === 'Cursed').length).toBeGreaterThanOrEqual(2)
+    }
   })
 })

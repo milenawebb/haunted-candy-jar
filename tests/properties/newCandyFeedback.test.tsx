@@ -17,6 +17,10 @@ import { TASKS_KEY } from '../../src/utils/persistence';
  * New candy feedback: glow and screen reader announcement.
  * Validates: Requirement 13.1 (new candy feedback, polish)
  */
+
+/** Recent, so the age path keeps every fixture Fresh (Cursed candies leave the jar). */
+const BASE_TIME = Date.now() - 60_000;
+
 function makeTask(i: number): Task {
   return {
     id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
@@ -24,7 +28,7 @@ function makeTask(i: number): Task {
     dueDate: null,
     monster: 'pumpkin',
     isSample: false,
-    createdAt: 1_700_000_000_000 + i,
+    createdAt: BASE_TIME + i,
     completedAt: null,
   };
 }

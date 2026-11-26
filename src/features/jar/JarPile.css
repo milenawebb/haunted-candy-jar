@@ -17,6 +17,30 @@
   }
 }
 
+/*
+ * Escape hop: a candy that turned Cursed leaps from its jar slot up through the
+ * jar mouth and lands on its desk spot (about 800 ms). The offsets are relative
+ * to the desk spot: --hop-s* is the old jar slot, --hop-m* the top of the arc
+ * above the mouth. Each leg eases so the candy slows at the top of the arc.
+ */
+.jar-pile__candy--hop {
+  animation: jar-pile-hop 800ms both;
+}
+
+@keyframes jar-pile-hop {
+  0% {
+    transform: translate(var(--hop-sx, 0px), var(--hop-sy, 0px));
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1);
+  }
+  45% {
+    transform: translate(var(--hop-mx, 0px), var(--hop-my, 0px));
+    animation-timing-function: cubic-bezier(0.5, 0, 0.7, 0.6);
+  }
+  100% {
+    transform: translate(0px, 0px);
+  }
+}
+
 /* Reduced motion, and desk candies: a short fade with no movement. */
 .jar-pile__candy--fade {
   animation: jar-pile-fade 150ms linear both;
@@ -57,7 +81,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .jar-pile__candy--drop {
+  .jar-pile__candy--drop,
+  .jar-pile__candy--hop {
     animation: jar-pile-fade 150ms linear both;
   }
 

@@ -4,11 +4,12 @@
  *
  * One event is handled at a time, in order. Each event runs the phases
  * opening, open, closing exactly once, so N events give N open/close pairs.
- * While the lid is open the candy drops in (add) or floats out (remove).
+ * While the lid is open the candy drops in (add), floats out (remove) or
+ * hops out onto the desk (escape, a candy that just turned Cursed).
  */
 import type { Task } from '../tasks/taskTypes';
 
-export type LidEventKind = 'add' | 'remove';
+export type LidEventKind = 'add' | 'remove' | 'escape';
 
 export interface LidEvent {
   kind: LidEventKind;
@@ -24,8 +25,8 @@ export interface LidQueueState {
   current: LidEvent | null;
   phase: LidPhase;
   /**
-   * Ids of added candies that have not been released yet. JarPile keeps these
-   * hidden until the lid is open, then lets them drop.
+   * Ids of added or escaping candies that have not been released yet. JarPile
+   * keeps these hidden until the lid is open, then lets them drop or hop.
    */
   waiting: readonly string[];
 }
@@ -46,19 +47,20 @@ function startNext(state: LidQueueState): LidQueueState {
 }
 
 /**
- * Adds events to the queue. A remove for a candy whose add is still queued
- * cancels both, since that candy never showed up. Starts right away when idle.
+ * Adds events to the queue. A remove for a candy whose add (or escape) is
+ * still queued cancels both, since that candy never showed up. Starts right
+ * away when idle.
  */
 export function enqueue(state: LidQueueState, events: readonly LidEvent[]): LidQueueState {
   let pending = state.pending.slice();
   let waiting = state.waiting.slice();
   for (const event of events) {
-    if (event.kind === 'add') {
+    if (event.kind === 'add' || event.kind === 'escape') {
       pending.push(event);
       waiting.push(event.id);
       continue;
     }
-    const queuedAdd = pending.findIndex((e) => e.kind === 'add' && e.id === event.id);
+    const queuedAdd = pending.findIndex((e) => e.kind !== 'remove' && e.id === event.id);
     waiting = waiting.filter((id) => id !== event.id);
     if (queuedAdd >= 0) {
       pending = pending.filter((_, i) => i !== queuedAdd);
@@ -77,7 +79,7 @@ export function advance(state: LidQueueState): LidQueueState {
     case 'opening': {
       const cur = state.current;
       const waiting =
-        cur?.kind === 'add' ? state.waiting.filter((id) => id !== cur.id) : state.waiting;
+        cur && cur.kind !== 'remove' ? state.waiting.filter((id) => id !== cur.id) : state.waiting;
       return { ...state, phase: 'open', waiting };
     }
     case 'open':
@@ -128,4 +130,28 @@ export function diffLidEvents(prev: readonly Task[], next: readonly Task[]): Lid
     ...removed.map((id): LidEvent => ({ kind: 'remove', id })),
     ...added.map((id): LidEvent => ({ kind: 'add', id })),
   ];
+}
+
+/** Where each live candy sits (jar or desk) and whether it is Cursed. Completed candies are left out. */
+export type ZoneSnapshot = ReadonlyMap<string, { zone: 'jar' | 'desk'; cursed: boolean }>;
+
+/**
+ * Lid events for candies that changed zone between two renders because the
+ * clock or an edit changed their Cursed state. Only candies present in both
+ * snapshots count, so first renders, imports and demo seeding stay silent.
+ *
+ * - jar to desk and now Cursed: an escape (the candy hops out).
+ * - desk to jar, was Cursed and is not any more: an add (the candy drops back in).
+ * A candy that moves zones for any other reason (a bigger import pushing it
+ * into the overflow) is not an event.
+ */
+export function diffZoneEvents(prev: ZoneSnapshot, next: ZoneSnapshot): LidEvent[] {
+  const events: LidEvent[] = [];
+  for (const [id, n] of next) {
+    const p = prev.get(id);
+    if (!p) continue;
+    if (p.zone === 'jar' && n.zone === 'desk' && n.cursed) events.push({ kind: 'escape', id });
+    else if (p.zone === 'desk' && n.zone === 'jar' && p.cursed && !n.cursed) events.push({ kind: 'add', id });
+  }
+  return events;
 }

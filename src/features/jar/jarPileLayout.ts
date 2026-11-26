@@ -4,6 +4,7 @@
  * Coordinates are jar SVG user units (the JarScene viewBox space).
  */
 import { computePacking } from '../../utils/packingLayout';
+import { decayFunction } from '../tasks/decayFunction';
 import type { Task } from '../tasks/taskTypes';
 import {
   JAR_CANDY_RADIUS,
@@ -137,6 +138,8 @@ export interface PileEntry extends Placement {
   nearWall: boolean;
   /** Candy size relative to the in-jar size (1 in the jar, SPILL_SIZE_FACTOR on the desk). */
   sizeFactor: number;
+  /** True when the candy is on the desk because it is Cursed (it escaped), not because the jar is full. */
+  escaped: boolean;
 }
 
 /** Oldest first. Ties break on id so the order is total and stable. */
@@ -147,13 +150,48 @@ export function sortByAge(tasks: readonly Task[]): Task[] {
   });
 }
 
-/** The oldest `capacity` tasks stay in the jar; the rest spill onto the desk. */
+export interface Partition {
+  /** Non-cursed candies that stay in the jar (oldest first, at most `capacity`). */
+  inJar: Task[];
+  /** Cursed candies, which leave the jar whatever its fill level (oldest first). */
+  escaped: Task[];
+  /** Non-cursed candies beyond the jar capacity (oldest first). */
+  overflow: Task[];
+  /**
+   * Everything on the desk, in spill order: escaped first, then overflow.
+   * Spill order drives the scatter index (see spillPositions), so a given
+   * candy's spot depends only on the candies before it in this list.
+   */
+  spilled: Task[];
+}
+
+/**
+ * Splits tasks between the jar and the desk. Pure.
+ *
+ * - A candy whose decay stage at `logicalNow` is Cursed always goes to the
+ *   desk and does not count toward `capacity`.
+ * - Of the other candies, the oldest `capacity` stay in the jar and the rest
+ *   overflow onto the desk.
+ * - Spill order is escaped (by createdAt, then id) followed by overflow (same
+ *   order). Escapes are rare and overflow is a long tail, so an escape shifts
+ *   the later overflow slots only when it happens, and a new candy (always the
+ *   newest) only ever lands at the end of the overflow part.
+ *
+ * Without `logicalNow` no candy counts as Cursed (age and due date mean nothing
+ * without a clock), which keeps callers that only care about capacity simple.
+ */
 export function partitionTasks(
   tasks: readonly Task[],
   capacity: number = JAR_CAPACITY,
-): { inJar: Task[]; spilled: Task[] } {
+  logicalNow?: number,
+): Partition {
   const sorted = sortByAge(tasks);
-  return { inJar: sorted.slice(0, capacity), spilled: sorted.slice(capacity) };
+  const isCursed = (t: Task) => logicalNow !== undefined && decayFunction(t, logicalNow) === 'Cursed';
+  const escaped = sorted.filter(isCursed);
+  const rest = sorted.filter((t) => !isCursed(t));
+  const inJar = rest.slice(0, capacity);
+  const overflow = rest.slice(capacity);
+  return { inJar, escaped, overflow, spilled: [...escaped, ...overflow] };
 }
 
 /** FNV-1a hash of `salt + id`, mapped to [0, 1). */
@@ -257,9 +295,10 @@ function findSpot(id: string, index: number, compact: boolean, placed: readonly 
 }
 
 /**
- * Desk positions for spilled ids, in spill order (oldest first). Candies are
- * placed in index order and each spot depends only on earlier candies, so a
- * spilled id keeps its spot when later ids are added.
+ * Desk positions for spilled ids, in spill order (escaped first, then
+ * overflow, each oldest first). Candies are placed in index order and each
+ * spot depends only on earlier candies, so a spilled id keeps its spot when
+ * later ids are added.
  *
  * `pins` (optional, same length as ids) holds user-dropped positions. A pinned
  * candy takes its (clamped) position as is. All pins are placed first, so the
@@ -304,12 +343,14 @@ export function isNearWall(
 
 /**
  * Full layout for every task still in the store. In-jar candies are packed
- * from the sorted ids of the in-jar set, then offset into jar coordinates.
- * A saved deskPos only applies to spilled candies; in the jar it is ignored
- * (but stays on the task).
+ * from the sorted ids of the in-jar set (so when a candy escapes, the rest may
+ * resettle), then offset into jar coordinates. A saved deskPos only applies to
+ * desk candies (escaped or overflow); in the jar it is ignored (but stays on
+ * the task). `logicalNow` decides which candies are Cursed (see partitionTasks).
  */
-export function layoutPile(tasks: readonly Task[], compact = false): PileEntry[] {
-  const { inJar, spilled } = partitionTasks(tasks);
+export function layoutPile(tasks: readonly Task[], compact = false, logicalNow?: number): PileEntry[] {
+  const { inJar, escaped, spilled } = partitionTasks(tasks, JAR_CAPACITY, logicalNow);
+  const escapedIds = new Set(escaped.map((t) => t.id));
   const packed = computePacking(
     inJar.map((t) => t.id),
     JAR_PACK_BOX.width,
@@ -325,6 +366,7 @@ export function layoutPile(tasks: readonly Task[], compact = false): PileEntry[]
       rotation: p.rotation,
       nearWall: isNearWall(p.x, p.y),
       sizeFactor: 1,
+      escaped: false,
     };
   });
   const desk = spillPositions(
@@ -334,7 +376,14 @@ export function layoutPile(tasks: readonly Task[], compact = false): PileEntry[]
   );
   spilled.forEach((task, i) => {
     const p = desk[i] as Placement;
-    entries.push({ task, zone: 'desk', ...p, nearWall: false, sizeFactor: SPILL_SIZE_FACTOR });
+    entries.push({
+      task,
+      zone: 'desk',
+      ...p,
+      nearWall: false,
+      sizeFactor: SPILL_SIZE_FACTOR,
+      escaped: escapedIds.has(task.id),
+    });
   });
   return entries;
 }
