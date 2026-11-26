@@ -5,6 +5,7 @@ import App from '../../src/App'
 describe('App', () => {
   beforeEach(() => {
     window.localStorage.clear()
+    window.localStorage.setItem('hcj_seen_intro', 'true')
   })
 
   it('renders the title and the empty-state prompt without crashing', () => {

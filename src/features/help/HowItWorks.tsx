@@ -21,6 +21,17 @@ export const GESTURES = [
   'Undo after completing or deleting.',
 ]
 
+/** Tiny wrapped candy used as the list marker: orange body, twisted wrapper ends. */
+function CandyBullet() {
+  return (
+    <svg className="help-gestures__candy" viewBox="0 0 20 14" width="14" height="14" aria-hidden="true" focusable="false">
+      <path d="M5 7 L1 3 L1 11 Z M15 7 L19 3 L19 11 Z" fill="#ffd9a0" stroke="#c85a00" strokeWidth="0.8" strokeLinejoin="round" />
+      <ellipse cx="10" cy="7" rx="6" ry="5" fill="#ffaa44" stroke="#c85a00" strokeWidth="1" />
+      <path d="M7 5 Q8.5 3.6 10.5 4" fill="none" stroke="#fff" strokeOpacity="0.7" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function PanelBody({ onClose, onShowIntro, headingId }: { onClose: () => void; onShowIntro: () => void; headingId: string }) {
   return (
     <div className="help-panel">
@@ -43,7 +54,10 @@ function PanelBody({ onClose, onShowIntro, headingId }: { onClose: () => void; o
         <p className="help-panel__note">{ESCAPE_LINE}</p>
         <ul className="help-gestures">
           {GESTURES.map((line) => (
-            <li key={line}>{line}</li>
+            <li key={line}>
+              <CandyBullet />
+              <span>{line}</span>
+            </li>
           ))}
         </ul>
       </div>
@@ -51,7 +65,7 @@ function PanelBody({ onClose, onShowIntro, headingId }: { onClose: () => void; o
         <button type="button" className="help-link" onClick={onShowIntro}>
           Show the intro again
         </button>
-        <button type="button" className="add-task-form__btn" onClick={onClose}>
+        <button type="button" className="add-task-form__btn add-task-form__btn--ghost" onClick={onClose}>
           Close
         </button>
       </div>

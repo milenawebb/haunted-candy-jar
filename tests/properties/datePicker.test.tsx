@@ -119,6 +119,7 @@ describe('DatePicker in the Add form', () => {
   const originalMatchMedia = window.matchMedia
   beforeEach(() => {
     window.localStorage.clear()
+    window.localStorage.setItem('hcj_seen_intro', 'true')
     mockMedia()
   })
   afterEach(() => {

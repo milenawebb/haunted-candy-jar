@@ -71,7 +71,7 @@ describe('UndoToast', () => {
   it('shows the completing text after Complete', () => {
     renderApp()
     click('probe-complete-1')
-    expect(screen.getByRole('status')).toHaveTextContent('Task completed (a ghost cheers)')
+    expect(screen.getByRole('status')).toHaveTextContent('Done! A ghost cheers you on 👻')
   })
   it('shows the deleting text after Delete', () => {
     renderApp()

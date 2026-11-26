@@ -54,8 +54,8 @@ describe('intro guide', () => {
     const user = userEvent.setup()
     render(<App />)
     const dialog = intro()!
-    const back = within(dialog).getByRole('button', { name: 'Back' })
-    expect(back).toBeDisabled()
+    // Back is not rendered on the first card.
+    expect(within(dialog).queryByRole('button', { name: 'Back' })).not.toBeInTheDocument()
     expect(within(dialog).getByRole('button', { name: 'Skip' })).toBeInTheDocument()
     for (let i = 0; i < 3; i++) {
       expect(within(dialog).getByText(COPY[i]!)).toBeInTheDocument()
@@ -63,7 +63,7 @@ describe('intro guide', () => {
       if (i < 2) await user.click(within(dialog).getByRole('button', { name: 'Next' }))
     }
     expect(within(dialog).queryByRole('button', { name: 'Next' })).not.toBeInTheDocument()
-    await user.click(back)
+    await user.click(within(dialog).getByRole('button', { name: 'Back' }))
     expect(within(dialog).getByText(COPY[1]!)).toBeInTheDocument()
     await user.click(within(dialog).getByRole('button', { name: 'Next' }))
     await user.click(within(dialog).getByRole('button', { name: 'Got it' }))
@@ -116,6 +116,7 @@ describe('How it works panel', () => {
   const originalMatchMedia = window.matchMedia
   beforeEach(() => {
     window.localStorage.clear()
+    window.localStorage.setItem(KEY, 'true')
     mockMedia(false)
   })
   afterEach(() => {

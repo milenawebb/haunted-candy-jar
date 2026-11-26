@@ -64,6 +64,7 @@ describe('AddTaskForm due time', () => {
   const originalMatchMedia = window.matchMedia
   beforeEach(() => {
     window.localStorage.clear()
+    window.localStorage.setItem('hcj_seen_intro', 'true')
     mockMedia()
   })
   afterEach(() => {
@@ -114,6 +115,7 @@ describe('EditTaskForm due time', () => {
   const originalMatchMedia = window.matchMedia
   beforeEach(() => {
     window.localStorage.clear()
+    window.localStorage.setItem('hcj_seen_intro', 'true')
     mockMedia()
   })
   afterEach(() => {
@@ -163,6 +165,7 @@ describe('context menu due label', () => {
   const originalMatchMedia = window.matchMedia
   beforeEach(() => {
     window.localStorage.clear()
+    window.localStorage.setItem('hcj_seen_intro', 'true')
     mockMedia()
   })
   afterEach(() => {
@@ -190,6 +193,7 @@ describe('context menu due label', () => {
     expect(within(screen.getByTestId('context-menu')).getByText(expected)).toBeInTheDocument()
     unmount()
     window.localStorage.clear()
+    window.localStorage.setItem('hcj_seen_intro', 'true')
     seed(makeTask(null))
     render(<App />)
     clickCandy()

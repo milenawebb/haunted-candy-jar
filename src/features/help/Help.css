@@ -106,9 +106,15 @@
   font-size: 0.875rem;
 }
 
-.help-gestures li::before {
-  content: '* ';
-  color: var(--color-candle);
+/* Each gesture line starts with a tiny wrapped candy instead of a bullet. */
+.help-gestures li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.help-gestures__candy {
+  flex: none;
 }
 
 .help-panel__actions {
@@ -177,13 +183,25 @@
   border-color: var(--color-candle);
 }
 
+/* Footer row: quiet Skip link on the left, Back and Next on the right. */
 .help-intro__actions {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
+  align-self: stretch;
 }
 
-.help-intro__back:disabled {
-  visibility: hidden;
+.help-intro__actions .help-link {
+  text-decoration: none;
+}
+
+.help-intro__actions .help-link:hover,
+.help-intro__actions .help-link:focus-visible {
+  text-decoration: underline;
+}
+
+.help-intro__nav {
+  display: flex;
+  gap: var(--space-2);
 }

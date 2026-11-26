@@ -52,6 +52,7 @@ describe('ContextMenu', () => {
   const originalMatchMedia = window.matchMedia;
   beforeEach(() => {
     window.localStorage.clear();
+    window.localStorage.setItem('hcj_seen_intro', 'true');
     mockMedia(false);
     seed([makeTask(1, LONG_TITLE), makeTask(2)]);
   });

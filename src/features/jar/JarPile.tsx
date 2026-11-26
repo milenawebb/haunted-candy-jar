@@ -90,6 +90,12 @@ export interface JarPileProps extends Omit<JarSceneProps, 'children' | 'overflow
  * announced. The first render, imports and demo seeding place cursed candies
  * on the desk silently.
  *
+ * Imports: the store bumps `importGeneration` on every IMPORT_TASKS. When it
+ * changes, the previous zone snapshot is dropped and no escape, return, lid,
+ * glow or announcement happens, even for candies whose id is unchanged but
+ * whose due date now makes them Cursed (or no longer Cursed). They simply
+ * appear where the new list puts them.
+ *
  * Return: a candy that stops being Cursed (due date edited later, Haunt Speed
  * lowered) goes back into the jar when there is room, with the normal drop-in
  * and an announcement ("Back in the jar"). With no room it stays on the desk
@@ -114,6 +120,7 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
     () => layoutPile(state.tasks, compact, logicalNow),
     [state.tasks, compact, logicalNow],
   );
+
   // Zone and Cursed state of every live candy, for escape and return events.
   const snapshot = useMemo<ZoneSnapshot>(
     () =>
@@ -128,7 +135,9 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
   // Lid sequence (see LidAnimation.tsx). A newly added or escaping candy stays
   // hidden until the lid is open, then its animation starts. Under reduced
   // motion nothing waits: the candy just fades in.
-  const lid = useLidSequence({ tasks: state.tasks, snapshot, onLidOpen, onLidClose });
+  const generation = state.importGeneration;
+  const lid = useLidSequence({ tasks: state.tasks, snapshot, generation, onLidOpen, onLidClose });
+
   const selectedId = state.selectedTaskId;
 
   // Track which candies are new since first render. Ids are pruned when a task
@@ -141,12 +150,18 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
   const glowTimers = useRef<Map<string, number>>(new Map());
   const [glowing, setGlowing] = useState<ReadonlySet<string>>(new Set());
   const [, rerender] = useReducer((n: number) => n + 1, 0);
+
   // Escape and return tracking: last seen snapshot, last jar slot of each
   // candy (where a hop starts), hops in progress, and a message to announce.
   const prevSnapshot = useRef<ZoneSnapshot | null>(null);
+  const prevGeneration = useRef(generation);
   const jarSlots = useRef<Map<string, { x: number; y: number }>>(new Map());
   const hopFrom = useRef<Map<string, { x: number; y: number }>>(new Map());
   const toAnnounceMove = useRef<string | null>(null);
+
+  // True on the render that follows an import: everything is a silent reset.
+  const imported = prevGeneration.current !== generation;
+  prevGeneration.current = generation;
 
   const currentIds = new Set(entries.map((e) => e.task.id));
   if (seen.current === null) {
@@ -164,7 +179,7 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
     // Only a single add (or an undo restore) gets feedback. A batch at once is
     // an import or demo seeding, which would light up the whole jar.
     const [only] = added;
-    if (only && added.length === 1) {
+    if (only && added.length === 1 && !imported) {
       toAnnounce.current = only.zone;
       toGlow.current.add(only.task.id);
     }
@@ -177,9 +192,11 @@ export function JarPile({ onLidOpen, onLidClose, ...sceneProps }: JarPileProps) 
       }
     }
   }
+
   // Escapes and returns (same detection as the lid queue, so they line up).
+  // An import skips the diff, so same-id candies change zone silently.
   if (prevSnapshot.current !== snapshot) {
-    if (prevSnapshot.current) {
+    if (prevSnapshot.current && !imported) {
       for (const ev of diffZoneEvents(prevSnapshot.current, snapshot)) {
         dropping.current.add(ev.id);
         if (ev.kind === 'escape') {

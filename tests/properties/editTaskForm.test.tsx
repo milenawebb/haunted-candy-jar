@@ -58,6 +58,7 @@ describe('EditTaskForm', () => {
   const originalMatchMedia = window.matchMedia
   beforeEach(() => {
     window.localStorage.clear()
+    window.localStorage.setItem('hcj_seen_intro', 'true')
     mockMedia()
     seed(makeTask())
   })

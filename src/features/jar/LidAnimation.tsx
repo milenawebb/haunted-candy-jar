@@ -27,6 +27,7 @@ export const LID_HOLD_ADD_MS = 500; // candy drop-in (650 ms spring) is mostly d
 export const LID_HOLD_REMOVE_MS = 400; // candy floats out
 export const LID_HOLD_ESCAPE_MS = 850; // candy hop (800 ms) is done
 export const LID_CLOSE_MS = 350;
+
 /** Reduced motion: the lid stays put, so phases only pace the callbacks. */
 export const LID_REDUCED_MS = 150;
 
@@ -38,6 +39,12 @@ export interface UseLidSequenceOptions {
    * it referentially stable between renders where nothing changed.
    */
   snapshot?: ZoneSnapshot;
+  /**
+   * Import generation from the task store. When it changes, the new task list
+   * and snapshot are taken as the baseline with no events at all, so an import
+   * never opens the lid, whatever it changes (ids, due dates, Cursed state).
+   */
+  generation?: number;
   /** Called when the lid starts to open (lid creak sound). */
   onLidOpen?: () => void;
   /** Called when the lid starts to close (glass clink sound). */
@@ -71,26 +78,39 @@ function phaseMs(queue: LidQueueState, reduced: boolean): number {
  * Under reduced motion the callbacks still fire in order, candies never wait
  * for the lid (they just fade in), and the lid does not move.
  */
-export function useLidSequence({ tasks, snapshot, onLidOpen, onLidClose }: UseLidSequenceOptions): LidSequence {
+export function useLidSequence({
+  tasks,
+  snapshot,
+  generation = 0,
+  onLidOpen,
+  onLidClose,
+}: UseLidSequenceOptions): LidSequence {
   const reduced = useReducedMotion();
   const [track, setTrack] = useState<{
     tasks: readonly Task[];
     snapshot: ZoneSnapshot | undefined;
+    generation: number;
     queue: LidQueueState;
   }>(() => ({
     tasks,
     snapshot,
+    generation,
     queue: initialLidQueue,
   }));
+
   // Derive the queue from the new task list during render, so a new candy is
   // already marked as waiting in the same frame it appears.
-  if (track.tasks !== tasks || track.snapshot !== snapshot) {
-    const events = [
-      ...(track.tasks !== tasks ? diffLidEvents(track.tasks, tasks) : []),
-      ...(track.snapshot && snapshot ? diffZoneEvents(track.snapshot, snapshot) : []),
-    ];
-    setTrack({ tasks, snapshot, queue: enqueue(track.queue, events) });
+  if (track.tasks !== tasks || track.snapshot !== snapshot || track.generation !== generation) {
+    const imported = track.generation !== generation;
+    const events = imported
+      ? []
+      : [
+          ...(track.tasks !== tasks ? diffLidEvents(track.tasks, tasks) : []),
+          ...(track.snapshot && snapshot ? diffZoneEvents(track.snapshot, snapshot) : []),
+        ];
+    setTrack({ tasks, snapshot, generation, queue: enqueue(track.queue, events) });
   }
+
   const { queue } = track;
   const activeEvent = queue.current;
 

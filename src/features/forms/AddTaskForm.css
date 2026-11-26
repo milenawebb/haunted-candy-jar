@@ -9,16 +9,13 @@
   background: rgba(13, 5, 20, 0.7);
   animation: add-task-fade 150ms linear;
 }
+/* Panel look (background, border, shadow) comes from src/styles/glass.css. */
 .add-task-modal {
   width: min(420px, 100%);
   max-height: 100%;
   overflow-y: auto;
   padding: var(--space-5);
-  background: var(--color-bg);
   color: var(--color-moon);
-  border: 2px solid var(--color-candle-deep);
-  border-radius: 16px;
-  box-shadow: 0 12px 36px rgba(13, 5, 20, 0.8), 0 0 22px rgba(255, 170, 68, 0.25);
   font-family: var(--font-body);
   animation: add-task-pop 180ms ease-out;
 }
@@ -55,7 +52,7 @@
 .add-task-form__input:focus-visible,
 .add-task-form__btn:focus-visible {
   outline: 3px solid var(--color-moon);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 .add-task-form__input[aria-invalid='true'] {
   border-style: dashed;
@@ -73,23 +70,6 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--space-2);
-}
-.add-task-form__btn {
-  min-width: 44px;
-  min-height: 44px;
-  padding: var(--space-2) var(--space-5);
-  font: inherit;
-  font-weight: 700;
-  color: var(--color-bg-deep);
-  background: var(--color-candle);
-  border: 2px solid var(--color-candle-deep);
-  border-radius: 10px;
-  cursor: pointer;
-}
-.add-task-form__btn--ghost {
-  color: var(--color-moon);
-  background: transparent;
-  border-color: var(--color-moon-deep);
 }
 @keyframes add-task-fade {
   from {

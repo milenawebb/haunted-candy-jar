@@ -49,20 +49,19 @@ function IntroBody({ onClose, headingId }: { onClose: () => void; headingId: str
         </span>
       </div>
       <div className="help-intro__actions">
-        <button type="button" className="add-task-form__btn" onClick={() => (last ? onClose() : setStep(step + 1))}>
-          {last ? 'Got it' : 'Next'}
-        </button>
-        <button
-          type="button"
-          className="add-task-form__btn add-task-form__btn--ghost help-intro__back"
-          disabled={step === 0}
-          onClick={() => setStep(step - 1)}
-        >
-          Back
-        </button>
-        <button type="button" className="add-task-form__btn add-task-form__btn--ghost" onClick={onClose}>
+        <button type="button" className="help-link" onClick={onClose}>
           Skip
         </button>
+        <div className="help-intro__nav">
+          {step > 0 && (
+            <button type="button" className="add-task-form__btn add-task-form__btn--ghost" onClick={() => setStep(step - 1)}>
+              Back
+            </button>
+          )}
+          <button type="button" className="add-task-form__btn" onClick={() => (last ? onClose() : setStep(step + 1))}>
+            {last ? 'Got it' : 'Next'}
+          </button>
+        </div>
       </div>
     </div>
   )

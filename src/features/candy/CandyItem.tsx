@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, PointerEvent } from 'react';
 import { MOVE_SLOP_PX, usePressAndHold } from '../../hooks/usePressAndHold';
 import { useHauntClock } from '../../hooks/useHauntClock';
@@ -10,6 +10,7 @@ import { useTaskStore } from '../tasks/taskStore';
 import type { Task } from '../tasks/taskTypes';
 import { BandageNote } from './BandageNote';
 import { CandyCrack } from './CandyCrack';
+import { handOffFocus } from './focusHandoff';
 import { GhostCheer } from './GhostCheer';
 import { CANDY_ART_FILL, MonsterShape } from './MonsterShape';
 import { noteOffset, noteRestY } from './notePlacement';
@@ -99,6 +100,11 @@ type Phase = 'idle' | 'completing' | 'gone';
  * SET_DESK_POS, and the click that follows never toggles selection. There is
  * no easing on the drop, so reduced motion needs no special case.
  *
+ * Completion: while the candy fades and the ghost shows, it is not focusable
+ * (tabIndex -1) and hidden from assistive tech, the focus ring is not
+ * rendered, and the hit area ignores the pointer. If focus was on the candy it
+ * moves to the next candy (see focusHandoff.ts), or to the Add button.
+ *
  * Validates: Requirements 3.1, 3.6, 3.7, 3.8, 4.1, 4.2, 4.3, 4.5, 4.6, 4.10, 12.3, 13.3
  */
 export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jarScale, desk, onDone }: CandyItemProps) {
@@ -124,6 +130,11 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
   const completing = phase !== 'gone' && task.completedAt !== null;
   // Undo clears completedAt: allow the next completion to show its ghost again.
   if (phase !== 'idle' && task.completedAt === null) setPhase('idle');
+  // Focus leaves a completing candy. Runs after the context menu has closed
+  // and given focus back to the candy, so the hand-off wins.
+  useEffect(() => {
+    if (completing && rootRef.current) handOffFocus(rootRef.current, task.id);
+  }, [completing, task.id]);
   useLayoutEffect(() => {
     if (jarScale !== undefined) return;
     const update = () => setMeasured(measureScale(rootRef.current));
@@ -254,9 +265,11 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
       data-task-id={task.id}
       data-decay-stage={stage}
       data-selected={selected ? 'true' : 'false'}
+      data-completing={completing ? 'true' : undefined}
       transform={`translate(${dragPos?.x ?? x} ${dragPos?.y ?? y})`}
       role="button"
-      tabIndex={0}
+      tabIndex={completing ? -1 : 0}
+      aria-hidden={completing ? true : undefined}
       aria-label={`${task.title}, ${stage}`}
       aria-describedby={desk ? hintId : undefined}
       aria-pressed={selected}
@@ -288,7 +301,7 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
         width={hitSize}
         height={hitSize}
         fill="transparent"
-        pointerEvents="all"
+        pointerEvents={completing ? 'none' : 'all'}
       />
       <g className={liftClass} data-testid="candy-lift" style={liftStyle}>
         <g className={visualClass} data-testid="candy-visual">
@@ -303,11 +316,13 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
             </g>
           </g>
         </g>
-        {/* Focus ring: dark under-stroke plus dashed light stroke, a shape cue and not color alone. */}
-        <g className="candy-item__focus-ring" aria-hidden="true" pointerEvents="none" fill="none">
-          <circle r={size * 0.6} stroke="#12061c" strokeWidth="5" />
-          <circle r={size * 0.6} stroke="#fff8ee" strokeWidth="2.5" strokeDasharray="6 4" />
-        </g>
+        {/* Focus ring: dark under-stroke plus dashed light stroke, a shape cue and not color alone. Not rendered while completing. */}
+        {!completing && (
+          <g className="candy-item__focus-ring" data-testid="candy-focus-ring" aria-hidden="true" pointerEvents="none" fill="none">
+            <circle r={size * 0.6} stroke="#12061c" strokeWidth="5" />
+            <circle r={size * 0.6} stroke="#fff8ee" strokeWidth="2.5" strokeDasharray="6 4" />
+          </g>
+        )}
         {showNote && (
           <g
             className="candy-item__note"

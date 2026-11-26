@@ -63,6 +63,7 @@ function hold(el: HTMLElement, ms: number) {
 describe('App interactions', () => {
   beforeEach(() => {
     window.localStorage.clear()
+    window.localStorage.setItem('hcj_seen_intro', 'true')
     vi.useFakeTimers()
     vi.setSystemTime(NOW)
   })
@@ -95,7 +96,7 @@ describe('App interactions', () => {
     render(<App />)
     expect(screen.queryByTestId('undo-toast')).toBeNull()
     hold(candy('Write report'), 900)
-    expect(screen.getByTestId('undo-toast')).toHaveTextContent('Task completed (a ghost cheers)')
+    expect(screen.getByTestId('undo-toast')).toHaveTextContent('Done! A ghost cheers you on 👻')
     expect(screen.getByTestId('ghost-cheer')).toBeInTheDocument()
     expect(stored()[0]!.completedAt).not.toBeNull()
     // The hold's own click must not have selected the candy or opened the menu.
@@ -131,7 +132,7 @@ describe('App interactions', () => {
     expect(screen.getByTestId('context-menu')).toBeInTheDocument()
     // The selected candy has remounted in the overflow layer; query it afresh.
     hold(candy('Write report'), 900)
-    expect(screen.getByTestId('undo-toast')).toHaveTextContent('Task completed')
+    expect(screen.getByTestId('undo-toast')).toHaveTextContent('Done!')
     expect(screen.queryByTestId('context-menu')).toBeNull()
     expect(stored()[0]!.completedAt).not.toBeNull()
   })
@@ -180,7 +181,7 @@ describe('App interactions', () => {
     render(<App />)
     fireEvent.click(candy('Write report'))
     fireEvent.click(within(screen.getByTestId('context-menu')).getByRole('button', { name: 'Complete' }))
-    expect(screen.getByTestId('undo-toast')).toHaveTextContent('Task completed')
+    expect(screen.getByTestId('undo-toast')).toHaveTextContent('Done!')
     expect(screen.queryByTestId('context-menu')).toBeNull()
     expect(screen.getByTestId('ghost-cheer')).toBeInTheDocument()
     advance(2500)

@@ -175,7 +175,7 @@ describe('new candy feedback', () => {
     setup();
     fireEvent.click(screen.getByText('complete-1'));
     fireEvent.click(screen.getByText('add'));
-    expect(screen.getByText('Task completed (a ghost cheers)')).toBeTruthy();
+    expect(screen.getByText('Done! A ghost cheers you on 👻')).toBeTruthy();
     expect(screen.getByText(ADDED_TO_JAR_MESSAGE)).toBeTruthy();
   });
 

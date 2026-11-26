@@ -1,0 +1,43 @@
+/* One dark glass panel look: context menu popover, form modal, help and intro modals. */
+.glass-panel,
+.context-menu--popover,
+.add-task-modal {
+  background: rgba(26, 10, 46, 0.88);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(220, 235, 255, 0.28);
+  border-radius: 14px;
+  box-shadow:
+    0 8px 24px rgba(13, 5, 20, 0.7),
+    0 0 20px rgba(150, 100, 220, 0.3),
+    inset 0 1px 0 rgba(220, 235, 255, 0.12);
+}
+
+/* Outline pill (secondary) and primary orange pill, shared by forms and help. */
+.add-task-form__btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--space-1) var(--space-5);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-bg-deep);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 50%),
+    var(--color-candle);
+  border: 1px solid var(--color-candle-deep);
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(255, 170, 68, 0.35), inset 0 -2px 0 rgba(200, 90, 0, 0.4);
+  cursor: pointer;
+}
+.add-task-form__btn:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 55%), #ffc27a;
+}
+.add-task-form__btn--ghost {
+  color: var(--color-moon);
+  background: transparent;
+  border: 1px solid var(--color-glass-rim);
+  box-shadow: none;
+}
+.add-task-form__btn--ghost:hover {
+  background: var(--color-glass);
+}

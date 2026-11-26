@@ -23,6 +23,12 @@ export interface AppState {
   focusSession: FocusSession | null;
   soundEnabled: boolean;
   hauntSpeed: HauntSpeed;
+  /**
+   * Counts whole-list replacements (IMPORT_TASKS). The jar compares it between
+   * renders and treats any change as a silent reset: no lid, escape, return or
+   * announcement events, whatever the new list looks like.
+   */
+  importGeneration: number;
 }
 
 /**
@@ -53,6 +59,7 @@ export const initialAppState: AppState = {
   focusSession: null,
   soundEnabled: false,
   hauntSpeed: 1,
+  importGeneration: 0,
 };
 
 /** Permanently applies a pending action (a completed task leaves the jar). */
@@ -182,6 +189,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         selectedTaskId: null,
         pendingUndo: null,
         focusSession: null,
+        importGeneration: state.importGeneration + 1,
       };
     case 'CLEAR_SAMPLES': {
       const tasks = state.tasks.filter((t) => !t.isSample);

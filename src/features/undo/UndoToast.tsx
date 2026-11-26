@@ -9,7 +9,7 @@ import './UndoToast.css'
 export const UNDO_DURATION_MS = 6000
 
 const MESSAGES: Record<PendingUndo['action'], string> = {
-  complete: 'Task completed (a ghost cheers)',
+  complete: 'Done! A ghost cheers you on 👻',
   delete: 'Candy tossed',
 }
 

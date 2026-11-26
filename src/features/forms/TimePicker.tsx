@@ -55,6 +55,7 @@ export function TimePicker({ value, onChange, label, disabled = false }: TimePic
   const labelId = `${uid}-label`
   const valueId = `${uid}-value`
   const panelId = `${uid}-panel`
+  const hintId = `${uid}-hint`
   const wrapRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
@@ -147,6 +148,7 @@ export function TimePicker({ value, onChange, label, disabled = false }: TimePic
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
         aria-labelledby={`${labelId} ${valueId}`}
+        aria-describedby={disabled ? hintId : undefined}
         onClick={() => (open ? close(false) : openPicker())}
       >
         <span id={valueId} className={shown ? 'picker__value' : 'picker__value picker__value--empty'}>
@@ -156,6 +158,11 @@ export function TimePicker({ value, onChange, label, disabled = false }: TimePic
           {open ? '\u25B4' : '\u25BE'}
         </span>
       </button>
+      {disabled && (
+        <p id={hintId} className="picker__hint">
+          Pick a date first
+        </p>
+      )}
       {open && (
         <div id={panelId} className={panelClass} role="dialog" aria-label="Pick a time" onKeyDown={onPanelKey}>
           <div className="time-picker__quick">
