@@ -4,7 +4,9 @@ import { useFocusTrap } from '../../hooks/useFocusTrap'
 import { useIsMobile } from '../../hooks/useIsMobile'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
 import type { MonsterKind } from '../tasks/taskTypes'
+import { DatePicker } from './DatePicker'
 import { MonsterPicker } from './MonsterPicker'
+import { TimePicker } from './TimePicker'
 import './AddTaskForm.css'
 
 /** Pieces shared by AddTaskForm and EditTaskForm (fields, date helpers, frame). */
@@ -12,7 +14,7 @@ import './AddTaskForm.css'
 export const TITLE_MAX_LENGTH = 120
 
 /**
- * Converts the value of an `<input type="date">` ("YYYY-MM-DD") to a timestamp.
+ * Converts a date field value ("YYYY-MM-DD") to a timestamp.
  * The due date is the END of the chosen day in the user's local time zone
  * (23:59:59.999), so a candy due "today" does not start decaying before the
  * day is over. Returns null for an empty or malformed value.
@@ -106,8 +108,6 @@ export function TaskFields(props: TaskFieldsProps) {
   const { title, onTitleChange, due, onDueChange, time, onTimeChange, monster, onMonsterChange, error } = props
   const uid = useId()
   const titleId = `${uid}-title`
-  const dueId = `${uid}-due`
-  const timeId = `${uid}-time`
   const errorId = `${uid}-error`
 
   return (
@@ -136,34 +136,15 @@ export function TaskFields(props: TaskFieldsProps) {
           </p>
         )}
       </div>
-      <div className="add-task-form__field">
-        <label htmlFor={dueId} className="add-task-form__label">
-          Due date (optional)
-        </label>
-        <input
-          id={dueId}
-          className="add-task-form__input"
-          type="date"
-          value={due}
-          onChange={(e) => {
-            onDueChange(e.target.value)
-            if (!e.target.value) onTimeChange('')
-          }}
-        />
-      </div>
-      <div className="add-task-form__field">
-        <label htmlFor={timeId} className="add-task-form__label">
-          Time (optional)
-        </label>
-        <input
-          id={timeId}
-          className="add-task-form__input"
-          type="time"
-          value={due ? time : ''}
-          disabled={!due}
-          onChange={(e) => onTimeChange(e.target.value)}
-        />
-      </div>
+      <DatePicker
+        label="Due date (optional)"
+        value={due}
+        onChange={(value) => {
+          onDueChange(value)
+          if (!value) onTimeChange('')
+        }}
+      />
+      <TimePicker label="Time (optional)" value={due ? time : ''} disabled={!due} onChange={onTimeChange} />
       <div className="add-task-form__field">
         <MonsterPicker value={monster} onChange={onMonsterChange} />
       </div>

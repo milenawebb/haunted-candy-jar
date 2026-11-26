@@ -1,0 +1,50 @@
+.time-picker__panel {
+  width: min(260px, 100%);
+  box-sizing: border-box;
+}
+.picker__panel--inline.time-picker__panel {
+  width: 100%;
+}
+.time-picker__quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.time-picker__list {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  max-height: calc(5 * 44px);
+  overflow-y: auto;
+  list-style: none;
+  border-radius: 10px;
+}
+.time-picker__option {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  box-sizing: border-box;
+  font-size: 0.9375rem;
+  color: var(--color-moon);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.time-picker__option:hover,
+.time-picker__option--active {
+  background: var(--color-glass);
+}
+/* Active option also gets an outline so focus is not color only. */
+.time-picker__option--active {
+  outline: 2px solid var(--color-moon);
+  outline-offset: -2px;
+}
+.time-picker__option--selected {
+  font-weight: 700;
+  color: var(--color-bg-deep);
+  background: var(--color-candle);
+}
+.time-picker__option--selected::after {
+  content: '\2713';
+  margin-left: auto;
+}

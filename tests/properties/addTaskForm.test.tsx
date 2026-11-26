@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import App from '../../src/App'
@@ -6,6 +6,7 @@ import { dateInputToTimestamp } from '../../src/features/forms/AddTaskForm'
 import type { Task } from '../../src/features/tasks/taskTypes'
 import { MONSTER_KINDS, taskIdToMonster } from '../../src/utils/monsterKind'
 import { TASKS_KEY } from '../../src/utils/persistence'
+import { chooseDate } from './pickerHelpers'
 
 function mockMedia(mobile: boolean) {
   window.matchMedia = ((query: string) => ({
@@ -47,7 +48,8 @@ describe('AddTaskForm', () => {
     expect(dialog).toHaveAttribute('aria-modal', 'true')
     expect(screen.getByLabelText('Title')).toHaveFocus()
     expect(screen.getByLabelText('Title')).toHaveAttribute('maxlength', '120')
-    expect(screen.getByLabelText('Due date (optional)')).toHaveAttribute('type', 'date')
+    // The date field is the themed picker trigger (a popup button), not a native date input.
+    expect(screen.getByLabelText('Due date (optional)')).toHaveAttribute('aria-haspopup', 'dialog')
     expect(within(dialog).getByRole('group', { name: 'Choose a monster' })).toBeInTheDocument()
   })
 
@@ -68,7 +70,7 @@ describe('AddTaskForm', () => {
     render(<App />)
     await openForm(user)
     await user.type(screen.getByLabelText('Title'), '  Feed the cobweb ')
-    fireEvent.change(screen.getByLabelText('Due date (optional)'), { target: { value: '2030-05-17' } })
+    await chooseDate(user, '2030-05-17')
     await user.click(screen.getByRole('button', { name: 'Bat' }))
     await user.click(screen.getByRole('button', { name: 'Add' }))
     expect(screen.queryByRole('dialog')).toBeNull()

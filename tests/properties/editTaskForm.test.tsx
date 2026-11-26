@@ -6,6 +6,7 @@ import App from '../../src/App'
 import { dateInputToTimestamp, timestampToDateInput } from '../../src/features/forms/taskFormShared'
 import type { Task } from '../../src/features/tasks/taskTypes'
 import { TASKS_KEY } from '../../src/utils/persistence'
+import { chooseDate } from './pickerHelpers'
 
 // Odd time of day on purpose: an untouched date must not be snapped to end of day.
 const DUE = new Date(2030, 4, 17, 10, 30, 15, 250).getTime()
@@ -69,7 +70,7 @@ describe('EditTaskForm', () => {
     openEditForm()
     expect(screen.queryByTestId('context-menu')).toBeNull()
     expect(screen.getByLabelText('Title')).toHaveValue('Water the ferns')
-    expect(screen.getByLabelText('Due date (optional)')).toHaveValue('2030-05-17')
+    expect(screen.getByLabelText('Due date (optional)')).toHaveTextContent('May 17')
     expect(screen.getByRole('button', { name: 'Mummy' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: 'Bat' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
@@ -82,7 +83,7 @@ describe('EditTaskForm', () => {
     const title = screen.getByLabelText('Title')
     await user.clear(title)
     await user.type(title, '  Feed the cobweb ')
-    fireEvent.change(screen.getByLabelText('Due date (optional)'), { target: { value: '2031-01-02' } })
+    await chooseDate(user, '2031-01-02')
     await user.click(screen.getByRole('button', { name: 'Bat' }))
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(screen.queryByRole('dialog')).toBeNull()
@@ -103,11 +104,11 @@ describe('EditTaskForm', () => {
     expect(stored()[0]).toMatchObject({ title: 'Water the ferns!', dueDate: DUE })
   })
 
-  it('clears the due date when the field is emptied', async () => {
+  it('clears the due date when "No date" is picked', async () => {
     const user = userEvent.setup()
     render(<App />)
     openEditForm()
-    fireEvent.change(screen.getByLabelText('Due date (optional)'), { target: { value: '' } })
+    await chooseDate(user, '')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(stored()[0]!.dueDate).toBeNull()
   })

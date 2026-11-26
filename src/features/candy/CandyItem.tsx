@@ -12,41 +12,33 @@ import { BandageNote } from './BandageNote';
 import { CandyCrack } from './CandyCrack';
 import { GhostCheer } from './GhostCheer';
 import { CANDY_ART_FILL, MonsterShape } from './MonsterShape';
+import { noteOffset, noteRestY } from './notePlacement';
 import './CandyItem.css';
-
 /**
  * Default candy box width in jar user units. The monster art fills
  * CANDY_ART_FILL of the box, so the visible candy is exactly one packing
  * diameter wide and neighbours touch.
  */
 export const DEFAULT_CANDY_SIZE = (JAR_CANDY_RADIUS * 2) / CANDY_ART_FILL;
-
 /** Minimum tappable target in CSS pixels, on every viewport (style rule). */
 export const HIT_MIN_PX = 44;
-
 /** A selected candy lifts straight up by this many jar user units... */
 export const LIFT_OFFSET_UNITS = 40;
-
 /** ...and grows by this factor, so it reads as coming forward out of the jar. */
 export const LIFT_SCALE = 1.2;
-
 /** A press that lasts at least this long (ms) is a hold attempt, not a tap, so its click is ignored. */
 export const TAP_MAX_MS = 250;
-
 /** Arrow key nudge for a selected desk candy, in jar user units (Shift uses the big step). */
 export const NUDGE_STEP = 6;
 export const NUDGE_STEP_BIG = 18;
-
 /** Hint read after the accessible name of a desk candy. */
 export const DESK_HINT = 'Arrow keys move it on the desk when selected';
-
 const ARROWS: Record<string, [number, number]> = {
   ArrowLeft: [-1, 0],
   ArrowRight: [1, 0],
   ArrowUp: [0, -1],
   ArrowDown: [0, 1],
 };
-
 export interface CandyItemProps {
   task: Task;
   /** Candy center in the parent SVG's user units (jar coordinates). */
@@ -71,7 +63,6 @@ export interface CandyItemProps {
   /** Called once after the completion ghost has finished and the candy is unmounted. */
   onDone?: () => void;
 }
-
 /** CSS px per user unit for an element, or 1 when it cannot be measured. */
 function measureScale(el: SVGGraphicsElement | null): number {
   const m = el && typeof el.getScreenCTM === 'function' ? el.getScreenCTM() : null;
@@ -79,14 +70,16 @@ function measureScale(el: SVGGraphicsElement | null): number {
   const s = Math.hypot(m.a, m.b);
   return Number.isFinite(s) && s > 0 ? s : 1;
 }
-
 type Phase = 'idle' | 'completing' | 'gone';
-
 /**
  * One interactive candy, drawn as an SVG <g> centered on (x, y).
  *
  * Layers (inner, rotated by `rotation`): MonsterShape (which draws its decay
  * look) then CandyCrack. The BandageNote sits above the candy, unrotated.
+ * Its sideways and vertical shift, and its tail position, come from
+ * notePlacement.ts so the note stays inside the jar glass (or on screen for
+ * lifted and desk candies). The jar position is the candy's own x and y, and
+ * the zone is `desk ? 'desk' : 'jar'`, so standalone use needs no extra props.
  *
  * Hit area: a transparent, axis-aligned (never rotated) <rect> centered on the
  * candy, sized max(size, 44 / scale) user units, where scale is the rendered
@@ -106,7 +99,7 @@ type Phase = 'idle' | 'completing' | 'gone';
  * SET_DESK_POS, and the click that follows never toggles selection. There is
  * no easing on the drop, so reduced motion needs no special case.
  *
- * Validates: Requirements 3.1, 3.6, 3.7, 4.1, 4.2, 4.3, 4.5, 4.6, 4.10, 12.3, 13.3
+ * Validates: Requirements 3.1, 3.6, 3.7, 3.8, 4.1, 4.2, 4.3, 4.5, 4.6, 4.10, 12.3, 13.3
  */
 export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jarScale, desk, onDone }: CandyItemProps) {
   const { state, dispatch } = useTaskStore();
@@ -126,13 +119,11 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
   const press = useRef<{ cx: number; cy: number } | null>(null);
   const dragging = useRef(false);
   const lastDrag = useRef<{ x: number; y: number } | null>(null);
-
   // A task completed from the context menu never ran the hold gesture, so the
   // phase is still 'idle'; completedAt alone decides, unless the ghost has finished.
   const completing = phase !== 'gone' && task.completedAt !== null;
   // Undo clears completedAt: allow the next completion to show its ghost again.
   if (phase !== 'idle' && task.completedAt === null) setPhase('idle');
-
   useLayoutEffect(() => {
     if (jarScale !== undefined) return;
     const update = () => setMeasured(measureScale(rootRef.current));
@@ -140,10 +131,8 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, [jarScale]);
-
   const scale = jarScale ?? measured;
   const hitSize = Math.max(size, HIT_MIN_PX / scale);
-
   const { handlers, crackProgress } = usePressAndHold({
     onComplete: () => {
       // A drag cancels the hold at the slop; this is a second guard.
@@ -153,15 +142,12 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
     },
     disabled: completing,
   });
-
   const toggleSelect = useCallback(() => {
     dispatch({ type: 'SELECT_TASK', taskId: selected ? null : task.id });
   }, [dispatch, selected, task.id]);
-
   const endPress = () => {
     if (Date.now() - downAt.current >= TAP_MAX_MS) suppressClick.current = true;
   };
-
   const onPointerDown = (e: PointerEvent<SVGGElement>) => {
     downAt.current = Date.now();
     suppressClick.current = false;
@@ -172,7 +158,6 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
         : null;
     handlers.onPointerDown(e);
   };
-
   const onPointerMove = (e: PointerEvent<SVGGElement>) => {
     // The hook cancels the hold once the pointer passes the slop.
     handlers.onPointerMove(e);
@@ -194,7 +179,6 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
     lastDrag.current = next;
     setDragPos(next);
   };
-
   const finishDrag = (save: boolean) => {
     press.current = null;
     if (!dragging.current) return;
@@ -205,19 +189,16 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
     setDragPos(null);
     if (save && drop) dispatch({ type: 'SET_DESK_POS', taskId: task.id, pos: drop });
   };
-
   const onPointerUp = (e: PointerEvent<SVGGElement>) => {
     endPress();
     handlers.onPointerUp(e);
     finishDrag(true);
   };
-
   const onPointerCancel = (e: PointerEvent<SVGGElement>) => {
     endPress();
     handlers.onPointerCancel(e);
     finishDrag(false);
   };
-
   const onClick = () => {
     if (suppressClick.current) {
       suppressClick.current = false;
@@ -226,7 +207,6 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
     if (completing) return;
     toggleSelect();
   };
-
   const onKeyDown = (e: KeyboardEvent<SVGGElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -245,18 +225,16 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
     }
     handlers.onKeyDown(e);
   };
-
   const finish = () => {
     setPhase('gone');
     onDone?.();
   };
-
   if (phase === 'gone' && task.completedAt !== null) return null;
-
   const showNote = !completing && (selected || hovered || focused);
   const half = size / 2;
   const boxScale = size / 100;
   const ghostScale = (size * 1.3) / 100;
+  const note = noteOffset(dragPos?.x ?? x, dragPos?.y ?? y, desk ? 'desk' : 'jar', desk?.compact ?? false, selected, half);
   const liftStyle = {
     transform: selected && !completing
       ? `translateY(${-LIFT_OFFSET_UNITS}px) scale(${LIFT_SCALE})`
@@ -268,7 +246,6 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
     .filter(Boolean)
     .join(' ');
   const hintId = `candy-hint-${task.id}`;
-
   return (
     <g
       ref={rootRef}
@@ -335,11 +312,13 @@ export function CandyItem({ task, x, y, rotation, size = DEFAULT_CANDY_SIZE, jar
           <g
             className="candy-item__note"
             data-testid="candy-note"
-            transform={`translate(0 ${-half - 22})`}
+            data-note-dx={note.dx.toFixed(2)}
+            data-note-dy={note.dy.toFixed(2)}
+            transform={`translate(${note.dx} ${noteRestY(half) + note.dy})`}
             aria-hidden="true"
             pointerEvents="none"
           >
-            <BandageNote taskId={task.id} title={task.title} selected={selected} />
+            <BandageNote taskId={task.id} title={task.title} selected={selected} tailX={note.tailX} />
           </g>
         )}
       </g>

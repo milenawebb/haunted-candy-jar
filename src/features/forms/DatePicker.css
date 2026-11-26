@@ -1,0 +1,87 @@
+.date-picker__panel {
+  width: calc(7 * 44px + 2 * var(--space-3));
+  max-width: 100%;
+  box-sizing: content-box;
+}
+.picker__panel--inline.date-picker__panel {
+  width: 100%;
+  box-sizing: border-box;
+}
+.date-picker__quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.date-picker__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.date-picker__heading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-bandage);
+}
+.date-picker__arrow {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.date-picker__grid {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+.date-picker__dow {
+  height: 28px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-moon-deep);
+}
+.date-picker__cell {
+  padding: 0;
+  text-align: center;
+}
+.date-picker__day {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--color-moon);
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.date-picker__day:hover {
+  background: var(--color-glass);
+}
+.date-picker__day--outside {
+  opacity: 0.45;
+}
+/* Today: a ring plus a small dot (and "Today" in the accessible name). */
+.date-picker__day--today {
+  border-color: var(--color-moon);
+}
+.date-picker__today-dot {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: currentColor;
+}
+/* Chosen day: filled candle-orange circle. */
+.date-picker__day--selected {
+  font-weight: 700;
+  color: var(--color-bg-deep);
+  background: var(--color-candle);
+  border-color: var(--color-candle-deep);
+}
+.date-picker__day--selected:hover {
+  background: var(--color-candle);
+}

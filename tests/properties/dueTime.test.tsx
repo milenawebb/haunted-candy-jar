@@ -11,6 +11,7 @@ import {
 } from '../../src/features/forms/taskFormShared'
 import type { Task } from '../../src/features/tasks/taskTypes'
 import { TASKS_KEY } from '../../src/utils/persistence'
+import { chooseDate, chooseTime } from './pickerHelpers'
 
 const END_OF_DAY = new Date(2030, 4, 17, 23, 59, 59, 999).getTime()
 const AFTERNOON = new Date(2030, 4, 17, 15, 0, 0, 0).getTime()
@@ -74,7 +75,7 @@ describe('AddTaskForm due time', () => {
     render(<App />)
     await user.click(screen.getByRole('button', { name: 'Add a candy' }))
     await user.type(screen.getByLabelText('Title'), 'Feed')
-    fireEvent.change(dateField(), { target: { value: '2030-05-17' } })
+    await chooseDate(user, '2030-05-17')
     await user.click(screen.getByRole('button', { name: 'Add' }))
     expect(stored()[0]!.dueDate).toBe(END_OF_DAY)
   })
@@ -84,8 +85,8 @@ describe('AddTaskForm due time', () => {
     render(<App />)
     await user.click(screen.getByRole('button', { name: 'Add a candy' }))
     await user.type(screen.getByLabelText('Title'), 'Feed')
-    fireEvent.change(dateField(), { target: { value: '2030-05-17' } })
-    fireEvent.change(timeField(), { target: { value: '15:00' } })
+    await chooseDate(user, '2030-05-17')
+    await chooseTime(user, '15:00')
     await user.click(screen.getByRole('button', { name: 'Add' }))
     expect(stored()[0]!.dueDate).toBe(AFTERNOON)
   })
@@ -95,16 +96,17 @@ describe('AddTaskForm due time', () => {
     render(<App />)
     await user.click(screen.getByRole('button', { name: 'Add a candy' }))
     expect(timeField()).toBeDisabled()
-    expect(timeField()).toHaveAttribute('type', 'time')
-    fireEvent.change(dateField(), { target: { value: '2030-05-17' } })
+    expect(timeField()).toHaveAttribute('aria-disabled', 'true')
+    await chooseDate(user, '2030-05-17')
     expect(timeField()).toBeEnabled()
-    fireEvent.change(timeField(), { target: { value: '15:00' } })
-    expect(timeField()).toHaveValue('15:00')
-    fireEvent.change(dateField(), { target: { value: '' } })
+    await chooseTime(user, '15:00')
+    expect(timeField()).toHaveTextContent(/3:00/)
+    await chooseDate(user, '')
+    expect(dateField()).toHaveTextContent('No date')
     expect(timeField()).toBeDisabled()
-    expect(timeField()).toHaveValue('')
-    fireEvent.change(dateField(), { target: { value: '2030-05-18' } })
-    expect(timeField()).toHaveValue('')
+    expect(timeField()).toHaveTextContent('No time')
+    await chooseDate(user, '2030-05-18')
+    expect(timeField()).toHaveTextContent('No time')
   })
 })
 
@@ -122,15 +124,15 @@ describe('EditTaskForm due time', () => {
     seed(makeTask(AFTERNOON))
     render(<App />)
     openEditForm()
-    expect(timeField()).toHaveValue('15:00')
+    expect(timeField()).toHaveTextContent(/3:00/)
   })
 
   it('leaves the time empty for an end-of-day due date', () => {
     seed(makeTask(END_OF_DAY))
     render(<App />)
     openEditForm()
-    expect(dateField()).toHaveValue('2030-05-17')
-    expect(timeField()).toHaveValue('')
+    expect(dateField()).toHaveTextContent('May 17')
+    expect(timeField()).toHaveTextContent('No time')
     expect(timeField()).toBeEnabled()
   })
 
@@ -139,9 +141,10 @@ describe('EditTaskForm due time', () => {
     seed(makeTask(AFTERNOON))
     render(<App />)
     openEditForm()
-    fireEvent.change(timeField(), { target: { value: '18:45' } })
+    // The picker lists 30-minute steps, so 18:30 stands in for the old 18:45.
+    await chooseTime(user, '18:30')
     await user.click(screen.getByRole('button', { name: 'Save' }))
-    expect(stored()[0]!.dueDate).toBe(new Date(2030, 4, 17, 18, 45, 0, 0).getTime())
+    expect(stored()[0]!.dueDate).toBe(new Date(2030, 4, 17, 18, 30, 0, 0).getTime())
   })
 
   it('keeps the original timestamp when date and time are unchanged', async () => {
@@ -149,7 +152,7 @@ describe('EditTaskForm due time', () => {
     seed(makeTask(ODD))
     render(<App />)
     openEditForm()
-    expect(timeField()).toHaveValue('10:30')
+    expect(timeField()).toHaveTextContent(/10:30/)
     await user.type(screen.getByLabelText('Title'), '!')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(stored()[0]!.dueDate).toBe(ODD)

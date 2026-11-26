@@ -1,0 +1,115 @@
+/* Shared look for the date and time pickers: dark glass, like the context menu. */
+.picker {
+  position: relative;
+}
+.picker__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  text-align: left;
+  color: var(--color-bandage-ink);
+  background: var(--color-bandage);
+  border: 2px solid var(--color-candle-deep);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.picker__trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+.picker__trigger:focus-visible,
+.picker__chip:focus-visible,
+.date-picker__day:focus-visible,
+.time-picker__list:focus-visible {
+  outline: 3px solid var(--color-moon);
+  outline-offset: 2px;
+}
+.picker__value--empty {
+  font-style: italic;
+  opacity: 0.7;
+}
+.picker__panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  margin-top: var(--space-1);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-moon);
+  font-family: var(--font-body);
+  background: rgba(26, 10, 46, 0.96);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(220, 235, 255, 0.28);
+  border-radius: 14px;
+  box-shadow:
+    0 8px 24px rgba(13, 5, 20, 0.7),
+    0 0 20px rgba(150, 100, 220, 0.3),
+    inset 0 1px 0 rgba(220, 235, 255, 0.12);
+  animation: picker-pop 150ms ease-out;
+}
+/* On mobile the dropdown sits in the sheet content instead of floating. */
+.picker__panel--inline {
+  position: static;
+  width: 100%;
+  box-sizing: border-box;
+}
+.picker__panel--fade {
+  animation: picker-fade 150ms linear;
+}
+.picker__chip {
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-moon);
+  background: transparent;
+  border: 1px solid var(--color-glass-rim);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.picker__chip:hover {
+  background: var(--color-glass);
+}
+.picker__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@keyframes picker-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes picker-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .picker__panel {
+    animation: picker-fade 150ms linear;
+  }
+}
