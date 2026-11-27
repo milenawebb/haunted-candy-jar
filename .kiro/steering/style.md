@@ -38,6 +38,10 @@ Rules:
 - Background scene animations (optional fog and ghost overlays) freeze into a static composition.
 - Jar lid animation: when reduced motion is active, the lid does not move or tilt, and candies fade in or out (150ms max) instead of dropping or floating. The lid sounds still follow the Sound Toggle.
 - Decay looks (glow halo, ghostly wisps) freeze into static shapes. Crack lines and glow stay visible because they carry state.
+- Contact sparkle (Reached out on a Person): an opacity fade of 150ms max, no moving stars.
+- Celebration candy (birthday and anniversary gift box on the desk): static shape, no bobbing or sparkle motion. The gift shape and text label carry the meaning.
+- Search highlight on the jar view: no transition. The glow, outline ring, check badge, and 40 percent dim of non-matches apply instantly.
+- "+N more on the Shelf" chip and jar switching: no movement, at most a 150ms opacity fade.
 - Apply the CSS media query `@media (prefers-reduced-motion: reduce)` for CSS-only animations.
 - Use the useReducedMotion hook for JS-driven animation decisions.
 
@@ -74,6 +78,15 @@ Pure files (no side effects, no DOM access, no module-level mutable state):
 - exportImport.ts
 - monsterKind.ts
 - packingLayout.ts
+- stageOf.ts, personDecay.ts, rhythm.ts, personHistory.ts
+- selectDesk.ts, fitDesk.ts, celebrations.ts, contactLinks.ts
+- searchIndex.ts, shelfSort.ts, jarRules.ts
+- freshness.ts, streak.ts (stats)
+- mailtoBatch.ts, templates.ts
+- dataSchema.ts, migrate.ts
+- the pure parts of `worker/` (handlers, prompts, rate limit, schemas), with bindings injected
+
+All of these take `now` (the logical clock) as a parameter and never read the real time.
 
 Property-based test requirements:
 - decayFunction: monotonic non-decrease (stage never goes backward as time moves forward).
@@ -81,6 +94,12 @@ Property-based test requirements:
 - Task serialisation: round-trip property (serialize then deserialize equals original, including monster field).
 - taskReducer: undo restores prior task state exactly.
 - whisperGain: total gain across N Cursed candies never exceeds single-whisper default gain.
+- personDecay: stage thresholds match the Rhythm boundaries exactly (0.5, 0.8, 1.0, 1.5 of the period), and the stage never goes backward as time moves forward until a contact resets it.
+- LOG_CONTACT: resets a Person to Fresh, and undo restores the prior Candy exactly.
+- History: capped at 50 entries per Person, and trimming or deleting entries keeps the last contact time consistent.
+- migrate: round trip with no data loss, and idempotent (migrating twice equals migrating once). Import accepts v1 and v2.
+- selectDesk: the desk never exceeds the Desk_Cap for Persons or 3 Cursed tasks, ordering is most overdue first with stable ties, snoozed and non-due Persons never appear.
+- Remaining design properties (celebrations, crowding, search, shelf sort, mailto batching, stats, jar rules, rate limit) are listed in `.kiro/specs/haunted-contacts/design.md` and follow the same rules.
 
 Use fast-check arbitraries to generate random inputs. Run at least 100 iterations per property.
 Tag each test with the requirement it validates (e.g., "Validates: Requirement 8.2").

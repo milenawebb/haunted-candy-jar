@@ -9,7 +9,11 @@
 | Vite | 5+ | Build tool and dev server |
 | Vitest | latest | Unit and property-based test runner |
 | fast-check | latest | Property-based test generators and arbitraries |
-| Zod | latest | Runtime schema validation (import parsing) |
+| Zod | latest | Runtime schema validation (import parsing, AI responses) |
+| Cloudflare Pages Functions | current | Same-origin `/api` endpoints for the optional AI helpers (`functions/api/`, thin adapters over `worker/`) |
+| Workers AI | current | Text model for import and drafts, bound as `AI`. Model IDs are verified at build time from the current Cloudflare docs |
+| Cloudflare KV | current | Rate counter only (hashed key, no contact content), bound in `wrangler.toml` |
+| Wrangler | current | `wrangler.toml` holds the AI and KV bindings and plain vars. No secrets in the repo |
 
 ## Sound: Web Audio API only
 
@@ -32,19 +36,24 @@ Both are declared with `@font-face` in `src/styles/fonts.css` and served from `p
 
 ## Persistence
 
-Tasks are stored in `localStorage` as a JSON array under the key `hcj_tasks`. No IndexedDB, no server, no external service.
+All data lives in `localStorage`. No IndexedDB, no server-side storage, no external service.
+
+- `hcj_data` (version 2) holds candies (Tasks and Persons), jars, settings, and stats.
+- `hcj_tasks` is read only for migration to `hcj_data` and is never rewritten.
+- Any other key keeps the `hcj_` prefix (for example `hcj_sound`).
+- Contact history is capped at 50 entries per Person (newest kept). Dropping old entries never changes the last contact time.
 
 ## Deployment
 
-The app builds to a static bundle (HTML + CSS + JS only) via `vite build`. The output directory is published directly to Cloudflare Pages with no server-side runtime.
+The app builds to a static bundle via `vite build`, published to Cloudflare Pages, plus Cloudflare Pages Functions under `/api` with Workers AI and KV bindings. The functions serve the optional AI features only. They store and log no contact content, and the repo holds no secrets.
 
 ## License
 
 MIT License. The `LICENSE` file at the repository root must contain the full MIT License text. All code is original work created for this hackathon. Nothing is copied from other projects.
 
-## No external dependencies at runtime
+## No network calls at runtime, except AI
 
-The app makes no calls to any external API, CDN, or backend service after the initial page load. It must function fully offline once loaded (a precaching service worker from vite-plugin-pwa provides this).
+The app makes no calls to any external API, CDN, or backend service after the initial page load. The only allowed calls are same-origin `/api` requests that the user starts by tapping an AI action. Everything else must work fully offline once loaded (a precaching service worker from vite-plugin-pwa provides this). The service worker never caches `/api`, and AI actions fall back to local templates when offline.
 
 ## File writing
 
