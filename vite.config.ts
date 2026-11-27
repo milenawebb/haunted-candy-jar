@@ -19,6 +19,8 @@ export default defineConfig({
               globPatterns: ['**/*.{js,css,html,woff2,png,txt}'],
               maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
               navigateFallback: '/index.html',
+              navigateFallbackDenylist: [/^\/api\//],
+              runtimeCaching: [{ urlPattern: ({ url }) => url.pathname.startsWith('/api/'), handler: 'NetworkOnly' }],
               cleanupOutdatedCaches: true,
             },
             manifest: {
