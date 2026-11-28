@@ -6,6 +6,8 @@
   --color-candle-deep: #c85a00;
   --color-moon: #b8d4ff;
   --color-moon-deep: #6090cc;
+  /* Cursed candy halo: pale sickly green (static, no animation) */
+  --color-cursed-glow: #9be37a;
 
   /* Glass */
   --color-glass: rgba(190, 220, 255, 0.18);

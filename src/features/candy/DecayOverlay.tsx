@@ -6,12 +6,14 @@ import './DecayOverlay.css';
 /**
  * Stage-specific decoration drawn in the candy's 100x100 SVG space.
  *
- * - layer "back": radial purple halo behind the candy (Spooky, Haunted, Cursed)
+ * - layer "back": radial halo behind the candy (purple for Spooky and Haunted,
+ *   sickly green with a purple hint for Cursed)
  * - layer "front": wisps (Haunted) and dark warning cracks (Cursed)
  *
  * Cursed cracks are a fixed warning, drawn as thick dark jagged strokes with a
  * faint light edge. They look different from the hairline hold-progress cracks
- * of CandyCrack. Nothing here takes pointer events.
+ * of CandyCrack. Nothing here takes pointer events. The halo is static in
+ * every motion mode.
  */
 export interface DecayOverlayProps {
   stage: DecayStage;
@@ -43,6 +45,21 @@ export function DecayOverlay({ stage, layer, uid, reducedMotion }: DecayOverlayP
     if (look.glowLevel === 0) return null;
     const gradId = `${uid}-halo`;
     const strong = look.glowLevel === 2;
+    if (look.greenGlow) {
+      return (
+        <g className="decay-overlay" data-part="glow-halo" data-glow="green" pointerEvents="none">
+          <defs>
+            <radialGradient id={gradId}>
+              <stop offset="0%" style={{ stopColor: 'var(--color-cursed-glow, #9be37a)' }} stopOpacity="0.4" />
+              <stop offset="55%" style={{ stopColor: 'var(--color-cursed-glow, #9be37a)' }} stopOpacity="0.2" />
+              <stop offset="80%" stopColor="#8a4fd8" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#8a4fd8" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="52" r="64" fill={`url(#${gradId})`} />
+        </g>
+      );
+    }
     return (
       <g className="decay-overlay" data-part="glow-halo" pointerEvents="none">
         <defs>
@@ -58,7 +75,6 @@ export function DecayOverlay({ stage, layer, uid, reducedMotion }: DecayOverlayP
   }
 
   if (look.wisps === 0 && !look.cracks) return null;
-
   return (
     <g className="decay-overlay" pointerEvents="none">
       {look.wisps > 0 && (

@@ -21,6 +21,12 @@ export interface MonsterArtProps {
   highlightOpacity?: number;
   /** Opacity of the four-point sparkle. Default 0.9. */
   sparkleOpacity?: number;
+  /**
+   * Cursed look: a wider, brighter moon-pale rim along the bottom-right edge
+   * (0.6) plus a faint rim along the top-left edge (0.3), so the silhouette
+   * reads on the dark desk. Default false (thin white rim, 0.55 bottom-right).
+   */
+  strongRim?: boolean;
 }
 
 export const DEFAULT_HIGHLIGHT_OPACITY = 0.75;
@@ -53,6 +59,7 @@ export function CandyBase({
   face,
   highlightOpacity = DEFAULT_HIGHLIGHT_OPACITY,
   sparkleOpacity = DEFAULT_SPARKLE_OPACITY,
+  strongRim = false,
   highlightAt = { x: 31, y: 30 },
 }: CandyBaseProps) {
   const bodyId = `${uid}-body`;
@@ -60,6 +67,8 @@ export function CandyBase({
   const rimId = `${uid}-rim`;
   const softId = `${uid}-soft`;
   const { x, y } = highlightAt;
+  const rimColor = strongRim ? '#e6efff' : '#fff';
+
   return (
     <g>
       <defs>
@@ -74,9 +83,10 @@ export function CandyBase({
           <stop offset="100%" stopColor="#000" stopOpacity="0.32" />
         </linearGradient>
         <linearGradient id={rimId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0" />
-          <stop offset="62%" stopColor="#fff" stopOpacity="0" />
-          <stop offset="100%" stopColor="#fff" stopOpacity="0.55" />
+          <stop offset="0%" stopColor={rimColor} stopOpacity={strongRim ? 0.3 : 0} />
+          <stop offset={strongRim ? '28%' : '62%'} stopColor={rimColor} stopOpacity="0" />
+          <stop offset="62%" stopColor={rimColor} stopOpacity="0" />
+          <stop offset="100%" stopColor={rimColor} stopOpacity={strongRim ? 0.6 : 0.55} />
         </linearGradient>
         <filter id={softId} x="-30%" y="-60%" width="160%" height="220%">
           <feGaussianBlur stdDeviation="1.6" />
@@ -88,9 +98,10 @@ export function CandyBase({
       {face}
       <g
         data-part="rim-light"
+        data-rim={strongRim ? 'strong' : undefined}
         fill="none"
         stroke={`url(#${rimId})`}
-        strokeWidth="2"
+        strokeWidth={strongRim ? 3.2 : 2}
         strokeLinecap="round"
         strokeLinejoin="round"
         pointerEvents="none"

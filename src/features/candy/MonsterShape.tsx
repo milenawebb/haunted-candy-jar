@@ -99,6 +99,7 @@ export function MonsterShape({
   const art: MonsterArtProps = {
     highlightOpacity: highlightOpacity ?? look.highlightOpacity,
     sparkleOpacity: sparkleOpacity ?? look.sparkleOpacity,
+    strongRim: look.strongRim,
   };
 
   const content = (
@@ -110,11 +111,12 @@ export function MonsterShape({
       </defs>
       <ellipse
         data-part="contact-shadow"
+        data-shadow={look.strongShadow ? 'strong' : undefined}
         cx="52"
         cy="98"
-        rx="34"
-        ry="5.5"
-        fill="rgba(0,0,0,0.42)"
+        rx={look.strongShadow ? 40 : 34}
+        ry={look.strongShadow ? 7.5 : 5.5}
+        fill={look.strongShadow ? 'rgba(0,0,0,0.62)' : 'rgba(0,0,0,0.42)'}
         filter={`url(#${blurId})`}
       />
       <DecayOverlay stage={decayStage} layer="back" uid={uid} />
