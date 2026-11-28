@@ -17,19 +17,19 @@ Evolve Haunted Candy Jar into a to-do and relationship jar. Order: steering docs
   - Edit `.kiro/steering/style.md`: add the new pure files to the pure list and the properties 1 to 25 to the property test list, and reduced-motion rules for the sparkle, highlight, and crowding chip
   - _Requirements: Steering updates needed_
 
-- [-] 2. Define the Candy union types and zod schemas
+- [x] 2. Define the Candy union types and zod schemas
   - Create `src/features/people/personTypes.ts`: `PersonCandy`, `ContactEntry`, `ImportantDate`, `Rhythm` (`{n, unit: 'day'|'week'|'month'}`), pure `validatePersonInput` (name, email, phone digit, Rhythm 1 to 365, tag dedupe, 30 char date label)
   - Create `src/features/candy/candyTypes.ts`: `Candy = TaskCandy | PersonCandy` with `kind` and `jarId`; keep `taskTypes.ts` unchanged
   - Create `src/features/jars/jarTypes.ts` (`Jar`, default jar ids `jar-clients`, `jar-leads`, `jar-friends`, `jar-todos`) and `Settings`, `Stats`, `DataV2` types
   - Create `src/utils/dataSchema.ts` with the zod `DataV2Schema` and `PersonFieldsSchema`
   - _Requirements: 1.1, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.8, 6.1, 6.2_
-  - [ ]* 2.1 Write property tests for person and Rhythm validation and serialization
+  - [x]* 2.1 Write property tests for person and Rhythm validation and serialization
     - Create `tests/properties/personValidation.test.ts` and `tests/properties/dataSerialization.test.ts`
     - **Property 20: Person and Rhythm validation**
     - **Property 21: Serialization round trip**
     - **Validates: Requirements 2.2 to 2.6, 12.4, 14.6**
 
-- [ ] 3. Implement pure migration and parse helpers
+- [-] 3. Implement pure migration and parse helpers
   - Create `src/utils/migrate.ts` exporting `migrateV1`, `parseStored`, `toExport`, `fromImport` as in the design (deterministic, no clock, no random ids; each Task becomes `{...t, kind: 'task', jarId: 'jar-todos'}`)
   - Keep `exportImport.ts` pure; do not edit it in this task
   - _Requirements: 14.1, 14.2, 14.3, 14.6, 6.10_

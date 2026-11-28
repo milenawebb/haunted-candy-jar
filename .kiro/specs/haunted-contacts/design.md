@@ -288,7 +288,7 @@ type CandyBase = {
 export type TaskCandy = Task & { kind: 'task'; jarId: string }   // all v1 Task fields kept
 export type PersonCandy = CandyBase & {
   kind: 'person'; name: string; phone: string; email: string; tags: string[]; notes: string
-  rhythm: { every: number; unit: 'day' | 'week' | 'month' }
+  rhythm: { n: number; unit: 'day' | 'week' | 'month' }
   importantDates: ImportantDate[]
   lastContactAt: number | null
   snoozedUntil: number | null
@@ -308,7 +308,7 @@ export type DataV2 = { version: 2; candies: Candy[]; jars: Jar[]; settings: Sett
 **Zod (`dataSchema.ts`)** extends `TaskSchema` and reuses `MonsterKindSchema`:
 
 - `TaskCandySchema = TaskSchema.extend({ kind: z.literal('task'), jarId: z.string().min(1) })`.
-- `PersonCandySchema`: `name` trimmed 1 to 80; `phone` max 40 and, when non-empty, `/\d/`; `email` max 254 and, when non-empty, `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`; `tags` up to 20, each 1 to 30, lowercase and unique; `notes` max 2000; `rhythm.every` integer 1 to 365, `unit` enum; `importantDates` up to 10, `label` max 30, `month` 1 to 12, `day` valid for the month (Feb up to 29), `year` optional integer; `history` up to 50 entries, `note` max 500 (an import with more than 50 entries is rejected by the schema); times are finite numbers.
+- `PersonCandySchema`: `name` trimmed 1 to 80; `phone` max 40 and, when non-empty, `/\d/`; `email` max 254 and, when non-empty, `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`; `tags` up to 20, each 1 to 30, lowercase and unique; `notes` max 2000; `rhythm.n` integer 1 to 365, `unit` enum; `importantDates` up to 10, `label` max 30, `month` 1 to 12, `day` valid for the month (Feb up to 29), `year` optional integer; `history` up to 50 entries, `note` max 500 (an import with more than 50 entries is rejected by the schema); times are finite numbers.
 - `CandySchema = z.discriminatedUnion('kind', [TaskCandySchema, PersonCandySchema])`.
 - `JarSchema` (name 1 to 30), `SettingsSchema` (`deskCap` int 1 to 20), `StatsSchema` (`lastContactDay` matches `^\d{4}-\d{2}-\d{2}$` or null), `DataV2Schema` with `version: z.literal(2)`, plus a refine that jar ids are unique and every `jarId` exists.
 - AI rows use `ImportRowSchema` (name, phone, email, tags, notes) shared by the server and the client.
