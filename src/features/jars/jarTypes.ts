@@ -31,6 +31,18 @@ export interface Stats {
   lastContactDay: string | null; // local day key YYYY-MM-DD
 }
 
+/** Default jars (Req 6.1, 6.2). Fixed ids keep migration deterministic. */
+export const DEFAULT_JARS: readonly Jar[] = [
+  { id: DEFAULT_JAR_IDS.clients, name: 'Clients', defaultRhythm: { n: 30, unit: 'day' }, order: 0 },
+  { id: DEFAULT_JAR_IDS.leads, name: 'Leads', defaultRhythm: { n: 14, unit: 'day' }, order: 1 },
+  { id: DEFAULT_JAR_IDS.friends, name: 'Friends', defaultRhythm: { n: 60, unit: 'day' }, order: 2 },
+  { id: DEFAULT_JAR_IDS.todos, name: 'To-dos', defaultRhythm: null, order: 3 },
+];
+
+export const DEFAULT_SETTINGS: Readonly<Settings> = { deskCap: 5, lastContactType: 'call' };
+
+export const DEFAULT_STATS: Readonly<Stats> = { streak: 0, bestStreak: 0, lastContactDay: null };
+
 export interface DataV2 {
   version: 2;
   candies: Candy[];

@@ -1,5 +1,10 @@
 {
-  "pbtResults": {},
+  "pbtResults": {
+    "3.1 Write property tests for migration and import": {
+      "status": "passed",
+      "lastRunTimestamp": 1795895424079
+    }
+  },
   "executionHistory": {
     "1. Update steering files for the new scope (docs only)": [
       {
@@ -37,6 +42,18 @@
         "executionId": "6f1e6c68-e50e-4407-85c9-8779b2a78519",
         "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
         "timestamp": 1795895315905
+      },
+      {
+        "executionId": "6f1e6c68-e50e-4407-85c9-8779b2a78519",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795895440361
+      }
+    ],
+    "3.1 Write property tests for migration and import": [
+      {
+        "executionId": "6f1e6c68-e50e-4407-85c9-8779b2a78519",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795895440336
       }
     ]
   }

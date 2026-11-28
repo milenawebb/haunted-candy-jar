@@ -29,17 +29,17 @@ Evolve Haunted Candy Jar into a to-do and relationship jar. Order: steering docs
     - **Property 21: Serialization round trip**
     - **Validates: Requirements 2.2 to 2.6, 12.4, 14.6**
 
-- [-] 3. Implement pure migration and parse helpers
+- [x] 3. Implement pure migration and parse helpers
   - Create `src/utils/migrate.ts` exporting `migrateV1`, `parseStored`, `toExport`, `fromImport` as in the design (deterministic, no clock, no random ids; each Task becomes `{...t, kind: 'task', jarId: 'jar-todos'}`)
   - Keep `exportImport.ts` pure; do not edit it in this task
   - _Requirements: 14.1, 14.2, 14.3, 14.6, 6.10_
-  - [ ]* 3.1 Write property tests for migration and import
+  - [x]* 3.1 Write property tests for migration and import
     - Create `tests/properties/migrate.test.ts` with generated valid Task lists and valid `DataV2`
     - **Property 7: Migration round trip, no loss, idempotent**
     - **Property 8: Import accepts v1 and v2**
     - **Validates: Requirements 14.1, 14.2, 14.3, 14.5, 14.6, 12.4, 12.5, 6.10**
 
-- [ ] 4. Implement storage v2 with safe load order
+- [-] 4. Implement storage v2 with safe load order
   - Edit `src/utils/persistence.ts`: add `loadAll()` following the design's four-step load order (valid `hcj_data`; invalid or newer version means read-only warning; only `hcj_tasks` means migrate, write, read back and compare; neither means seed). Never delete `hcj_tasks`. Add `saveAll()` that is disabled when the session is read-only
   - Edit `src/features/tasks/taskStore.tsx` to hold `DataV2` and call `loadAll`/`saveAll`; show a non-blocking warning toast on failure ("Could not save yet. Your old candies are safe.")
   - _Requirements: 14.4, 14.5, 12.1_
