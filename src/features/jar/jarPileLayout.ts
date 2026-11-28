@@ -9,7 +9,9 @@ import type { Task } from '../tasks/taskTypes';
 import {
   JAR_CANDY_RADIUS,
   JAR_CAPACITY,
+  JAR_EDGE_INSET,
   JAR_PACK_BOX,
+  JAR_REST_OVERLAP,
 } from './jarGeometry';
 
 /** A candy within this many units of a jar wall gets the glass refraction tint. */
@@ -363,6 +365,8 @@ export function layoutPile(tasks: readonly Task[], compact = false, logicalNow?:
     inJar.map((t) => t.id),
     JAR_PACK_BOX.width,
     JAR_PACK_BOX.height,
+    JAR_EDGE_INSET,
+    JAR_REST_OVERLAP,
   );
   const entries: PileEntry[] = inJar.map((task, i) => {
     const p = packed[i] as Placement;

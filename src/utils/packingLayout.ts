@@ -17,7 +17,7 @@ const MAX_ROTATION = 15;
 /** Evenly spaced drop columns, on top of the contact-derived candidates. */
 const GRID_COLUMNS = 48;
 /** Resting neighbours sit this far inside 2r (fraction of r), so they touch with a tiny squash. */
-const REST_OVERLAP = 0.08;
+export const REST_OVERLAP = 0.08;
 /** Candy radius as a fraction of the shorter box side (candy is about 1/5 of a 320 wide box). */
 const RADIUS_DIVISOR = 10;
 /** FNV-1a 32-bit hash of a string. */
@@ -46,18 +46,29 @@ function rotationFor(id: string): number {
 export function packingRadius(jarWidth: number, jarHeight: number): number {
   return Math.max(1, Math.min(jarWidth / RADIUS_DIVISOR, jarHeight / RADIUS_DIVISOR));
 }
+/**
+ * `edgeInset` (default 0) keeps candy centres that many extra units away from
+ * the left wall, right wall and floor (beyond the packing radius). Neighbours
+ * still use the packing radius. The jar passes visualRadius + margin minus the
+ * packing radius, so the drawn art (larger than the packing circle) stays
+ * inside the glass. `restOverlap` is how far neighbours sink into each other,
+ * as a fraction of the radius.
+ */
 export function computePacking(
   taskIds: string[],
   jarWidth: number,
   jarHeight: number,
+  edgeInset = 0,
+  restOverlap = REST_OVERLAP,
 ): PackedPosition[] {
   if (taskIds.length === 0) return [];
   const radius = packingRadius(jarWidth, jarHeight);
-  const restDist = 2 * radius - REST_OVERLAP * radius;
-  const minX = Math.min(radius, jarWidth / 2);
-  const maxX = Math.max(minX, jarWidth - radius);
+  const restDist = 2 * radius - restOverlap * radius;
+  const edge = radius + Math.max(0, edgeInset);
+  const minX = Math.min(edge, jarWidth / 2);
+  const maxX = Math.max(minX, jarWidth - edge);
   const minY = Math.min(radius, jarHeight / 2);
-  const floorY = Math.max(minY, jarHeight - radius);
+  const floorY = Math.max(minY, jarHeight - edge);
   // Layout depends only on the sorted id set, so each id keeps its spot
   // regardless of input order.
   const order = taskIds.map((id, index) => ({ id, index }));
