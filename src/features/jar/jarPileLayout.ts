@@ -72,8 +72,14 @@ export const SPILL_RIGHT_MIN_COMPACT = 224;
 /** Left side, x range (same on both layouts; 40 keeps the candy edge inside the jar's left edge). */
 export const SPILL_LEFT_MIN = 40;
 export const SPILL_LEFT_MAX = 150;
-/** Number of spill slots over which the fan reaches full width. */
-const SPILL_FAN_COUNT = 14;
+/**
+ * x gap of the slot lattice on each side. Slots alternate between the front
+ * row (y 702) and the back row (y 672), so neighbouring slots are
+ * sqrt(28^2 + 30^2) = 41 apart (above the 38.08 minimum) and slots two apart
+ * are 56 apart (a full candy diameter is 54.4, so they do not overlap). Slots
+ * are counted outward from the jar base.
+ */
+const SPILL_SLOT_STEP = 28;
 
 /** Radius of a spilled candy (32 * 0.85 = 27.2 units). */
 export const SPILL_RADIUS = JAR_CANDY_RADIUS * SPILL_SIZE_FACTOR;
@@ -92,8 +98,6 @@ export const SPILL_MIN_DISTANCE = 1.4 * SPILL_RADIUS;
 const GRID_STEP_X = 2;
 const GRID_STEP_Y = 2;
 const EPS = 1e-9;
-/** Preferred y hugs one of the two band rows (inset up to this much) so the zig-zag stays packable. */
-const ROW_INSET = 2;
 
 /**
  * Where a user may drop a desk candy (centre, jar units). The y range is the
@@ -218,23 +222,27 @@ function sideRange(side: Side, compact: boolean): [number, number] {
 }
 
 /**
- * Hashed preferred desk position for one spilled candy, from its id and its
- * spill index (no collision handling, see spillPositions). Every fourth candy
- * tumbles left (25%), the rest go right. The reach grows with the index so
- * later candies fan out from the jar base, and the id hash adds a random
- * x offset, the band row (top or bottom, inset a little), and the rotation.
+ * Preferred desk position for one spilled candy, from its id (rotation only)
+ * and its spill index (no collision handling, see spillPositions). Every
+ * fourth candy goes left (25%), the rest go right. The k-th candy of a side
+ * takes a slot of that side's lattice (SPILL_SLOT_STEP apart, counted outward
+ * from the jar base). The first half of the slots are the even ones (56 apart,
+ * all in the front row), then the odd slots in between fill the back row, so
+ * the first candies spread out evenly and later ones fill the gaps. Past the
+ * last slot the preferred spot is the outermost slot, which is then taken and
+ * findSpot falls back to the nearest free grid point.
  */
 export function spillPosition(id: string, index: number, compact = false): Placement {
   const side: Side = index % 4 === 3 ? 'left' : 'right';
-  const reach = Math.min(1, (index + 1) / SPILL_FAN_COUNT);
-  const jitter = (hash01(id, 'x') - 0.5) * 36;
+  const k = side === 'left' ? Math.floor(index / 4) : index - Math.floor(index / 4);
   const [xMin, xMax] = sideRange(side, compact);
-  const x = side === 'left' ? xMax - reach * (xMax - xMin) + jitter : xMin + reach * (xMax - xMin) + jitter;
-  const inset = hash01(id, 'i') * ROW_INSET;
-  const top = hash01(id, 'y') < 0.5;
+  const slots = Math.floor((xMax - xMin) / SPILL_SLOT_STEP) + 1;
+  const evens = Math.ceil(slots / 2);
+  const slot = Math.min(slots - 1, k < evens ? 2 * k : 2 * (k - evens) + 1);
+  const x = side === 'left' ? xMax - slot * SPILL_SLOT_STEP : xMin + slot * SPILL_SLOT_STEP;
   return {
-    x: Math.min(xMax, Math.max(xMin, x)),
-    y: top ? SPILL_Y_MIN + inset : SPILL_Y_MAX - inset,
+    x,
+    y: slot % 2 === 0 ? SPILL_Y_MAX : SPILL_Y_MIN,
     rotation: (hash01(id, 'r') * 2 - 1) * SPILL_MAX_ROTATION,
   };
 }
@@ -256,7 +264,7 @@ function gridSweep(side: Side, compact: boolean): Point[] {
 }
 
 /**
- * Free spot for one candy: the hashed preferred spot; else the free grid
+ * Free spot for one candy: the preferred lattice slot; else the free grid
  * point of the same side closest to it (fine sweep, steps of 2 units); else
  * the same on the other side; else (band full) the grid point with the largest
  * minimum distance. Deterministic, never throws.
