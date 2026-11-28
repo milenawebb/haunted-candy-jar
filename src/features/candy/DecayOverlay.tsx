@@ -50,13 +50,13 @@ export function DecayOverlay({ stage, layer, uid, reducedMotion }: DecayOverlayP
         <g className="decay-overlay" data-part="glow-halo" data-glow="green" pointerEvents="none">
           <defs>
             <radialGradient id={gradId}>
-              <stop offset="0%" style={{ stopColor: 'var(--color-cursed-glow, #9be37a)' }} stopOpacity="0.4" />
-              <stop offset="55%" style={{ stopColor: 'var(--color-cursed-glow, #9be37a)' }} stopOpacity="0.2" />
-              <stop offset="80%" stopColor="#8a4fd8" stopOpacity="0.12" />
+              <stop offset="0%" style={{ stopColor: 'var(--color-cursed-glow, #9be37a)' }} stopOpacity="0.6" />
+              <stop offset="55%" style={{ stopColor: 'var(--color-cursed-glow, #9be37a)' }} stopOpacity="0.35" />
+              <stop offset="80%" stopColor="#8a4fd8" stopOpacity="0.14" />
               <stop offset="100%" stopColor="#8a4fd8" stopOpacity="0" />
             </radialGradient>
           </defs>
-          <circle cx="50" cy="52" r="64" fill={`url(#${gradId})`} />
+          <circle cx="50" cy="52" r="70" fill={`url(#${gradId})`} />
         </g>
       );
     }
