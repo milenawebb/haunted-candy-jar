@@ -1,0 +1,24 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Update steering files for the new scope (docs only)": [
+      {
+        "executionId": "6f1e6c68-e50e-4407-85c9-8779b2a78519",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795894753759
+      },
+      {
+        "executionId": "6f1e6c68-e50e-4407-85c9-8779b2a78519",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795894763820
+      }
+    ],
+    "2. Define the Candy union types and zod schemas": [
+      {
+        "executionId": "6f1e6c68-e50e-4407-85c9-8779b2a78519",
+        "chatSessionId": "sess_d32fd653-4b62-45a5-9c9e-ce73277b5c8b",
+        "timestamp": 1795894774235
+      }
+    ]
+  }
+}

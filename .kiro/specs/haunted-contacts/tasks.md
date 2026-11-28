@@ -10,14 +10,14 @@ Evolve Haunted Candy Jar into a to-do and relationship jar. Order: steering docs
 
 ### Phase 1: Contacts core
 
-- [ ] 1. Update steering files for the new scope (docs only)
+- [x] 1. Update steering files for the new scope (docs only)
   - Edit `.kiro/steering/tech.md` per the design's Steering changes table: no network calls except same-origin `/api` calls the user starts by tapping an AI action; static bundle plus Cloudflare Pages Functions with Workers AI and KV bindings (no contact content stored, no secrets in the repo); storage key `hcj_data` (version 2), `hcj_tasks` read for migration only; add Workers AI models, `wrangler.toml`, KV rate counter, and CSP to the stack list
   - Edit `.kiro/steering/product.md`: spooky to-do and relationship jar ("contacts that never go stale"); add Persons, Desk, Jars, Shelf to the core experience and the audience
   - Edit `.kiro/steering/structure.md`: add `people/`, `jars/`, `desk/`, `shelf/`, `ai/`, `stats/`, root `worker/` and `functions/api/`, and the new pure files
   - Edit `.kiro/steering/style.md`: add the new pure files to the pure list and the properties 1 to 25 to the property test list, and reduced-motion rules for the sparkle, highlight, and crowding chip
   - _Requirements: Steering updates needed_
 
-- [ ] 2. Define the Candy union types and zod schemas
+- [-] 2. Define the Candy union types and zod schemas
   - Create `src/features/people/personTypes.ts`: `PersonCandy`, `ContactEntry`, `ImportantDate`, `Rhythm` (`{n, unit: 'day'|'week'|'month'}`), pure `validatePersonInput` (name, email, phone digit, Rhythm 1 to 365, tag dedupe, 30 char date label)
   - Create `src/features/candy/candyTypes.ts`: `Candy = TaskCandy | PersonCandy` with `kind` and `jarId`; keep `taskTypes.ts` unchanged
   - Create `src/features/jars/jarTypes.ts` (`Jar`, default jar ids `jar-clients`, `jar-leads`, `jar-friends`, `jar-todos`) and `Settings`, `Stats`, `DataV2` types
