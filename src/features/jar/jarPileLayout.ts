@@ -50,14 +50,17 @@ export const SPILL_Y_MAX = 702;
 
 /** Spilled candies are drawn at this fraction of the in-jar candy size. */
 export const SPILL_SIZE_FACTOR = 0.85;
+
 /** Rotation limit for spilled candies, degrees. */
 export const SPILL_MAX_ROTATION = 25;
 
 /** Jar centre x. */
 export const SPILL_CENTER_X = 200;
+
 /** Right side, x range. Desktop reaches 520 (320 units, about 220 px at 1280 wide). */
 export const SPILL_RIGHT_MIN = 244;
 export const SPILL_RIGHT_MAX = 520;
+
 /**
  * Compact (mobile, under 768px) right side. The jar is about 90vw wide there,
  * so 372 is the jar's right edge (400) minus a candy radius and a small
@@ -65,37 +68,34 @@ export const SPILL_RIGHT_MAX = 520;
  * the centre).
  */
 export const SPILL_RIGHT_MAX_COMPACT = 372;
+
 /**
- * Compact right side starts a little left of the desktop 244 so the narrow
- * band holds at least 8 spaced candies (candy edge at 224 - 27 = 197, still
- * clear of the jar centre line, in front of the jar base).
+ * Compact right side starts a little left of the desktop 244 (candy edge at
+ * 224 - 27 = 197, still clear of the jar centre line, in front of the jar base).
  */
 export const SPILL_RIGHT_MIN_COMPACT = 224;
+
 /** Left side, x range (same on both layouts; 40 keeps the candy edge inside the jar's left edge). */
 export const SPILL_LEFT_MIN = 40;
 export const SPILL_LEFT_MAX = 150;
-/**
- * x gap of the slot lattice on each side. Slots alternate between the front
- * row (y 702) and the back row (y 672), so neighbouring slots are
- * sqrt(28^2 + 30^2) = 41 apart (above the 38.08 minimum) and slots two apart
- * are 56 apart (a full candy diameter is 54.4, so they do not overlap). Slots
- * are counted outward from the jar base.
- */
-const SPILL_SLOT_STEP = 28;
 
 /** Radius of a spilled candy (32 * 0.85 = 27.2 units). */
 export const SPILL_RADIUS = JAR_CANDY_RADIUS * SPILL_SIZE_FACTOR;
-/** Minimum distance between two spilled candy centres (1.4 x radius, about 38.08 units). */
-export const SPILL_MIN_DISTANCE = 1.4 * SPILL_RADIUS;
+
+/** Minimum distance between two spilled candy centres: a full spilled candy width (2 x radius, 54.4 units). */
+export const SPILL_MIN_DISTANCE = 2 * SPILL_RADIUS;
+
 /**
- * Capacity at the minimum distance. The band is only 30 units tall (less than
- * the minimum distance), so candies zig-zag between the top and bottom edge:
- * neighbours need an x gap of about sqrt(38.08^2 - 28^2) = 26, same-row
- * neighbours then sit 52 apart. That is about one candy per 26 units of x:
- *   desktop: right 276 wide (about 11) + left 110 wide (about 5) = 16
- *   compact: right 148 wide (about 6) + left 110 wide (about 5) = 11, so 8 fit
- * Beyond that, extra candies take the spot with the largest minimum distance
- * (they overlap a little, but never throw).
+ * The band is only 30 units tall, less than the minimum distance, so the
+ * desk is one row of candies at the front row (y 702), SPILL_MIN_DISTANCE
+ * apart. The slot lattice is anchored at the right limit and counted inward,
+ * which packs the row with no wasted gap (a lattice anchored at the jar base
+ * strands space at the compact left edge). Slots are then ordered by use, see
+ * deskSlotPositions.
+ *
+ * Beyond the last slot, extra candies take the grid spot with the largest
+ * minimum distance (they overlap a little, but never throw). The
+ * haunted-contacts spec shows a "+N more on the Shelf" chip there.
  */
 const GRID_STEP_X = 2;
 const GRID_STEP_Y = 2;
@@ -107,8 +107,8 @@ const EPS = 1e-9;
  * and 40 to 372 on compact. The gap between the left and right spill sides
  * (x 150 to 244) is allowed here: the band lies below the glass base (y 656),
  * so a candy there rests on the desk in front of the jar and never inside the
- * jar body. 40 and the compact 372 keep the candy on screen; the automatic
- * scatter simply avoids the gap, a user drop does not have to.
+ * jar body. 40 and the compact 372 keep the candy on screen. The automatic
+ * layout uses the gap last.
  */
 export function deskBandBounds(compact: boolean): { xMin: number; xMax: number; yMin: number; yMax: number } {
   return {
@@ -214,40 +214,7 @@ function hash01(id: string, salt: string): number {
   return (h >>> 0) / 4294967296;
 }
 
-type Side = 'left' | 'right';
 type Point = { x: number; y: number };
-
-function sideRange(side: Side, compact: boolean): [number, number] {
-  return side === 'left'
-    ? [SPILL_LEFT_MIN, SPILL_LEFT_MAX]
-    : [compact ? SPILL_RIGHT_MIN_COMPACT : SPILL_RIGHT_MIN, compact ? SPILL_RIGHT_MAX_COMPACT : SPILL_RIGHT_MAX];
-}
-
-/**
- * Preferred desk position for one spilled candy, from its id (rotation only)
- * and its spill index (no collision handling, see spillPositions). Every
- * fourth candy goes left (25%), the rest go right. The k-th candy of a side
- * takes a slot of that side's lattice (SPILL_SLOT_STEP apart, counted outward
- * from the jar base). The first half of the slots are the even ones (56 apart,
- * all in the front row), then the odd slots in between fill the back row, so
- * the first candies spread out evenly and later ones fill the gaps. Past the
- * last slot the preferred spot is the outermost slot, which is then taken and
- * findSpot falls back to the nearest free grid point.
- */
-export function spillPosition(id: string, index: number, compact = false): Placement {
-  const side: Side = index % 4 === 3 ? 'left' : 'right';
-  const k = side === 'left' ? Math.floor(index / 4) : index - Math.floor(index / 4);
-  const [xMin, xMax] = sideRange(side, compact);
-  const slots = Math.floor((xMax - xMin) / SPILL_SLOT_STEP) + 1;
-  const evens = Math.ceil(slots / 2);
-  const slot = Math.min(slots - 1, k < evens ? 2 * k : 2 * (k - evens) + 1);
-  const x = side === 'left' ? xMax - slot * SPILL_SLOT_STEP : xMin + slot * SPILL_SLOT_STEP;
-  return {
-    x,
-    y: slot % 2 === 0 ? SPILL_Y_MAX : SPILL_Y_MIN,
-    rotation: (hash01(id, 'r') * 2 - 1) * SPILL_MAX_ROTATION,
-  };
-}
 
 /** Smallest distance from (x, y) to any placed centre (Infinity when none). */
 function nearest(x: number, y: number, placed: readonly Point[]): number {
@@ -256,49 +223,105 @@ function nearest(x: number, y: number, placed: readonly Point[]): number {
   return best;
 }
 
-function gridSweep(side: Side, compact: boolean): Point[] {
-  const [xMin, xMax] = sideRange(side, compact);
+/**
+ * Every non-overlapping slot of the desk row, in the order candies take them.
+ *
+ * Candidates run along the front row from the right limit inward, stepping
+ * SPILL_MIN_DISTANCE, and a candidate is kept only when it is inside the band
+ * and at least SPILL_MIN_DISTANCE from every kept slot (greedy). The kept slots
+ * split into the right side (x >= right min), the left side (x <= 150) and the
+ * gap in front of the jar (between them). Use order: the right side outward
+ * from the jar, with every fourth candy on the left side (outward from the
+ * jar, about 75 percent right) while both have slots, then whichever side is
+ * left, and the gap in front of the jar last.
+ */
+export function deskSlotPositions(compact = false): Point[] {
+  const b = deskBandBounds(compact);
+  const rightMin = compact ? SPILL_RIGHT_MIN_COMPACT : SPILL_RIGHT_MIN;
+  const kept: Point[] = [];
+  for (let x = b.xMax; x >= b.xMin - EPS; x -= SPILL_MIN_DISTANCE) {
+    const c = { x, y: SPILL_Y_MAX };
+    if (nearest(c.x, c.y, kept) >= SPILL_MIN_DISTANCE - EPS) kept.push(c);
+  }
+  const right = kept.filter((p) => p.x >= rightMin).sort((a, c) => a.x - c.x);
+  const left = kept.filter((p) => p.x <= SPILL_LEFT_MAX).sort((a, c) => c.x - a.x);
+  const gap = kept
+    .filter((p) => p.x < rightMin && p.x > SPILL_LEFT_MAX)
+    .sort((a, c) => Math.abs(a.x - SPILL_CENTER_X) - Math.abs(c.x - SPILL_CENTER_X));
+  const order: Point[] = [];
+  let r = 0;
+  let l = 0;
+  while (order.length < kept.length - gap.length) {
+    const wantLeft = order.length % 4 === 3;
+    if ((wantLeft && l < left.length) || r >= right.length) order.push(left[l++]!);
+    else order.push(right[r++]!);
+  }
+  return [...order, ...gap];
+}
+
+/**
+ * The most desk candies that fit with no overlap (centre distance >=
+ * SPILL_MIN_DISTANCE) inside the band: the slot count of deskSlotPositions.
+ * Candies beyond it take the largest-minimum-distance fallback and may overlap.
+ */
+export function deskSlots(compact = false): number {
+  return deskSlotPositions(compact).length;
+}
+
+/**
+ * Preferred desk position for one spilled candy, from its id (rotation only)
+ * and its spill index (no collision handling, see spillPositions). The k-th
+ * candy takes the k-th slot of deskSlotPositions. Past the last slot the
+ * preferred spot is the last slot, which is then taken and findSpot falls
+ * back to the grid point with the largest minimum distance.
+ */
+export function spillPosition(id: string, index: number, compact = false): Placement {
+  const slots = deskSlotPositions(compact);
+  const slot = slots[Math.min(index, slots.length - 1)]!;
+  return {
+    x: slot.x,
+    y: slot.y,
+    rotation: (hash01(id, 'r') * 2 - 1) * SPILL_MAX_ROTATION,
+  };
+}
+
+function gridSweep(compact: boolean): Point[] {
+  const b = deskBandBounds(compact);
   const out: Point[] = [];
-  for (let x = xMin; x <= xMax + EPS; x += GRID_STEP_X) {
-    for (let y = SPILL_Y_MIN; y <= SPILL_Y_MAX + EPS; y += GRID_STEP_Y) out.push({ x, y });
+  for (let x = b.xMin; x <= b.xMax + EPS; x += GRID_STEP_X) {
+    for (let y = b.yMin; y <= b.yMax + EPS; y += GRID_STEP_Y) out.push({ x, y });
   }
   return out;
 }
 
 /**
- * Free spot for one candy: the preferred lattice slot; else the free grid
- * point of the same side closest to it (fine sweep, steps of 2 units); else
- * the same on the other side; else (band full) the grid point with the largest
- * minimum distance. Deterministic, never throws.
+ * Free spot for one candy: the preferred slot; else the free grid point
+ * (steps of 2 units, whole band) closest to it; else (band full) the grid
+ * point with the largest minimum distance. Deterministic, never throws.
  */
 function findSpot(id: string, index: number, compact: boolean, placed: readonly Point[]): Point {
   const pref = spillPosition(id, index, compact);
-  const side: Side = index % 4 === 3 ? 'left' : 'right';
   const free = (p: Point) => nearest(p.x, p.y, placed) >= SPILL_MIN_DISTANCE - EPS;
   if (free(pref)) return pref;
-  const sides: Side[] = side === 'left' ? ['left', 'right'] : ['right', 'left'];
-  for (const s of sides) {
-    let found: Point | null = null;
-    let foundD = Infinity;
-    for (const c of gridSweep(s, compact)) {
-      if (!free(c)) continue;
-      const d = Math.hypot(c.x - pref.x, c.y - pref.y);
-      if (d < foundD - EPS) {
-        foundD = d;
-        found = c;
-      }
+  const sweep = gridSweep(compact);
+  let found: Point | null = null;
+  let foundD = Infinity;
+  for (const c of sweep) {
+    if (!free(c)) continue;
+    const d = Math.hypot(c.x - pref.x, c.y - pref.y);
+    if (d < foundD - EPS) {
+      foundD = d;
+      found = c;
     }
-    if (found) return found;
   }
+  if (found) return found;
   let best: Point = pref;
   let bestD = -1;
-  for (const s of sides) {
-    for (const c of gridSweep(s, compact)) {
-      const d = nearest(c.x, c.y, placed);
-      if (d > bestD + EPS) {
-        bestD = d;
-        best = c;
-      }
+  for (const c of sweep) {
+    const d = nearest(c.x, c.y, placed);
+    if (d > bestD + EPS) {
+      bestD = d;
+      best = c;
     }
   }
   return best;

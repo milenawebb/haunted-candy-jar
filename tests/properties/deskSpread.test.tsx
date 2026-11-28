@@ -9,6 +9,7 @@ import {
   SPILL_MIN_DISTANCE,
   SPILL_RIGHT_MIN_COMPACT,
   deskBandBounds,
+  deskSlots,
   layoutPile,
 } from '../../src/features/jar/jarPileLayout';
 import { TaskStoreProvider } from '../../src/features/tasks/taskStore';
@@ -72,6 +73,7 @@ describe('desk spread (escaped and overflow share one placement)', () => {
       const now = Date.now();
       const desk = layoutPile(buildDemoTasks(45, now), compact, now).filter((e) => e.zone === 'desk');
       expect(desk).toHaveLength(5);
+      expect(desk.length).toBeLessThanOrEqual(deskSlots(compact));
       expect(desk.filter((e) => e.escaped)).toHaveLength(3);
       expect(minPairDistance(desk)).toBeGreaterThanOrEqual(SPILL_MIN_DISTANCE - EPS);
     });
@@ -92,7 +94,7 @@ describe('desk spread (escaped and overflow share one placement)', () => {
     });
   }
 
-  it('Validates: Requirement 13.2 (mixed escaped and overflow candies stay apart, in the band, on both sides)', () => {
+  it('Validates: Requirement 13.2 (mixed escaped and overflow candies, up to deskSlots, stay apart, in the band, on both sides)', () => {
     const now = Date.now();
     const jarTask = (i: number): Task => ({
       id: `jar-${i}`,
@@ -106,10 +108,11 @@ describe('desk spread (escaped and overflow share one placement)', () => {
     const jarFill = Array.from({ length: JAR_CAPACITY }, (_, i) => jarTask(i));
     fc.assert(
       fc.property(
-        fc.uniqueArray(fc.uuid(), { minLength: 0, maxLength: 14 }),
+        fc.uniqueArray(fc.uuid(), { minLength: 0, maxLength: deskSlots(false) }),
         fc.nat(14),
         fc.boolean(),
-        (ids, split, compact) => {
+        (allIds, split, compact) => {
+          const ids = allIds.slice(0, deskSlots(compact));
           const cut = Math.min(split, ids.length);
           const escapedIds = ids.slice(0, cut);
           const overflowIds = ids.slice(cut);

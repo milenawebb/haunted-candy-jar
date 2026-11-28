@@ -166,7 +166,7 @@ Evolve Haunted Candy Jar into a to-do and relationship jar. Order: steering docs
 - [ ] 19. Implement celebration candy visuals and the desk crowding chip
   - Create `src/features/desk/CelebrationCandy.tsx` (distinct star-shaped candy with a text cue such as "Birthday", a 44 px hit area; static under reduced motion)
   - Create `src/features/desk/DeskMoreChip.tsx` ("+N more on the Shelf", a button that opens the Shelf once task 25 exists, otherwise opens nothing yet and stays a visible label)
-  - Edit `JarPile.tsx` to render both using `fitDesk` with `deskSlots(compact)` of 16 and 11
+  - Edit `JarPile.tsx` to render both using `fitDesk` with `deskSlots(compact)` of 9 (desktop) and 7 (mobile), already exported by `jarPileLayout.ts`
   - _Requirements: 5.5, 5.6, 5.7, 13.3, 13.5, 13.6_
 
 - [ ] 20. Checkpoint, run all tests

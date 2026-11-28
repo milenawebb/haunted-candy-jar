@@ -9,7 +9,6 @@ import {
 import {
   NEAR_WALL_DISTANCE,
   SPILL_CENTER_X,
-  SPILL_LEFT_MAX,
   SPILL_LEFT_MIN,
   SPILL_MAX_ROTATION,
   SPILL_RIGHT_MAX,
@@ -17,6 +16,7 @@ import {
   SPILL_SIZE_FACTOR,
   SPILL_Y_MAX,
   SPILL_Y_MIN,
+  deskSlots,
   isNearWall,
   layoutPile,
   partitionTasks,
@@ -96,45 +96,41 @@ describe('spillPositions', () => {
           expect(p.x).toBeGreaterThanOrEqual(SPILL_LEFT_MIN);
           expect(p.x).toBeLessThanOrEqual(xMax);
           expect(Math.abs(p.rotation)).toBeLessThanOrEqual(SPILL_MAX_ROTATION);
-          // Never over the jar body itself.
-          expect(p.x < SPILL_LEFT_MAX + 1 || p.x > SPILL_CENTER_X).toBe(true);
         }
       }),
       { numRuns: 100 },
     );
   });
 
-  // Spill candies zig-zag between two rows inside the 30 unit band, so the number of
-  // distinct rounded y values can be as few as 3. The meaningful property is that
-  // both rows are used, so check the y span instead of counting distinct values.
-  const checkMostlyRightAndBothRows = (ids: string[]) => {
-    const pos = spillPositions(ids);
+  // The desk is one row, so the meaningful property is where the first candies
+  // go: about 75 percent right of the jar centre while slots allow (the left
+  // side and the gap in front of the jar come after).
+  const checkMostlyRight = (ids: string[]) => {
+    const pos = spillPositions(ids.slice(0, deskSlots(false)));
     const right = pos.filter((p) => p.x > SPILL_CENTER_X).length;
     expect(right / pos.length).toBeGreaterThanOrEqual(0.6);
-    const ys = pos.map((p) => p.y);
-    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThanOrEqual(20);
   };
 
-  it('Validates: Requirement 13.2 (mostly right of the jar centre, y varies)', () => {
+  it('Validates: Requirement 13.2 (mostly right of the jar centre)', () => {
     fc.assert(
       fc.property(idList(20, 20), (ids) => {
-        checkMostlyRightAndBothRows(ids);
+        checkMostlyRight(ids);
       }),
       { numRuns: 100 },
     );
   });
 
-  it('Validates: Requirement 13.2 (regression: seed 1078746940, mostly right, both rows used)', () => {
+  it('Validates: Requirement 13.2 (regression: seed 1078746940, mostly right)', () => {
     fc.assert(
       fc.property(idList(20, 20), (ids) => {
-        checkMostlyRightAndBothRows(ids);
+        checkMostlyRight(ids);
       }),
       { seed: 1078746940, numRuns: 100 },
     );
   });
 
-  it('Validates: Requirement 13.2 (regression: shrunk counterexample ids, mostly right, both rows used)', () => {
-    checkMostlyRightAndBothRows([
+  it('Validates: Requirement 13.2 (regression: shrunk counterexample ids, mostly right)', () => {
+    checkMostlyRight([
       '82e17400-5dab-54a8-aec8-f443d5cd464f',
       '47faabad-6e81-2a5f-bfff-eff900000003',
       '0000009b-0000-1000-8000-000000000000',
